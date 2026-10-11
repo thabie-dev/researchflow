@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project-Managed Research Tool</title>
+
+<style>
+:root{
+    --primary:#0F4C81;
+    --primary-dark:#0A3558;
+    --secondary:#1E88E5;
+    --light-blue:#EAF4FF;
+    --orange:#F26A2E;
+    --orange-dark:#D9551D;
+    --cream:#FAF8F3;
+    --dark:#1F2937;
+    --muted:#6B7280;
+    --border:#E5E7EB;
+    --radius:16px;
+    --shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", Arial, sans-serif;}
+body{background:var(--cream);color:var(--dark);}
+.app{display:flex;min-height:100vh;}
+
+.sidebar{width:320px;background:linear-gradient(180deg,var(--primary),var(--primary-dark));color:white;padding:22px;position:fixed;height:100vh;overflow-y:auto;}
+.logo{font-size:24px;font-weight:800;margin-bottom:25px;}
+.logo span{color:var(--orange);}
+.sidebar a{display:block;color:white;text-decoration:none;padding:11px 13px;border-radius:12px;margin-bottom:6px;font-size:14px;}
+.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.18);}
+.sidebar-section{margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.25);}
+.sidebar-section h3{font-size:15px;margin-bottom:12px;}
+.sidebar-progress-item{margin-bottom:14px;}
+.sidebar-progress-item p{font-size:12px;margin-bottom:6px;}
+.mini-progress{height:8px;background:rgba(255,255,255,0.22);border-radius:20px;overflow:hidden;}
+.mini-progress-bar{height:100%;background:var(--orange);}
+.sidebar-task{background:rgba(255,255,255,0.12);padding:12px;border-radius:12px;margin-bottom:10px;}
+.sidebar-task h4{font-size:13px;margin-bottom:5px;}
+.sidebar-task p{font-size:12px;line-height:1.4;}
+
+.main{margin-left:320px;padding:30px;width:calc(100% - 320px);}
+
+.top-belt{background:white;padding:40px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:25px;border-left:7px solid var(--orange);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+.belt-header{max-width:900px;}
+.belt-title{color:var(--primary);font-size:42px;font-weight:800;margin-bottom:15px;}
+.belt-subtitle{color:var(--muted);font-size:17px;line-height:1.8;max-width:850px;margin:0 auto 30px auto;text-align:center;}
+.belt-links{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;}
+.belt-links button{background:var(--orange);color:white;border:none;padding:15px 30px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:0.3s ease;}
+.belt-links button:hover{background:var(--orange-dark);}
+.journal-btn{background:var(--secondary) !important;}
+
+.section-title{color:var(--primary);margin:28px 0 15px;}
+.action-panel,.hero,.add-task,.ethics-box,.assistant-box{background:white;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:25px;}
+.action-panel{display:none;border-left:6px solid var(--orange);}
+.hero p,.stage-card p,.tool-card p,.assistant-result p,.ethics-result p,.journal-card p{text-align:justify;}
+.hero h1{color:var(--primary);font-size:28px;margin-bottom:10px;}
+.hero p{color:var(--muted);line-height:1.7;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:25px;}
+.stat-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);}
+.stat-card h3{color:var(--muted);font-size:13px;margin-bottom:8px;}
+.stat-card strong{font-size:28px;color:var(--primary);}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px;}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;outline:none;}
+textarea{margin-top:15px;resize:vertical;}
+button{background:var(--orange);color:white;border:none;padding:12px 20px;border-radius:12px;font-weight:700;cursor:pointer;}
+button:hover{background:var(--orange-dark);}
+button:disabled{opacity:0.6;cursor:not-allowed;}
+
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px;}
+.pending{background:#FFF3D6;color:#C08A00;}
+.progress{background:#DDEEFF;color:#1E88E5;}
+.review{background:#E8F2FF;color:#0F4C81;}
+.done{background:#DCFCE7;color:#15803D;}
+
+.ethics-result,.assistant-result{margin-top:18px;padding:18px;border-radius:14px;background:var(--light-blue);border-left:6px solid var(--secondary);}
+.ethics-result h3,.assistant-result h3{color:var(--primary);margin-bottom:8px;}
+.ethics-result p,.assistant-result p{color:var(--muted);line-height:1.6;}
+.assistant-result ul{margin-left:22px;color:var(--muted);line-height:1.7;}
+.ethics-extra{display:none;margin-top:18px;}
+
+.lifecycle{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.stage-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border-top:5px solid var(--secondary);cursor:pointer;transition:0.2s ease;}
+.stage-card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,0.10);}
+.stage-number{background:var(--orange);color:white;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;margin-bottom:10px;}
+.stage-card h3{color:var(--primary);margin-bottom:8px;font-size:18px;}
+.stage-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:10px;}
+.tag{display:inline-block;background:var(--light-blue);color:var(--primary);padding:6px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px;}
+
+.workspace,.journal-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+.tool-card,.journal-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border-left:6px solid var(--orange);}
+.journal-card{background:var(--light-blue);border-left:5px solid var(--secondary);}
+.tool-card h3,.journal-card h4{color:var(--primary);margin-bottom:8px;}
+.tool-card p,.journal-card p{color:var(--muted);line-height:1.6;font-size:14px;}
+
+/* --- AI tools panel (new) --- */
+.ai-tools-panel{margin-top:18px;padding:18px;border-radius:14px;background:#FFF8F3;border-left:6px solid var(--orange);}
+.ai-tools-panel h3{color:var(--primary);margin-bottom:4px;}
+.ai-tools-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.ai-tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.ai-tool-card{background:white;border:1px solid var(--border);border-radius:12px;padding:14px;}
+.ai-tool-card h4{font-size:14px;color:var(--primary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.ai-tool-card p{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.ai-tool-card a{font-size:12px;font-weight:700;color:var(--secondary);text-decoration:none;}
+.embeddable-pill{font-size:10px;font-weight:700;padding:3px 7px;border-radius:20px;background:#DCFCE7;color:#15803D;white-space:nowrap;}
+.status-line{font-size:12px;color:var(--muted);margin-top:6px;}
+
+@media(max-width:900px){
+    .sidebar{position:relative;width:100%;height:auto;}
+    .main{margin-left:0;width:100%;}
+    .app{flex-direction:column;}
+    .belt-title{font-size:32px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo">Research<span>Flow</span></div>
+
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Problem Statement</a>
+        <a href="#">Concept Note</a>
+        <a href="#">Literature Review</a>
+        <a href="#">Frameworks</a>
+        <a href="#">Methodology</a>
+        <a href="#">Ethics Decision</a>
+        <a href="#">Data Collection</a>
+        <a href="#">Data Analysis</a>
+        <a href="#">Writing Tracker</a>
+        <a href="#">Submission</a>
+
+        <div class="sidebar-section">
+            <h3>Research Progress</h3>
+            <div class="sidebar-progress-item">
+                <p>Problem Statement — 85%</p>
+                <div class="mini-progress"><div class="mini-progress-bar" style="width:85%;"></div></div>
+            </div>
+            <div class="sidebar-progress-item">
+                <p>Literature Review — 55%</p>
+                <div class="mini-progress"><div class="mini-progress-bar" style="width:55%;"></div></div>
+            </div>
+            <div class="sidebar-progress-item">
+                <p>Methodology — 40%</p>
+                <div class="mini-progress"><div class="mini-progress-bar" style="width:40%;"></div></div>
+            </div>
+            <div class="sidebar-progress-item">
+                <p>Final Paper — 20%</p>
+                <div class="mini-progress"><div class="mini-progress-bar" style="width:20%;"></div></div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>Mini Kanban</h3>
+            <div id="todo"></div>
+            <div id="progress"></div>
+            <div id="review"></div>
+            <div id="done"></div>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <div class="top-belt">
+            <div class="belt-header">
+                <h1 class="belt-title">Project-Managed Research Tool</h1>
+                <p class="belt-subtitle">
+                    An integrated platform that treats research as a managed project.
+                    The system guides researchers from problem statement formulation,
+                    literature review and methodology development to data analysis,
+                    writing, submission and publication — with a live, self-updating
+                    directory of AI tools suited to each stage.
+                </p>
+            </div>
+            <div class="belt-links">
+                <button onclick="showPanel('newProjectPanel')">Create New Project</button>
+                <button class="journal-btn" onclick="showPanel('journalPanel')">Find Journals</button>
+            </div>
+        </div>
+
+        <section class="action-panel" id="newProjectPanel">
+            <h2 class="section-title">Create a New Research Project</h2>
+            <div class="form-grid">
+                <input type="text" id="newProjectTitle" placeholder="Project title">
+                <input type="text" id="newProjectField" placeholder="Research field e.g. Education, ESG, Chemistry">
+                <input type="date" id="newProjectDeadline">
+                <button onclick="createNewProject()">Create Project</button>
+            </div>
+            <div class="assistant-result" id="newProjectResult">
+                <h3>Project Setup</h3>
+                <p>Enter the project details to initialise a new research workflow.</p>
+            </div>
+        </section>
+
+        <section class="action-panel" id="journalPanel">
+            <h2 class="section-title">Find Suggested Journals</h2>
+            <div class="form-grid">
+                <input type="text" id="journalTopic" placeholder="Enter topic or keywords">
+                <select id="journalField">
+                    <option value="general">General Research</option>
+                    <option value="education">Education</option>
+                    <option value="technology">Technology / AI / Information Systems</option>
+                    <option value="sustainability">Sustainability / ESG</option>
+                    <option value="science">Science / Laboratory Research</option>
+                    <option value="business">Business / Management</option>
+                </select>
+                <button onclick="findJournals()">Suggest Journals</button>
+            </div>
+            <div class="journal-list" id="journalList">
+                <div class="journal-card">
+                    <h4>No journals suggested yet</h4>
+                    <p>Enter your topic and field to generate possible publication outlets.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card"><h3>Active Research Projects</h3><strong id="statProjects">0</strong></div>
+            <div class="stat-card"><h3>Research Stages</h3><strong>11</strong></div>
+            <div class="stat-card"><h3>Pending Tasks</h3><strong id="statPending">0</strong></div>
+            <div class="stat-card"><h3>Overall Progress</h3><strong id="statProgress">0%</strong></div>
+        </section>
+
+        <h2 class="section-title">Add a Research Task</h2>
+        <section class="add-task">
+            <div class="form-grid">
+                <input type="text" id="taskTitle" placeholder="Task title e.g. Draft problem statement">
+                <select id="taskStage">
+                    <option value="todo">To Do</option>
+                    <option value="progress">In Progress</option>
+                    <option value="review">Review</option>
+                    <option value="done">Done</option>
+                </select>
+                <input type="text" id="taskOutput" placeholder="Expected output e.g. 2-page draft">
+                <button onclick="addTask()">Add Task</button>
+            </div>
+        </section>
+
+        <h2 class="section-title">Research Assistant Workspace</h2>
+        <section class="assistant-box">
+            <div class="form-grid">
+                <select id="researchStage" onchange="onStageChange()">
+                    <option value="problem">Problem Statement & Concept Note</option>
+                    <option value="literature">Literature Review</option>
+                    <option value="framework">Conceptual & Theoretical Framework</option>
+                    <option value="methodology">Methodology</option>
+                    <option value="datacollection">Data Collection</option>
+                    <option value="dataanalysis">Data Analysis</option>
+                    <option value="results">Results & Discussion</option>
+                    <option value="conclusion">Conclusion & Recommendations</option>
+                    <option value="publication">Submission & Publication</option>
+                </select>
+                <input type="text" id="researchTopic" placeholder="Enter your research topic">
+                <button onclick="generateResearchSupport()">Generate Support</button>
+            </div>
+
+            <textarea id="researchInput" rows="5" placeholder="Paste your research idea, problem statement, concept note, objectives, or draft text here..."></textarea>
+
+            <div class="assistant-result" id="assistantResult">
+                <h3>Research Support Output</h3>
+                <p>Select a research stage and enter your topic to receive structured guidance.</p>
+            </div>
+
+            <div class="ai-tools-panel" id="aiToolsPanel">
+                <h3>AI Tools You Can Use For This Stage</h3>
+                <p class="ai-tools-meta" id="aiToolsMeta">Select a stage above to load live suggestions.</p>
+                <div class="ai-tools-grid" id="aiToolsGrid"></div>
+            </div>
+        </section>
+
+        <h2 class="section-title">Ethics Decision</h2>
+        <section class="ethics-box">
+            <div class="form-grid">
+                <select id="ethicsStatus" onchange="updateEthicsStatus()">
+                    <option value="">Select ethics status</option>
+                    <option value="not_required">Ethics Not Required</option>
+                    <option value="required">Ethics Required</option>
+                    <option value="approved">Ethics Approved</option>
+                </select>
+                <input type="text" id="ethicsReason" placeholder="Reason e.g. secondary data / surveys / interviews">
+            </div>
+            <div class="ethics-extra" id="ethicsExtra">
+                <div class="form-grid">
+                    <input type="text" id="ethicsAppNumber" placeholder="Ethics application / approval number">
+                    <input type="date" id="ethicsApprovalDate">
+                    <input type="text" id="ethicsCommittee" placeholder="Ethics committee name">
+                    <input type="file" id="ethicsFile">
+                </div>
+            </div>
+            <div class="ethics-result" id="ethicsResult">
+                <h3>Awaiting Ethics Decision</h3>
+                <p>Select whether ethics is not required, required, or already approved.</p>
+            </div>
+        </section>
+
+        <h2 class="section-title">Research Lifecycle as a Project</h2>
+        <p style="color:var(--muted);margin-bottom:12px;font-size:14px;">Click any stage to load its live AI tools list below.</p>
+
+        <section class="lifecycle">
+            <div class="stage-card" data-stage="problem"><div class="stage-number">1</div><h3>Problem Statement</h3><p>Develop topic, background, literature gap, research problem, aim, objectives, and research questions.</p><span class="tag">Research Gap</span><span class="tag">Problem</span><span class="tag">Objectives</span></div>
+            <div class="stage-card" data-stage="problem"><div class="stage-number">2</div><h3>Concept Note</h3><p>Summarise the study rationale, contribution, scope, methods, expected outputs, and feasibility.</p><span class="tag">Rationale</span><span class="tag">Scope</span><span class="tag">Contribution</span></div>
+            <div class="stage-card" data-stage="literature"><div class="stage-number">3</div><h3>Literature Review</h3><p>Use the problem statement to build headings, subheadings, themes, debates, and gaps.</p><span class="tag">Themes</span><span class="tag">Headings</span><span class="tag">Gap</span></div>
+            <div class="stage-card" data-stage="framework"><div class="stage-number">4</div><h3>Conceptual & Theoretical Framework</h3><p>Identify relevant theories, concepts, variables, constructs, and relationships for the study.</p><span class="tag">Theory</span><span class="tag">Variables</span><span class="tag">Model</span></div>
+            <div class="stage-card" data-stage="methodology"><div class="stage-number">5</div><h3>Methodology</h3><p>Curate research approach, design, population, sampling, instruments, validity, and analysis plan.</p><span class="tag">Qualitative</span><span class="tag">Quantitative</span><span class="tag">Mixed Methods</span></div>
+            <div class="stage-card" data-stage="ethics"><div class="stage-number">6</div><h3>Ethics Decision</h3><p>Determine whether ethics is required, not required, or already approved before data collection.</p><span class="tag">Not Required</span><span class="tag">Required</span><span class="tag">Approved</span></div>
+            <div class="stage-card" data-stage="datacollection"><div class="stage-number">7</div><h3>Data Collection</h3><p>Manage qualitative, quantitative, mixed-methods, laboratory, fieldwork, or secondary data collection.</p><span class="tag">Survey</span><span class="tag">Interview</span><span class="tag">Dataset</span></div>
+            <div class="stage-card" data-stage="datacleaning"><div class="stage-number">8</div><h3>Data Cleaning</h3><p>Prepare, code, validate, transform, anonymise, and organise data for analysis.</p><span class="tag">Cleaning</span><span class="tag">Coding</span><span class="tag">Validation</span></div>
+            <div class="stage-card" data-stage="dataanalysis"><div class="stage-number">9</div><h3>Data Analysis</h3><p>Run qualitative coding, statistical tests, models, visualisations, or experimental analysis.</p><span class="tag">Statistics</span><span class="tag">Themes</span><span class="tag">Graphs</span></div>
+            <div class="stage-card" data-stage="conclusion"><div class="stage-number">10</div><h3>Writing</h3><p>Write introduction, literature review, methods, results, discussion, conclusion, and recommendations.</p><span class="tag">Chapters</span><span class="tag">Manuscript</span><span class="tag">Drafting</span></div>
+            <div class="stage-card" data-stage="publication"><div class="stage-number">11</div><h3>Review & Submission</h3><p>Manage feedback, revision, formatting, referencing, journal submission, and final archiving.</p><span class="tag">Review</span><span class="tag">Submission</span><span class="tag">Publication</span></div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+// Point this at wherever researchflow-backend is running.
+const API_BASE = window.RESEARCHFLOW_API_BASE || 'http://localhost:4000/api';
+
+let currentProjectId = localStorage_safe_get('rf_current_project_id') || null;
+let aiToolsPollTimer = null;
+
+function localStorage_safe_get(key){
+    // Artifacts/sandboxed previews may not have localStorage; degrade quietly.
+    try { return window.localStorage ? window.localStorage.getItem(key) : null; } catch(e){ return null; }
+}
+function localStorage_safe_set(key, value){
+    try { if (window.localStorage) window.localStorage.setItem(key, value); } catch(e){ /* no-op */ }
+}
+
+async function api(path, options = {}){
+    const res = await fetch(`${API_BASE}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Request failed: ${res.status}`);
+    }
+    if (res.status === 204) return null;
+    return res.json();
+}
+
+function showPanel(panelId){
+    document.getElementById("newProjectPanel").style.display = "none";
+    document.getElementById("journalPanel").style.display = "none";
+    document.getElementById(panelId).style.display = "block";
+}
+
+/* ---------------- Projects ---------------- */
+async function createNewProject(){
+    const title = document.getElementById("newProjectTitle").value;
+    const field = document.getElementById("newProjectField").value;
+    const deadline = document.getElementById("newProjectDeadline").value;
+    const result = document.getElementById("newProjectResult");
+
+    if(title.trim() === ""){ alert("Please enter a project title."); return; }
+
+    try{
+        const project = await api('/projects', { method: 'POST', body: JSON.stringify({ title, field, deadline }) });
+        currentProjectId = project.id;
+        localStorage_safe_set('rf_current_project_id', project.id);
+
+        result.innerHTML = `
+            <h3>New Project Created</h3>
+            <p><strong>Title:</strong> ${project.title}</p>
+            <p><strong>Field:</strong> ${project.field}</p>
+            <p><strong>Deadline:</strong> ${project.deadline || "Not specified"}</p>
+            <p>The project workflow has been initialised from problem statement to publication.</p>
+            <span class="badge done">Project Created</span>
+        `;
+        refreshStats();
+    } catch(err){
+        result.innerHTML = `<h3>Couldn't create project</h3><p>${err.message}. Is the backend running at ${API_BASE}?</p>`;
+    }
+}
+
+async function refreshStats(){
+    try{
+        const projects = await api('/projects');
+        document.getElementById('statProjects').textContent = projects.length;
+        const avg = projects.length
+            ? Math.round(projects.reduce((s,p)=>s+p.overallProgress,0) / projects.length)
+            : 0;
+        document.getElementById('statProgress').textContent = `${avg}%`;
+    } catch(e){ /* backend not reachable yet — leave defaults */ }
+
+    try{
+        const tasks = await api('/tasks');
+        const pending = tasks.filter(t => t.column !== 'done').length;
+        document.getElementById('statPending').textContent = pending;
+    } catch(e){ /* ignore */ }
+}
+
+/* ---------------- Journals ---------------- */
+async function findJournals(){
+    const field = document.getElementById("journalField").value;
+    const topic = document.getElementById("journalTopic").value || "your research topic";
+    const journalList = document.getElementById("journalList");
+
+    try{
+        const data = await api(`/journals?field=${encodeURIComponent(field)}&topic=${encodeURIComponent(topic)}`);
+        journalList.innerHTML = data.journals.map(j => `
+            <div class="journal-card">
+                <h4>${j.name}</h4>
+                <p>${j.fit}</p>
+                <p><strong>Topic fit:</strong> ${j.topicFit}</p>
+                <span class="badge progress">Suggested</span>
+            </div>
+        `).join("");
+    } catch(err){
+        journalList.innerHTML = `<div class="journal-card"><h4>Couldn't load journals</h4><p>${err.message}</p></div>`;
+    }
+}
+
+/* ---------------- Kanban tasks ---------------- */
+function badgeForColumn(column){
+    if(column === "progress") return ["progress","In Progress"];
+    if(column === "review") return ["review","Review"];
+    if(column === "done") return ["done","Done"];
+    return ["pending","To Do"];
+}
+
+function renderTask(task){
+    const [badgeClass, badgeText] = badgeForColumn(task.column);
+    const el = document.createElement("div");
+    el.className = "sidebar-task";
+    el.innerHTML = `
+        <h4>${task.title}</h4>
+        <p>${task.output}</p>
+        <span class="badge ${badgeClass}">${badgeText}</span>
+    `;
+    return el;
+}
+
+async function loadTasks(){
+    try{
+        const tasks = await api(`/tasks${currentProjectId ? `?projectId=${currentProjectId}` : ''}`);
+        ["todo","progress","review","done"].forEach(col => document.getElementById(col).innerHTML = "");
+        tasks.forEach(t => document.getElementById(t.column).appendChild(renderTask(t)));
+    } catch(e){ /* backend not reachable yet */ }
+}
+
+async function addTask(){
+    const title = document.getElementById("taskTitle").value;
+    const stage = document.getElementById("taskStage").value;
+    const output = document.getElementById("taskOutput").value;
+
+    if(title.trim() === ""){ alert("Please enter a task title."); return; }
+
+    try{
+        const task = await api('/tasks', {
+            method: 'POST',
+            body: JSON.stringify({ title, column: stage, output, projectId: currentProjectId }),
+        });
+        document.getElementById(stage).appendChild(renderTask(task));
+        document.getElementById("taskTitle").value = "";
+        document.getElementById("taskOutput").value = "";
+        document.getElementById("taskStage").value = "todo";
+        refreshStats();
+    } catch(err){
+        alert(`Couldn't add task: ${err.message}`);
+    }
+}
+
+/* ---------------- Ethics ---------------- */
+async function loadEthics(){
+    if(!currentProjectId) return;
+    try{
+        const record = await api(`/ethics/${currentProjectId}`);
+        if(record.status) document.getElementById('ethicsStatus').value = record.status;
+        renderEthicsResult(record);
+    } catch(e){ /* ignore */ }
+}
+
+function renderEthicsResult({ title, message, badge }){
+    const result = document.getElementById("ethicsResult");
+    result.innerHTML = `<h3>${title}</h3><p>${message}</p>${badge ? `<span class="badge ${badge}">${badge === 'done' ? 'Proceed' : 'Awaiting Approval'}</span>` : ''}`;
+}
+
+async function updateEthicsStatus(){
+    const status = document.getElementById("ethicsStatus").value;
+    const extra = document.getElementById("ethicsExtra");
+    const reason = document.getElementById("ethicsReason").value;
+
+    if(!status){
+        extra.style.display = "none";
+        renderEthicsResult({ title: "Awaiting Ethics Decision", message: "Select whether ethics is not required, required, or already approved." });
+        return;
+    }
+
+    extra.style.display = status === "not_required" ? "none" : "block";
+
+    const projectId = currentProjectId || 'demo-project';
+    try{
+        const record = await api(`/ethics/${projectId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                status, reason,
+                applicationNumber: document.getElementById('ethicsAppNumber').value,
+                approvalDate: document.getElementById('ethicsApprovalDate').value,
+                committee: document.getElementById('ethicsCommittee').value,
+            }),
+        });
+        renderEthicsResult(record);
+    } catch(err){
+        renderEthicsResult({ title: "Couldn't save ethics decision", message: err.message });
+    }
+}
+
+/* ---------------- Research assistant + live AI tools ---------------- */
+async function generateResearchSupport(){
+    const stage = document.getElementById("researchStage").value;
+    const topic = document.getElementById("researchTopic").value;
+    const draftText = document.getElementById("researchInput").value;
+    const result = document.getElementById("assistantResult");
+
+    result.innerHTML = `<h3>Generating...</h3><p>Fetching stage guidance.</p>`;
+
+    try{
+        const data = await api('/assistant/generate', {
+            method: 'POST',
+            body: JSON.stringify({ stage, topic, draftText }),
+        });
+        result.innerHTML = `
+            <h3>${data.title}</h3>
+            <p><strong>Topic:</strong> ${data.topic}</p>
+            <ul>${data.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+            <p style="font-size:11px;margin-top:8px;">${data.generatedBy === 'claude' ? 'AI-generated for your topic' : 'Standard guidance template'}</p>
+        `;
+    } catch(err){
+        result.innerHTML = `<h3>Couldn't generate guidance</h3><p>${err.message}. Is the backend running at ${API_BASE}?</p>`;
+    }
+
+    loadAiToolsForStage(stage);
+}
+
+function onStageChange(){
+    loadAiToolsForStage(document.getElementById("researchStage").value);
+}
+
+function renderAiTools(stage, meta, tools){
+    document.getElementById('aiToolsMeta').textContent =
+        `${tools.length} tool(s) for "${stage}" · catalog last refreshed: ${meta.lastRefreshed ? new Date(meta.lastRefreshed).toLocaleString() : 'never (seed list only)'}`;
+
+    const grid = document.getElementById('aiToolsGrid');
+    if(!tools.length){
+        grid.innerHTML = `<div class="ai-tool-card"><p>No tools catalogued yet for this stage.</p></div>`;
+        return;
+    }
+
+    grid.innerHTML = tools.map(t => `
+        <div class="ai-tool-card">
+            <h4>${t.name} ${t.embeddable ? '<span class="embeddable-pill">usable in-app</span>' : ''}</h4>
+            <p>${t.description}</p>
+            <a href="${t.url}" target="_blank" rel="noopener">Visit ${t.name} →</a>
+        </div>
+    `).join('');
+}
+
+async function loadAiToolsForStage(stage){
+    if(!stage) return;
+    if(aiToolsPollTimer) clearInterval(aiToolsPollTimer);
+
+    const fetchAndRender = async () => {
+        try{
+            const data = await api(`/ai-tools/${stage}`);
+            renderAiTools(stage, data.meta, data.tools);
+        } catch(err){
+            document.getElementById('aiToolsMeta').textContent = `Couldn't load AI tools: ${err.message}`;
+        }
+    };
+
+    await fetchAndRender();
+    // Keep the panel current without a page reload — mirrors the backend's
+    // own scheduled discovery job, just at a UI-friendly interval.
+    aiToolsPollTimer = setInterval(fetchAndRender, 5 * 60 * 1000);
+}
+
+document.querySelectorAll('.stage-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const stage = card.getAttribute('data-stage');
+        document.getElementById('researchStage').value = stage in {problem:1,literature:1,framework:1,methodology:1,datacollection:1,dataanalysis:1,results:1,conclusion:1,publication:1} ? stage : document.getElementById('researchStage').value;
+        loadAiToolsForStage(stage);
+        window.scrollTo({ top: document.querySelector('.assistant-box').offsetTop - 20, behavior: 'smooth' });
+    });
+});
+
+/* ---------------- Init ---------------- */
+window.addEventListener('DOMContentLoaded', () => {
+    refreshStats();
+    loadTasks();
+    loadEthics();
+    loadAiToolsForStage(document.getElementById("researchStage").value);
+});
+</script>
+
+</body>
+</html>

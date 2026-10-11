@@ -1,0 +1,61 @@
+{
+  "problem": [
+    { "name": "Elicit", "description": "AI research assistant that searches papers and extracts key findings to help scope a problem and find gaps.", "url": "https://elicit.com", "category": "literature-discovery", "apiAvailable": true, "embeddable": true, "tags": ["gap analysis", "brainstorming"] },
+    { "name": "Consensus", "description": "AI search engine over academic papers, useful for quickly checking what's already established about a topic.", "url": "https://consensus.app", "category": "literature-discovery", "apiAvailable": false, "embeddable": true, "tags": ["evidence check"] },
+    { "name": "Perplexity", "description": "AI answer engine with citations, good for fast background scoping before committing to a problem statement.", "url": "https://www.perplexity.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["background research"] },
+    { "name": "Claude", "description": "Conversational AI useful for iterating on problem statements, aims, objectives and research questions.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["drafting", "objectives"] }
+  ],
+  "literature": [
+    { "name": "Elicit", "description": "Extracts and tabulates findings across many papers, speeding up systematic-style literature scans.", "url": "https://elicit.com", "category": "literature-discovery", "apiAvailable": true, "embeddable": true, "tags": ["extraction", "tables"] },
+    { "name": "Litmaps", "description": "Citation-mapping tool that visually tracks how a literature area develops over time.", "url": "https://www.litmaps.com", "category": "citation-mapping", "apiAvailable": true, "embeddable": true, "tags": ["citation graph"] },
+    { "name": "Connected Papers", "description": "Builds a visual graph of related papers from a single seed paper to reveal clusters and gaps.", "url": "https://www.connectedpapers.com", "category": "citation-mapping", "apiAvailable": false, "embeddable": true, "tags": ["graph"] },
+    { "name": "Scite", "description": "Shows how a paper has been cited (supporting/contrasting/mentioning) to help judge evidence strength.", "url": "https://scite.ai", "category": "citation-analysis", "apiAvailable": true, "embeddable": true, "tags": ["citation context"] },
+    { "name": "ResearchRabbit", "description": "Free citation-based discovery tool ('Spotify for papers') for building a reading list from seed papers.", "url": "https://www.researchrabbit.ai", "category": "literature-discovery", "apiAvailable": false, "embeddable": true, "tags": ["discovery"] },
+    { "name": "Semantic Scholar", "description": "AI-powered academic search with TLDR summaries and influential-citation signals.", "url": "https://www.semanticscholar.org", "category": "literature-discovery", "apiAvailable": true, "embeddable": true, "tags": ["search", "summaries"] }
+  ],
+  "framework": [
+    { "name": "Claude", "description": "Good for talking through candidate theories, mapping variables, and drafting a conceptual model narrative.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["theory selection"] },
+    { "name": "NotebookLM", "description": "Grounds an AI assistant in your own uploaded sources (papers, notes) to help build a framework from your literature only.", "url": "https://notebooklm.google", "category": "grounded-assistant", "apiAvailable": false, "embeddable": false, "tags": ["source-grounded"] },
+    { "name": "Miro AI", "description": "AI-assisted mind-mapping/whiteboard for laying out constructs and their relationships visually.", "url": "https://miro.com/ai", "category": "visual-mapping", "apiAvailable": true, "embeddable": true, "tags": ["mind map", "model diagram"] }
+  ],
+  "methodology": [
+    { "name": "Claude", "description": "Useful for reasoning through design choices (qual/quant/mixed), sampling logic, and instrument wording.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["design reasoning"] },
+    { "name": "Julius AI", "description": "AI data analyst that can help plan analysis approaches and simulate what an analysis plan will produce.", "url": "https://julius.ai", "category": "analysis-planning", "apiAvailable": true, "embeddable": true, "tags": ["analysis plan"] },
+    { "name": "jamovi", "description": "Free statistics package with a guided interface, helpful for planning quantitative analysis power/design.", "url": "https://www.jamovi.org", "category": "statistics", "apiAvailable": false, "embeddable": false, "tags": ["stats planning"] }
+  ],
+  "ethics": [
+    { "name": "Claude", "description": "Helps draft ethics application narratives, consent forms, and risk/benefit sections from your protocol notes.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["consent forms", "protocol drafting"] },
+    { "name": "Grammarly", "description": "Tightens the language of ethics submissions and participant-facing documents for clarity and tone.", "url": "https://www.grammarly.com", "category": "writing-assistant", "apiAvailable": true, "embeddable": true, "tags": ["clarity"] }
+  ],
+  "datacollection": [
+    { "name": "Otter.ai", "description": "AI transcription for interviews and focus groups with speaker labels, exportable to coding software.", "url": "https://otter.ai", "category": "transcription", "apiAvailable": true, "embeddable": true, "tags": ["interviews", "transcription"] },
+    { "name": "Qualtrics XM", "description": "Survey platform with AI-assisted question design and response-quality checks.", "url": "https://www.qualtrics.com", "category": "survey", "apiAvailable": true, "embeddable": true, "tags": ["survey design"] },
+    { "name": "Google Forms", "description": "Simple, free survey collection; pairs well with AI tools downstream for analysis.", "url": "https://forms.google.com", "category": "survey", "apiAvailable": true, "embeddable": true, "tags": ["survey"] }
+  ],
+  "datacleaning": [
+    { "name": "OpenRefine", "description": "Free tool for cleaning and transforming messy tabular data, with clustering to catch inconsistent entries.", "url": "https://openrefine.org", "category": "data-wrangling", "apiAvailable": true, "embeddable": false, "tags": ["cleaning", "deduplication"] },
+    { "name": "Julius AI", "description": "Describe cleaning steps in plain English (missing values, coding, recoding) and get runnable output.", "url": "https://julius.ai", "category": "data-wrangling", "apiAvailable": true, "embeddable": true, "tags": ["natural-language cleaning"] }
+  ],
+  "dataanalysis": [
+    { "name": "Julius AI", "description": "Conversational data analyst: upload a dataset, ask for statistics, models, or charts in plain English.", "url": "https://julius.ai", "category": "statistics", "apiAvailable": true, "embeddable": true, "tags": ["stats", "charts"] },
+    { "name": "ATLAS.ti AI", "description": "AI-assisted coding suggestions for qualitative data (interviews, open-ended text).", "url": "https://atlasti.com", "category": "qualitative-coding", "apiAvailable": false, "embeddable": false, "tags": ["thematic coding"] },
+    { "name": "MAXQDA AI Assist", "description": "AI features for summarizing and coding qualitative material inside MAXQDA.", "url": "https://www.maxqda.com", "category": "qualitative-coding", "apiAvailable": false, "embeddable": false, "tags": ["thematic coding"] },
+    { "name": "jamovi", "description": "Free, open statistics software (regression, ANOVA, factor analysis) with an accessible interface.", "url": "https://www.jamovi.org", "category": "statistics", "apiAvailable": false, "embeddable": false, "tags": ["quant analysis"] }
+  ],
+  "results": [
+    { "name": "Julius AI", "description": "Turns analysis output into publication-style charts and a plain-language explanation of results.", "url": "https://julius.ai", "category": "statistics", "apiAvailable": true, "embeddable": true, "tags": ["charting", "narrative"] },
+    { "name": "BioRender", "description": "AI-assisted scientific figure and diagram creation for presenting results and models.", "url": "https://www.biorender.com", "category": "figures", "apiAvailable": false, "embeddable": true, "tags": ["figures"] },
+    { "name": "Claude", "description": "Helps draft the discussion section: comparing findings to literature and flagging over-claims.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["discussion drafting"] }
+  ],
+  "conclusion": [
+    { "name": "Claude", "description": "Helps synthesize findings into a tight conclusion and turn limitations into concrete future-research directions.", "url": "https://claude.ai", "category": "general-ai", "apiAvailable": true, "embeddable": true, "tags": ["synthesis"] },
+    { "name": "Grammarly", "description": "Final clarity, tone and grammar pass on the conclusion and recommendations.", "url": "https://www.grammarly.com", "category": "writing-assistant", "apiAvailable": true, "embeddable": true, "tags": ["editing"] }
+  ],
+  "publication": [
+    { "name": "Paperpal", "description": "Academic-writing checker built for manuscripts: language, structure, and journal-submission readiness.", "url": "https://paperpal.com", "category": "academic-writing", "apiAvailable": true, "embeddable": true, "tags": ["manuscript check"] },
+    { "name": "Trinka", "description": "Grammar and academic style checker tuned for technical/scientific writing and journal conventions.", "url": "https://www.trinka.ai", "category": "academic-writing", "apiAvailable": true, "embeddable": true, "tags": ["style check"] },
+    { "name": "Writefull", "description": "AI writing feedback trained on published academic text; integrates with Overleaf and Word.", "url": "https://writefull.com", "category": "academic-writing", "apiAvailable": true, "embeddable": true, "tags": ["academic phrasing"] },
+    { "name": "Scholarcy", "description": "Summarizes papers into structured flashcards and can generate reference summaries for a manuscript.", "url": "https://www.scholarcy.com", "category": "summarization", "apiAvailable": true, "embeddable": true, "tags": ["summaries"] },
+    { "name": "DeepL Write", "description": "AI editor for clarity and tone, useful for non-native-English authors polishing a submission.", "url": "https://www.deepl.com/write", "category": "writing-assistant", "apiAvailable": true, "embeddable": true, "tags": ["clarity"] }
+  ]
+}

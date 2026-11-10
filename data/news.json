@@ -1,0 +1,72 @@
+[
+  {
+    "category": "cfp",
+    "title": "WikiCFP: calls for papers by subject",
+    "summary": "A community-maintained listing of calls for papers, workshops and conferences with submission deadlines, searchable by topic.",
+    "source": "WikiCFP",
+    "url": "http://wikicfp.com/cfp/"
+  },
+  {
+    "category": "cfp",
+    "title": "Conference Alerts: upcoming conferences and calls",
+    "summary": "Browse upcoming academic conferences worldwide by subject and country.",
+    "source": "Conference Alerts",
+    "url": "https://conferencealerts.com/"
+  },
+  {
+    "category": "cfp",
+    "title": "Think. Check. Submit.",
+    "summary": "A checklist to verify a journal or publisher is trustworthy before you submit your paper.",
+    "source": "Think. Check. Submit.",
+    "url": "https://thinkchecksubmit.org/"
+  },
+  {
+    "category": "conference",
+    "title": "IEEE conferences",
+    "summary": "Search upcoming IEEE conferences and their submission deadlines across engineering, computing and technology.",
+    "source": "IEEE",
+    "url": "https://conferences.ieee.org/"
+  },
+  {
+    "category": "conference",
+    "title": "ACM conferences",
+    "summary": "Upcoming ACM conferences, symposia and workshops in computing and information science.",
+    "source": "ACM",
+    "url": "https://www.acm.org/conferences"
+  },
+  {
+    "category": "conference",
+    "title": "Academy of Management annual meeting",
+    "summary": "The main conference for management and organisation research, with an annual call for papers.",
+    "source": "Academy of Management",
+    "url": "https://aom.org/events/annual-meeting"
+  },
+  {
+    "category": "funding",
+    "title": "National Research Foundation (South Africa): funding opportunities",
+    "summary": "Bursaries, scholarships and research grants for South African postgraduates and researchers.",
+    "source": "NRF",
+    "url": "https://www.nrf.ac.za/funding/"
+  },
+  {
+    "category": "funding",
+    "title": "EU Funding and Tenders portal",
+    "summary": "Open calls under Horizon Europe and other EU research programmes.",
+    "source": "European Commission",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home"
+  },
+  {
+    "category": "funding",
+    "title": "UKRI funding opportunities",
+    "summary": "Current research funding opportunities from UK Research and Innovation.",
+    "source": "UKRI",
+    "url": "https://www.ukri.org/opportunity/"
+  },
+  {
+    "category": "funding",
+    "title": "Wellcome grant funding",
+    "summary": "Funding schemes for health and life-science research and researcher development.",
+    "source": "Wellcome",
+    "url": "https://wellcome.org/grant-funding"
+  }
+]

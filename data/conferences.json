@@ -1,0 +1,43 @@
+{
+  "templates": {
+    "ieee": {
+      "format": "IEEE conference proceedings",
+      "templateUrl": "https://www.ieee.org/conferences/publishing/templates.html",
+      "sections": ["Title and authors", "Abstract", "Index terms / keywords", "Introduction", "Related work", "Methodology", "Results", "Discussion", "Conclusion and future work", "Acknowledgment", "References"]
+    },
+    "acm": {
+      "format": "ACM proceedings (acmart, sigconf)",
+      "templateUrl": "https://www.acm.org/publications/proceedings-template",
+      "sections": ["Title and authors", "Abstract", "CCS concepts and keywords", "Introduction", "Related work", "Method", "Evaluation / results", "Discussion", "Conclusion", "Acknowledgments", "References"]
+    },
+    "lncs": {
+      "format": "Springer LNCS",
+      "templateUrl": "https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines",
+      "sections": ["Title and authors", "Abstract and keywords", "Introduction", "Related work", "Approach / method", "Experiments / results", "Discussion", "Conclusion", "Acknowledgements", "References"]
+    },
+    "ml": {
+      "format": "Machine-learning conference style (official style files)",
+      "templateUrl": "",
+      "sections": ["Title and authors", "Abstract", "Introduction", "Related work", "Method", "Experiments", "Results and analysis", "Limitations", "Conclusion", "References", "Appendix"]
+    },
+    "acl": {
+      "format": "ACL style (ACL Rolling Review / ACL Anthology)",
+      "templateUrl": "https://acl-org.github.io/ACLPUB/formatting.html",
+      "sections": ["Title and authors", "Abstract", "Introduction", "Related work", "Method", "Experiments", "Results and analysis", "Limitations", "Ethics statement", "Conclusion", "References", "Appendix"]
+    }
+  },
+  "conferences": [
+    { "id": "ieee-generic", "name": "IEEE conference (any IEEE-sponsored)", "template": "ieee" },
+    { "id": "acm-generic", "name": "ACM conference (any ACM-sponsored)", "template": "acm" },
+    { "id": "lncs-generic", "name": "Springer LNCS conference (any LNCS volume)", "template": "lncs" },
+    { "id": "neurips", "name": "NeurIPS", "template": "ml", "templateUrl": "https://neurips.cc/" },
+    { "id": "icml", "name": "ICML", "template": "ml", "templateUrl": "https://icml.cc/" },
+    { "id": "iclr", "name": "ICLR", "template": "ml", "templateUrl": "https://iclr.cc/" },
+    { "id": "aaai", "name": "AAAI", "template": "ml", "templateUrl": "https://aaai.org/" },
+    { "id": "ijcai", "name": "IJCAI", "template": "ml", "templateUrl": "https://www.ijcai.org/" },
+    { "id": "cvpr", "name": "CVPR", "template": "ieee", "templateUrl": "https://cvpr.thecvf.com/" },
+    { "id": "acl", "name": "ACL / EMNLP / NAACL", "template": "acl" },
+    { "id": "chi", "name": "ACM CHI", "template": "acm" },
+    { "id": "kdd", "name": "ACM KDD", "template": "acm" }
+  ]
+}

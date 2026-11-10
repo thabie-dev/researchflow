@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const seed = require('../data/aiTools.seed.json');
+const digital = require('../data/digitalTools.seed.json');
 const store = require('./store');
 
 const COLLECTION = 'aiTools';
@@ -39,7 +40,18 @@ function buildSeedRegistry() {
 }
 
 function getRegistry() {
-  return store.read(COLLECTION, buildSeedRegistry());
+  const registry = store.read(COLLECTION, buildSeedRegistry());
+  const merged = { ...registry };
+  // Curated traditional tools are layered on top so they show even when an older registry file exists on disk.
+  for (const stage of STAGES) {
+    const existing = merged[stage] || [];
+    const ids = new Set(existing.map((t) => t.id));
+    const extra = (digital[stage] || [])
+      .map((t) => withDefaults(stage, { ...t, source: 'curated' }))
+      .filter((t) => !ids.has(t.id));
+    merged[stage] = [...existing, ...extra];
+  }
+  return merged;
 }
 
 function listStages() {

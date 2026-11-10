@@ -28,9 +28,11 @@ function readSync(collection, fallback) {
     return fallback;
   }
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    return JSON.parse(fs.readFileSync(file, 'utf-8').replace(/^\uFEFF/, ''));
   } catch (err) {
-    console.error(`[store] Failed to parse ${file}, resetting to fallback.`, err);
+    const backup = `${file}.corrupt-${Date.now()}`;
+    console.error(`[store] Failed to parse ${file}; kept a copy at ${backup} and resetting to fallback.`, err);
+    fs.copyFileSync(file, backup);
     fs.writeFileSync(file, JSON.stringify(fallback, null, 2));
     return fallback;
   }

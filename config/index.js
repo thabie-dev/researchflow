@@ -14,6 +14,15 @@ module.exports = {
   serpApiKey: process.env.SERPAPI_KEY || '',
   bingApiKey: process.env.BING_API_KEY || '',
 
+  appUrl: process.env.APP_URL || `http://localhost:${process.env.PORT || 4000}`,
+  smtp: {
+    host: process.env.SMTP_HOST || '',
+    port: Number(process.env.SMTP_PORT) || 587,
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.SMTP_FROM || '',
+  },
+
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
   anthropicModel: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
 };

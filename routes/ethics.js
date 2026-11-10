@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../services/store');
+const { accessibleProject, WRITERS } = require('../services/ownership');
 
 const COLLECTION = 'ethicsRecords';
 const STATUSES = ['not_required', 'required', 'approved'];
@@ -24,6 +25,7 @@ const COPY = {
 };
 
 router.get('/:projectId', (req, res) => {
+  if (!accessibleProject(req.user, req.params.projectId)) return res.status(404).json({ error: 'Project not found' });
   const record = store.read(COLLECTION, []).find((r) => r.projectId === req.params.projectId);
   if (!record) return res.json({ projectId: req.params.projectId, status: null, ...COPY_FOR_EMPTY() });
   res.json({ ...record, ...COPY[record.status] });
@@ -37,6 +39,7 @@ function COPY_FOR_EMPTY() {
 }
 
 router.put('/:projectId', async (req, res) => {
+  if (!accessibleProject(req.user, req.params.projectId, WRITERS)) return res.status(404).json({ error: 'Project not found' });
   const { status, reason, applicationNumber, approvalDate, committee } = req.body || {};
   if (!STATUSES.includes(status)) {
     return res.status(400).json({ error: `status must be one of: ${STATUSES.join(', ')}` });

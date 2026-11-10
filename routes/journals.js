@@ -37,18 +37,35 @@ const JOURNALS = {
   ],
 };
 
+const { suggestJournals } = require('../services/journalSearch');
+
+// Live matching: finds journals publishing papers similar to the problem statement.
+router.get('/suggest', async (req, res) => {
+  const problem = String(req.query.problem || '').trim();
+  if (problem.length < 20) {
+    return res.status(400).json({ error: 'Please describe your problem statement (at least a sentence) so journals can be matched.' });
+  }
+  try {
+    const result = await suggestJournals({ problem, field: String(req.query.field || '') });
+    res.json(result);
+  } catch (err) {
+    res.status(502).json({ error: 'Could not reach the journal database right now. Please try again shortly.' });
+  }
+});
+
 router.get('/', (req, res) => {
   const field = (req.query.field || 'general').toLowerCase();
   const topic = req.query.topic || 'your research topic';
 
-  if (!JOURNALS[field]) {
-    return res.status(400).json({ error: `Unknown field "${field}". Valid: ${Object.keys(JOURNALS).join(', ')}` });
+  if (field !== 'all' && !JOURNALS[field]) {
+    return res.status(400).json({ error: `Unknown field "${field}". Valid: all, ${Object.keys(JOURNALS).join(', ')}` });
   }
 
+  const journals = field === 'all' ? Object.values(JOURNALS).flat() : JOURNALS[field];
   res.json({
     field,
     topic,
-    journals: JOURNALS[field].map((j) => ({ ...j, topicFit: topic })),
+    journals: journals.map((j) => ({ ...j, topicFit: topic })),
   });
 });
 

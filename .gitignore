@@ -2,3 +2,11 @@ node_modules/
 .env
 *.log
 .DS_Store
+data/users.json
+data/projects.json
+data/tasks.json
+data/ethicsRecords.json
+data/knowledgeBase.json
+data/passwordResets.json
+data/authSecret.txt
+data/*.corrupt-*

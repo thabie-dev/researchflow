@@ -3,318 +3,441 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project-Managed Research Tool</title>
+<title>ResearchFlow | Project-Managed Research</title>
 
-<style>
-:root{
-    --primary:#0F4C81;
-    --primary-dark:#0A3558;
-    --secondary:#1E88E5;
-    --light-blue:#EAF4FF;
-    --orange:#F26A2E;
-    --orange-dark:#D9551D;
-    --cream:#FAF8F3;
-    --dark:#1F2937;
-    --muted:#6B7280;
-    --border:#E5E7EB;
-    --radius:16px;
-    --shadow:0 10px 25px rgba(0,0,0,0.08);
-}
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", Arial, sans-serif;}
-body{background:var(--cream);color:var(--dark);}
-.app{display:flex;min-height:100vh;}
-
-.sidebar{width:320px;background:linear-gradient(180deg,var(--primary),var(--primary-dark));color:white;padding:22px;position:fixed;height:100vh;overflow-y:auto;}
-.logo{font-size:24px;font-weight:800;margin-bottom:25px;}
-.logo span{color:var(--orange);}
-.sidebar a{display:block;color:white;text-decoration:none;padding:11px 13px;border-radius:12px;margin-bottom:6px;font-size:14px;}
-.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.18);}
-.sidebar-section{margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.25);}
-.sidebar-section h3{font-size:15px;margin-bottom:12px;}
-.sidebar-progress-item{margin-bottom:14px;}
-.sidebar-progress-item p{font-size:12px;margin-bottom:6px;}
-.mini-progress{height:8px;background:rgba(255,255,255,0.22);border-radius:20px;overflow:hidden;}
-.mini-progress-bar{height:100%;background:var(--orange);}
-.sidebar-task{background:rgba(255,255,255,0.12);padding:12px;border-radius:12px;margin-bottom:10px;}
-.sidebar-task h4{font-size:13px;margin-bottom:5px;}
-.sidebar-task p{font-size:12px;line-height:1.4;}
-
-.main{margin-left:320px;padding:30px;width:calc(100% - 320px);}
-
-.top-belt{background:white;padding:40px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:25px;border-left:7px solid var(--orange);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
-.belt-header{max-width:900px;}
-.belt-title{color:var(--primary);font-size:42px;font-weight:800;margin-bottom:15px;}
-.belt-subtitle{color:var(--muted);font-size:17px;line-height:1.8;max-width:850px;margin:0 auto 30px auto;text-align:center;}
-.belt-links{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;}
-.belt-links button{background:var(--orange);color:white;border:none;padding:15px 30px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:0.3s ease;}
-.belt-links button:hover{background:var(--orange-dark);}
-.journal-btn{background:var(--secondary) !important;}
-
-.section-title{color:var(--primary);margin:28px 0 15px;}
-.action-panel,.hero,.add-task,.ethics-box,.assistant-box{background:white;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:25px;}
-.action-panel{display:none;border-left:6px solid var(--orange);}
-.hero p,.stage-card p,.tool-card p,.assistant-result p,.ethics-result p,.journal-card p{text-align:justify;}
-.hero h1{color:var(--primary);font-size:28px;margin-bottom:10px;}
-.hero p{color:var(--muted);line-height:1.7;}
-
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:25px;}
-.stat-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);}
-.stat-card h3{color:var(--muted);font-size:13px;margin-bottom:8px;}
-.stat-card strong{font-size:28px;color:var(--primary);}
-
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px;}
-input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;outline:none;}
-textarea{margin-top:15px;resize:vertical;}
-button{background:var(--orange);color:white;border:none;padding:12px 20px;border-radius:12px;font-weight:700;cursor:pointer;}
-button:hover{background:var(--orange-dark);}
-button:disabled{opacity:0.6;cursor:not-allowed;}
-
-.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px;}
-.pending{background:#FFF3D6;color:#C08A00;}
-.progress{background:#DDEEFF;color:#1E88E5;}
-.review{background:#E8F2FF;color:#0F4C81;}
-.done{background:#DCFCE7;color:#15803D;}
-
-.ethics-result,.assistant-result{margin-top:18px;padding:18px;border-radius:14px;background:var(--light-blue);border-left:6px solid var(--secondary);}
-.ethics-result h3,.assistant-result h3{color:var(--primary);margin-bottom:8px;}
-.ethics-result p,.assistant-result p{color:var(--muted);line-height:1.6;}
-.assistant-result ul{margin-left:22px;color:var(--muted);line-height:1.7;}
-.ethics-extra{display:none;margin-top:18px;}
-
-.lifecycle{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
-.stage-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border-top:5px solid var(--secondary);cursor:pointer;transition:0.2s ease;}
-.stage-card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,0.10);}
-.stage-number{background:var(--orange);color:white;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;margin-bottom:10px;}
-.stage-card h3{color:var(--primary);margin-bottom:8px;font-size:18px;}
-.stage-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:10px;}
-.tag{display:inline-block;background:var(--light-blue);color:var(--primary);padding:6px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px;}
-
-.workspace,.journal-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
-.tool-card,.journal-card{background:white;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border-left:6px solid var(--orange);}
-.journal-card{background:var(--light-blue);border-left:5px solid var(--secondary);}
-.tool-card h3,.journal-card h4{color:var(--primary);margin-bottom:8px;}
-.tool-card p,.journal-card p{color:var(--muted);line-height:1.6;font-size:14px;}
-
-/* --- AI tools panel (new) --- */
-.ai-tools-panel{margin-top:18px;padding:18px;border-radius:14px;background:#FFF8F3;border-left:6px solid var(--orange);}
-.ai-tools-panel h3{color:var(--primary);margin-bottom:4px;}
-.ai-tools-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
-.ai-tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
-.ai-tool-card{background:white;border:1px solid var(--border);border-radius:12px;padding:14px;}
-.ai-tool-card h4{font-size:14px;color:var(--primary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
-.ai-tool-card p{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
-.ai-tool-card a{font-size:12px;font-weight:700;color:var(--secondary);text-decoration:none;}
-.embeddable-pill{font-size:10px;font-weight:700;padding:3px 7px;border-radius:20px;background:#DCFCE7;color:#15803D;white-space:nowrap;}
-.status-line{font-size:12px;color:var(--muted);margin-top:6px;}
-
-@media(max-width:900px){
-    .sidebar{position:relative;width:100%;height:auto;}
-    .main{margin-left:0;width:100%;}
-    .app{flex-direction:column;}
-    .belt-title{font-size:32px;}
-}
-</style>
+<link rel="stylesheet" href="styles.css?v=20261110">
 </head>
 
 <body>
 
-<div class="app">
+<!-- ================= PUBLIC RIBBON (signed out) ================= -->
+<header class="ribbon public-ribbon" id="publicRibbon" hidden>
+    <nav class="ribbon-nav" aria-label="Main">
+        <button type="button" data-page="home" class="active" onclick="showPage('home')">Home</button>
+        <button type="button" data-page="resources" onclick="showPage('resources')">Resources</button>
+        <button type="button" data-page="news" onclick="showPage('news')">Newsroom</button>
+    </nav>
+    <div class="ribbon-actions">
+        <button type="button" class="ghost-btn" onclick="showAuth('signin')">Sign in</button>
+        <button type="button" onclick="showAuth('signup')">Sign up</button>
+    </div>
+</header>
+<div id="publicInfo" class="info-view public-info" hidden></div>
+
+<!-- ================= AUTH ================= -->
+<div class="auth" id="authView" hidden>
+    <section class="auth-brand">
+        <div class="logo">Research<span>Flow</span></div>
+        <h1>Manage your research like a project.</h1>
+        <p>One workspace for your research cycle, tasks, tools and manuscript, from first idea to submission.</p>
+        <p class="auth-define">The research cycle takes you stage by stage, from problem statement to submission. Each stage lists the AI and digital tools available for it, and you can jump straight into writing.</p>
+        <ul>
+            <li>Journal, conference and thesis workflows</li>
+            <li>AI and digital tools for every research stage</li>
+            <li>Download as Word, PDF, PowerPoint, Excel or CSV</li>
+        </ul>
+    </section>
+
+    <section class="auth-panel">
+        <form class="auth-card" id="authSignin" novalidate onsubmit="submitSignin(event)">
+            <h2>Welcome back</h2>
+            <p class="auth-sub">Sign in to continue your research.</p>
+            <div class="auth-msg" id="signinMsg" role="alert" hidden></div>
+            <label for="signinEmail">Email</label>
+            <input type="email" id="signinEmail" autocomplete="email" placeholder="you@university.edu">
+            <label for="signinPassword">Password</label>
+            <div class="pw-wrap"><input type="password" id="signinPassword" autocomplete="current-password" placeholder="Your password"><button type="button" class="pw-toggle" onclick="togglePassword('signinPassword', this)">Show</button></div>
+            <a class="auth-link right" href="#" onclick="showAuth('forgot'); return false;">Forgot password?</a>
+            <button type="submit" class="auth-submit">Sign in</button>
+            <p class="auth-switch">New to ResearchFlow? <a href="#" onclick="showAuth('signup'); return false;">Create an account</a></p>
+        </form>
+
+        <form class="auth-card" id="authSignup" novalidate hidden onsubmit="submitSignup(event)">
+            <h2>Create your account</h2>
+            <p class="auth-sub">Start managing your research in minutes.</p>
+            <div class="auth-msg" id="signupMsg" role="alert" hidden></div>
+            <label for="signupName">Full name</label>
+            <input type="text" id="signupName" autocomplete="name" placeholder="Dr. Jane Doe">
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" autocomplete="email" placeholder="you@university.edu">
+            <label for="signupPassword">Password</label>
+            <div class="pw-wrap"><input type="password" id="signupPassword" autocomplete="new-password" placeholder="Create a password" oninput="updatePasswordRules('signupPassword')"><button type="button" class="pw-toggle" onclick="togglePassword('signupPassword', this)">Show</button></div>
+            <ul class="pw-rules" data-for="signupPassword">
+                <li data-rule="len">At least 8 characters</li>
+                <li data-rule="letter">A letter</li>
+                <li data-rule="digit">A digit</li>
+                <li data-rule="special">A special character (e.g. ! @ # $)</li>
+            </ul>
+            <label for="signupConfirm">Confirm password</label>
+            <input type="password" id="signupConfirm" autocomplete="new-password" placeholder="Repeat your password">
+            <button type="submit" class="auth-submit">Create account</button>
+            <p class="auth-switch">Already have an account? <a href="#" onclick="showAuth('signin'); return false;">Sign in</a></p>
+        </form>
+
+        <form class="auth-card" id="authForgot" novalidate hidden onsubmit="submitForgot(event)">
+            <h2>Forgot your password?</h2>
+            <p class="auth-sub">Enter your email and we will prepare a reset link.</p>
+            <div class="auth-msg" id="forgotMsg" role="alert" hidden></div>
+            <label for="forgotEmail">Email</label>
+            <input type="email" id="forgotEmail" autocomplete="email" placeholder="you@university.edu">
+            <button type="submit" class="auth-submit">Send reset link</button>
+            <p class="auth-switch"><a href="#" onclick="showAuth('signin'); return false;">&larr; Back to sign in</a></p>
+        </form>
+
+        <form class="auth-card" id="authReset" novalidate hidden onsubmit="submitReset(event)">
+            <h2>Set a new password</h2>
+            <p class="auth-sub">Choose a strong password for your account.</p>
+            <div class="auth-msg" id="resetMsg" role="alert" hidden></div>
+            <label for="resetPassword">New password</label>
+            <div class="pw-wrap"><input type="password" id="resetPassword" autocomplete="new-password" placeholder="New password" oninput="updatePasswordRules('resetPassword')"><button type="button" class="pw-toggle" onclick="togglePassword('resetPassword', this)">Show</button></div>
+            <ul class="pw-rules" data-for="resetPassword">
+                <li data-rule="len">At least 8 characters</li>
+                <li data-rule="letter">A letter</li>
+                <li data-rule="digit">A digit</li>
+                <li data-rule="special">A special character (e.g. ! @ # $)</li>
+            </ul>
+            <label for="resetConfirm">Confirm new password</label>
+            <input type="password" id="resetConfirm" autocomplete="new-password" placeholder="Repeat the new password">
+            <button type="submit" class="auth-submit">Reset password</button>
+            <p class="auth-switch"><a href="#" onclick="leaveReset(); return false;">&larr; Back to sign in</a></p>
+        </form>
+    </section>
+</div>
+
+<div class="app" id="appShell" hidden>
 
     <aside class="sidebar">
         <div class="logo">Research<span>Flow</span></div>
 
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Problem Statement</a>
-        <a href="#">Concept Note</a>
-        <a href="#">Literature Review</a>
-        <a href="#">Frameworks</a>
-        <a href="#">Methodology</a>
-        <a href="#">Ethics Decision</a>
-        <a href="#">Data Collection</a>
-        <a href="#">Data Analysis</a>
-        <a href="#">Writing Tracker</a>
-        <a href="#">Submission</a>
+        <a href="#" id="navHome" class="active" onclick="showHome(); return false;">Home</a>
 
         <div class="sidebar-section">
-            <h3>Research Progress</h3>
-            <div class="sidebar-progress-item">
-                <p>Problem Statement — 85%</p>
-                <div class="mini-progress"><div class="mini-progress-bar" style="width:85%;"></div></div>
+            <h3>Projects</h3>
+            <div id="sidebarProjects" aria-live="polite">
+                <p class="sidebar-project-status">Loading projects...</p>
             </div>
-            <div class="sidebar-progress-item">
-                <p>Literature Review — 55%</p>
-                <div class="mini-progress"><div class="mini-progress-bar" style="width:55%;"></div></div>
-            </div>
-            <div class="sidebar-progress-item">
-                <p>Methodology — 40%</p>
-                <div class="mini-progress"><div class="mini-progress-bar" style="width:40%;"></div></div>
-            </div>
-            <div class="sidebar-progress-item">
-                <p>Final Paper — 20%</p>
-                <div class="mini-progress"><div class="mini-progress-bar" style="width:20%;"></div></div>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <h3>Mini Kanban</h3>
-            <div id="todo"></div>
-            <div id="progress"></div>
-            <div id="review"></div>
-            <div id="done"></div>
         </div>
     </aside>
 
     <main class="main">
 
-        <div class="top-belt">
-            <div class="belt-header">
-                <h1 class="belt-title">Project-Managed Research Tool</h1>
-                <p class="belt-subtitle">
-                    An integrated platform that treats research as a managed project.
-                    The system guides researchers from problem statement formulation,
-                    literature review and methodology development to data analysis,
-                    writing, submission and publication — with a live, self-updating
-                    directory of AI tools suited to each stage.
-                </p>
+        <header class="ribbon">
+            <nav class="ribbon-nav" id="ribbonNav" aria-label="Main">
+                <button type="button" data-page="home" class="active" onclick="showPage('home')">Home</button>
+                <button type="button" data-page="resources" onclick="showPage('resources')">Resources</button>
+                <button type="button" data-page="news" onclick="showPage('news')">Newsroom</button>
+            </nav>
+            <div class="user-chip">
+                <div class="avatar" id="userAvatar" aria-hidden="true"></div>
+                <div class="who"><strong id="userName"></strong><small id="userEmail"></small></div>
+                <button type="button" class="signout" onclick="signOut()">Sign out</button>
             </div>
-            <div class="belt-links">
-                <button onclick="showPanel('newProjectPanel')">Create New Project</button>
-                <button class="journal-btn" onclick="showPanel('journalPanel')">Find Journals</button>
+        </header>
+
+        <div id="infoView" class="info-view" hidden></div>
+
+        <!-- ================= HOME ================= -->
+        <div id="homeView">
+            <div class="top-belt">
+                <div class="belt-header">
+                    <h1 class="belt-title">Project-Managed Research Tool</h1>
+                    <p class="belt-subtitle">
+                        An integrated platform that treats research as a managed project.
+                        Open a project to manage its Kanban board and walk through the research cycle,
+                        with a live directory of AI and digital tools for every stage.
+                    </p>
+                </div>
+                <div class="belt-links">
+                    <button onclick="showPanel('newProjectPanel')">Create New Project</button>
+                    <button class="journal-btn" onclick="showPanel('journalPanel')">Find Journals</button>
+                </div>
+            </div>
+
+            <ol class="steps" aria-label="How ResearchFlow works">
+                <li><b>1</b><span>Create a project<small>Choose journal or conference</small></span></li>
+                <li><b>2</b><span>Write each stage<small>Tools for every stage</small></span></li>
+                <li><b>3</b><span>Manage tasks<small>Kanban board</small></span></li>
+                <li><b>4</b><span>Write &amp; export<small>Word, PDF, slides, Excel</small></span></li>
+            </ol>
+
+            <section class="stats">
+                <div class="stat-card"><h3>Active Projects</h3><strong id="statProjects">0</strong></div>
+                <div class="stat-card"><h3>Research Stages</h3><strong>11</strong></div>
+                <div class="stat-card"><h3>Pending Tasks</h3><strong id="statPending">0</strong></div>
+            </section>
+
+            <div class="home-scroll" id="homeScroll">
+            <section class="action-panel" id="newProjectPanel">
+                <h2 class="section-title">Create a New Research Project</h2>
+                <div class="form-grid">
+                    <input type="text" id="newProjectTitle" placeholder="Project title">
+                    <input type="text" id="newProjectField" placeholder="Research field e.g. Education, ESG, Chemistry">
+                    <input type="date" id="newProjectDeadline">
+                    <select id="newProjectType" aria-label="Publication target" onchange="updateProjectTypeFields()">
+                        <option value="journal">Publishing in a journal</option>
+                        <option value="conference">Presenting at a conference</option>
+                        <option value="thesis">Writing a thesis / dissertation</option>
+                    </select>
+                </div>
+
+                <div class="type-fields" id="conferenceFields" hidden>
+                    <select id="newProjectConference" aria-label="Conference" onchange="updateConferencePreview()">
+                        <option value="">Select a conference</option>
+                    </select>
+                    <p class="field-hint" id="conferencePreview">The conference template is attached to the project and used for the whole write-up.</p>
+                </div>
+
+                <div class="type-fields" id="journalFields">
+                    <textarea id="newProjectProblem" rows="4" placeholder="Step 1: describe your problem statement (needed to suggest journals)" oninput="updateJournalRequirement()"></textarea>
+                    <button type="button" class="ghost-btn" id="suggestForProjectBtn" onclick="suggestForNewProject()">Suggest journals from my problem statement</button>
+                    <div class="journal-list" id="newProjectJournalList" hidden></div>
+                    <input type="text" id="newProjectJournal" list="journalOptions" placeholder="Step 2: target journal (optional, pick a suggestion or type one)" oninput="updateJournalRequirement()">
+                    <datalist id="journalOptions"></datalist>
+                    <p class="field-hint" id="journalHint">Write your problem statement first. Journals are then suggested from real published papers on your topic.</p>
+                </div>
+
+                <div class="form-grid" style="margin-top:12px;">
+                    <input type="text" id="newProjectCoauthors" placeholder="Co-author emails (optional, separate with commas)">
+                    <input type="text" id="newProjectReviewers" placeholder="Reviewer emails (optional, separate with commas)">
+                </div>
+                <p class="field-hint">Co-authors can write and manage tasks. Reviewers can read, comment and download. You can change this later in the Team tab.</p>
+
+                <button style="margin-top:15px;" onclick="createNewProject()">Create Project</button>
+                <div class="assistant-result" id="newProjectResult">
+                    <h3>Project Setup</h3>
+                    <p>Enter the project details to initialise a new research workflow.</p>
+                </div>
+            </section>
+
+            <section class="action-panel" id="journalPanel">
+                <h2 class="section-title">Find Suggested Journals</h2>
+                <p class="field-hint">Describe your problem statement first. We then search real published papers and suggest the journals that publish similar work.</p>
+                <div class="form-grid">
+                    <textarea id="journalTopic" rows="4" placeholder="Your problem statement or research question"></textarea>
+                    <input type="text" id="journalField" placeholder="Research field (optional) e.g. Education, ESG">
+                    <button onclick="findJournals()">Suggest Journals</button>
+                </div>
+                <div class="journal-list" id="journalList">
+                    <div class="journal-card">
+                        <h4>No journals suggested yet</h4>
+                        <p>Enter your problem statement to see matching journals.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-head">
+                <h2 class="section-title">Your Projects</h2>
+                <p>Select a project to open its research cycle, tasks and manuscript.</p>
+            </div>
+            <section class="project-grid" id="projectGrid" aria-live="polite">
+                <div class="empty-note">Loading projects...</div>
+            </section>
             </div>
         </div>
 
-        <section class="action-panel" id="newProjectPanel">
-            <h2 class="section-title">Create a New Research Project</h2>
-            <div class="form-grid">
-                <input type="text" id="newProjectTitle" placeholder="Project title">
-                <input type="text" id="newProjectField" placeholder="Research field e.g. Education, ESG, Chemistry">
-                <input type="date" id="newProjectDeadline">
-                <button onclick="createNewProject()">Create Project</button>
-            </div>
-            <div class="assistant-result" id="newProjectResult">
-                <h3>Project Setup</h3>
-                <p>Enter the project details to initialise a new research workflow.</p>
-            </div>
-        </section>
+        <!-- ================= PROJECT ================= -->
+        <div id="projectView" hidden>
+            <button class="back-btn" onclick="showHome()">&larr; All projects</button>
 
-        <section class="action-panel" id="journalPanel">
-            <h2 class="section-title">Find Suggested Journals</h2>
-            <div class="form-grid">
-                <input type="text" id="journalTopic" placeholder="Enter topic or keywords">
-                <select id="journalField">
-                    <option value="general">General Research</option>
-                    <option value="education">Education</option>
-                    <option value="technology">Technology / AI / Information Systems</option>
-                    <option value="sustainability">Sustainability / ESG</option>
-                    <option value="science">Science / Laboratory Research</option>
-                    <option value="business">Business / Management</option>
-                </select>
-                <button onclick="findJournals()">Suggest Journals</button>
-            </div>
-            <div class="journal-list" id="journalList">
-                <div class="journal-card">
-                    <h4>No journals suggested yet</h4>
-                    <p>Enter your topic and field to generate possible publication outlets.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="stats">
-            <div class="stat-card"><h3>Active Research Projects</h3><strong id="statProjects">0</strong></div>
-            <div class="stat-card"><h3>Research Stages</h3><strong>11</strong></div>
-            <div class="stat-card"><h3>Pending Tasks</h3><strong id="statPending">0</strong></div>
-            <div class="stat-card"><h3>Overall Progress</h3><strong id="statProgress">0%</strong></div>
-        </section>
-
-        <h2 class="section-title">Add a Research Task</h2>
-        <section class="add-task">
-            <div class="form-grid">
-                <input type="text" id="taskTitle" placeholder="Task title e.g. Draft problem statement">
-                <select id="taskStage">
-                    <option value="todo">To Do</option>
-                    <option value="progress">In Progress</option>
-                    <option value="review">Review</option>
-                    <option value="done">Done</option>
-                </select>
-                <input type="text" id="taskOutput" placeholder="Expected output e.g. 2-page draft">
-                <button onclick="addTask()">Add Task</button>
-            </div>
-        </section>
-
-        <h2 class="section-title">Research Assistant Workspace</h2>
-        <section class="assistant-box">
-            <div class="form-grid">
-                <select id="researchStage" onchange="onStageChange()">
-                    <option value="problem">Problem Statement & Concept Note</option>
-                    <option value="literature">Literature Review</option>
-                    <option value="framework">Conceptual & Theoretical Framework</option>
-                    <option value="methodology">Methodology</option>
-                    <option value="datacollection">Data Collection</option>
-                    <option value="dataanalysis">Data Analysis</option>
-                    <option value="results">Results & Discussion</option>
-                    <option value="conclusion">Conclusion & Recommendations</option>
-                    <option value="publication">Submission & Publication</option>
-                </select>
-                <input type="text" id="researchTopic" placeholder="Enter your research topic">
-                <button onclick="generateResearchSupport()">Generate Support</button>
+            <div class="project-header">
+                <h1 id="projectTitle"></h1>
+                <p id="projectMeta"></p>
+                <button type="button" id="tabTeam" class="team-link" aria-selected="false" onclick="showTab('team')">+ Add co-author</button>
             </div>
 
-            <textarea id="researchInput" rows="5" placeholder="Paste your research idea, problem statement, concept note, objectives, or draft text here..."></textarea>
+            <div class="tab-bar" role="tablist">
+                <button type="button" role="tab" id="tabOverview" class="tab-btn" aria-selected="true" onclick="showTab('overview')"><span class="tab-step">1</span>Overview</button>
+                <button type="button" role="tab" id="tabTasks" class="tab-btn" aria-selected="false" onclick="showTab('tasks')"><span class="tab-step">2</span>Tasks</button>
+                <button type="button" role="tab" id="tabWrite" class="tab-btn" aria-selected="false" onclick="showTab('write')"><span class="tab-step">3</span>Write</button>
+                <button type="button" role="tab" id="tabConcept" class="tab-btn" aria-selected="false" onclick="showTab('concept')"><span class="tab-step">4</span>Concept Note</button>
+                <button type="button" role="tab" id="tabSupport" class="tab-btn" aria-selected="false" onclick="showTab('support')"><span class="tab-step">5</span>Ethics &amp; Assistant</button>
+                            </div>
+                            <div class="role-banner" id="roleBanner" hidden></div>
 
-            <div class="assistant-result" id="assistantResult">
-                <h3>Research Support Output</h3>
-                <p>Select a research stage and enter your topic to receive structured guidance.</p>
+                            <div id="teamTab" hidden>
+                                <div class="section-head">
+                                    <h2 class="section-title">Team</h2>
+                                    <p>Co-authors write alongside you. Reviewers read, comment and download. They get an invitation email (if email is set up) and see the project when they sign in with that address.</p>
+                                </div>
+                                <section class="team-box">
+                                    <div id="teamList"></div>
+                                    <form class="team-add" id="teamAdd" onsubmit="addMember(event)">
+                                        <input type="email" id="memberEmail" placeholder="Email address" required>
+                                        <select id="memberRole" aria-label="Role">
+                                            <option value="coauthor">Co-author</option>
+                                            <option value="reviewer">Reviewer</option>
+                                        </select>
+                                        <button type="submit">Add to project</button>
+                                    </form>
+                                    <p class="field-hint" id="teamMsg" aria-live="polite"></p>
+                                </section>
+                                <section class="team-box">
+                                    <h3 class="card-title">Recent changes</h3>
+                                    <div id="activityList"></div>
+                                </section>
+                            </div>
+            <div id="overviewTab">
+            <section class="manuscript-box" id="manuscriptBox"></section>
             </div>
 
-            <div class="ai-tools-panel" id="aiToolsPanel">
-                <h3>AI Tools You Can Use For This Stage</h3>
-                <p class="ai-tools-meta" id="aiToolsMeta">Select a stage above to load live suggestions.</p>
-                <div class="ai-tools-grid" id="aiToolsGrid"></div>
+            <div id="tasksTab" hidden>
+            <div class="section-head">
+                <h2 class="section-title">Kanban Board</h2>
+                <p>Plan the work, move tasks across the columns and keep every deliverable visible.</p>
             </div>
-        </section>
+            <section class="board" id="board"></section>
 
-        <h2 class="section-title">Ethics Decision</h2>
-        <section class="ethics-box">
-            <div class="form-grid">
-                <select id="ethicsStatus" onchange="updateEthicsStatus()">
-                    <option value="">Select ethics status</option>
-                    <option value="not_required">Ethics Not Required</option>
-                    <option value="required">Ethics Required</option>
-                    <option value="approved">Ethics Approved</option>
-                </select>
-                <input type="text" id="ethicsReason" placeholder="Reason e.g. secondary data / surveys / interviews">
-            </div>
-            <div class="ethics-extra" id="ethicsExtra">
+            <section class="add-task">
+                <h3 class="card-title">Add a task</h3>
                 <div class="form-grid">
-                    <input type="text" id="ethicsAppNumber" placeholder="Ethics application / approval number">
-                    <input type="date" id="ethicsApprovalDate">
-                    <input type="text" id="ethicsCommittee" placeholder="Ethics committee name">
-                    <input type="file" id="ethicsFile">
+                    <input type="text" id="taskTitle" placeholder="Task title e.g. Draft problem statement">
+                    <select id="taskStage">
+                        <option value="todo">To Do</option>
+                        <option value="progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="done">Done</option>
+                    </select>
+                    <input type="text" id="taskOutput" placeholder="Expected output e.g. 2-page draft">
+                    <button onclick="addTask()">Add Task</button>
                 </div>
+            </section>
             </div>
-            <div class="ethics-result" id="ethicsResult">
-                <h3>Awaiting Ethics Decision</h3>
-                <p>Select whether ethics is not required, required, or already approved.</p>
+
+            <div id="supportTab" hidden>
+            <div class="section-head">
+                <h2 class="section-title">Ethics Decision</h2>
+                <p>Record whether ethics clearance is needed and keep the approval details with the project.</p>
             </div>
-        </section>
+            <section class="ethics-box">
+                <div class="form-grid">
+                    <select id="ethicsStatus" onchange="updateEthicsStatus()">
+                        <option value="">Select ethics status</option>
+                        <option value="not_required">Ethics Not Required</option>
+                        <option value="required">Ethics Required</option>
+                        <option value="approved">Ethics Approved</option>
+                    </select>
+                    <input type="text" id="ethicsReason" placeholder="Reason e.g. secondary data / surveys / interviews">
+                </div>
+                <div class="ethics-extra" id="ethicsExtra">
+                    <div class="form-grid">
+                        <input type="text" id="ethicsAppNumber" placeholder="Ethics application / approval number">
+                        <input type="date" id="ethicsApprovalDate">
+                        <input type="text" id="ethicsCommittee" placeholder="Ethics committee name">
+                        <input type="file" id="ethicsFile">
+                    </div>
+                </div>
+                <div class="ethics-result" id="ethicsResult">
+                    <h3>Awaiting Ethics Decision</h3>
+                    <p>Select whether ethics is not required, required, or already approved.</p>
+                </div>
+            </section>
 
-        <h2 class="section-title">Research Lifecycle as a Project</h2>
-        <p style="color:var(--muted);margin-bottom:12px;font-size:14px;">Click any stage to load its live AI tools list below.</p>
+            <div class="section-head">
+                <h2 class="section-title">Research Assistant Workspace</h2>
+                <p>Get structured guidance for the stage you are working on.</p>
+            </div>
+            <section class="assistant-box">
+                <div class="form-grid">
+                    <select id="researchStage">
+                        <option value="problem">Problem Statement & Concept Note</option>
+                        <option value="literature">Literature Review</option>
+                        <option value="framework">Conceptual & Theoretical Framework</option>
+                        <option value="methodology">Methodology</option>
+                        <option value="datacollection">Data Collection</option>
+                        <option value="dataanalysis">Data Analysis</option>
+                        <option value="results">Results & Discussion</option>
+                        <option value="conclusion">Conclusion & Recommendations</option>
+                        <option value="publication">Submission & Publication</option>
+                    </select>
+                    <input type="text" id="researchTopic" placeholder="Enter your research topic">
+                    <button onclick="generateResearchSupport()">Generate Support</button>
+                </div>
 
-        <section class="lifecycle">
-            <div class="stage-card" data-stage="problem"><div class="stage-number">1</div><h3>Problem Statement</h3><p>Develop topic, background, literature gap, research problem, aim, objectives, and research questions.</p><span class="tag">Research Gap</span><span class="tag">Problem</span><span class="tag">Objectives</span></div>
-            <div class="stage-card" data-stage="problem"><div class="stage-number">2</div><h3>Concept Note</h3><p>Summarise the study rationale, contribution, scope, methods, expected outputs, and feasibility.</p><span class="tag">Rationale</span><span class="tag">Scope</span><span class="tag">Contribution</span></div>
-            <div class="stage-card" data-stage="literature"><div class="stage-number">3</div><h3>Literature Review</h3><p>Use the problem statement to build headings, subheadings, themes, debates, and gaps.</p><span class="tag">Themes</span><span class="tag">Headings</span><span class="tag">Gap</span></div>
-            <div class="stage-card" data-stage="framework"><div class="stage-number">4</div><h3>Conceptual & Theoretical Framework</h3><p>Identify relevant theories, concepts, variables, constructs, and relationships for the study.</p><span class="tag">Theory</span><span class="tag">Variables</span><span class="tag">Model</span></div>
-            <div class="stage-card" data-stage="methodology"><div class="stage-number">5</div><h3>Methodology</h3><p>Curate research approach, design, population, sampling, instruments, validity, and analysis plan.</p><span class="tag">Qualitative</span><span class="tag">Quantitative</span><span class="tag">Mixed Methods</span></div>
-            <div class="stage-card" data-stage="ethics"><div class="stage-number">6</div><h3>Ethics Decision</h3><p>Determine whether ethics is required, not required, or already approved before data collection.</p><span class="tag">Not Required</span><span class="tag">Required</span><span class="tag">Approved</span></div>
-            <div class="stage-card" data-stage="datacollection"><div class="stage-number">7</div><h3>Data Collection</h3><p>Manage qualitative, quantitative, mixed-methods, laboratory, fieldwork, or secondary data collection.</p><span class="tag">Survey</span><span class="tag">Interview</span><span class="tag">Dataset</span></div>
-            <div class="stage-card" data-stage="datacleaning"><div class="stage-number">8</div><h3>Data Cleaning</h3><p>Prepare, code, validate, transform, anonymise, and organise data for analysis.</p><span class="tag">Cleaning</span><span class="tag">Coding</span><span class="tag">Validation</span></div>
-            <div class="stage-card" data-stage="dataanalysis"><div class="stage-number">9</div><h3>Data Analysis</h3><p>Run qualitative coding, statistical tests, models, visualisations, or experimental analysis.</p><span class="tag">Statistics</span><span class="tag">Themes</span><span class="tag">Graphs</span></div>
-            <div class="stage-card" data-stage="conclusion"><div class="stage-number">10</div><h3>Writing</h3><p>Write introduction, literature review, methods, results, discussion, conclusion, and recommendations.</p><span class="tag">Chapters</span><span class="tag">Manuscript</span><span class="tag">Drafting</span></div>
-            <div class="stage-card" data-stage="publication"><div class="stage-number">11</div><h3>Review & Submission</h3><p>Manage feedback, revision, formatting, referencing, journal submission, and final archiving.</p><span class="tag">Review</span><span class="tag">Submission</span><span class="tag">Publication</span></div>
-        </section>
+                <textarea id="researchInput" rows="5" placeholder="Paste your research idea, problem statement, concept note, objectives, or draft text here..."></textarea>
+
+                <div class="assistant-result" id="assistantResult">
+                    <h3>Research Support Output</h3>
+                    <p>Select a research stage and enter your topic to receive structured guidance.</p>
+                </div>
+            </section>
+            </div>
+
+            <div id="conceptTab" hidden>
+                <div class="section-head">
+                    <h2 class="section-title">Concept Note</h2>
+                    <p>Optional. Use this if you want to pitch or plan the paper before drafting it. It is kept apart from the manuscript.</p>
+                </div>
+                <section class="write-editor concept-editor">
+                    <p class="field-hint">Cover: rationale, contribution, scope, methods, expected outputs and feasibility.</p>
+                    <textarea id="conceptText" rows="16" placeholder="Write your concept note here. It saves automatically." oninput="onWriteInput('conceptNote')"></textarea>
+                    <div class="write-status"><span id="conceptCount"></span><span id="conceptSaveState" aria-live="polite"></span></div>
+                </section>
+            </div>
+
+            <div id="writeTab" hidden>
+                <section class="template-box" id="templateBox" hidden>
+                    <div class="template-head">
+                        <div>
+                            <h3>Conference template</h3>
+                            <p class="field-hint" id="templateStatus"></p>
+                        </div>
+                        <label class="file-btn">Upload template<input type="file" id="templateFile" accept=".pdf,.docx,.doc,.odt,.rtf,.tex,.md,.txt" hidden onchange="loadTemplateFile(this)"></label>
+                    </div>
+                    <textarea id="templateSections" rows="5" placeholder="Section headings from the template, one per line. Upload the conference template (PDF, Word, ODT, RTF, LaTeX, Markdown or text) to fill this in, or paste the headings here."></textarea>
+                    <div class="template-actions">
+                        <button type="button" onclick="applyTemplate()">Use these sections</button>
+                        <button type="button" class="ghost-btn" id="templateReset" onclick="resetTemplate()">Use standard paper stages</button>
+                        <span class="field-hint" id="templateMsg" aria-live="polite"></span>
+                    </div>
+                </section>
+
+                <div class="write-toolbar">
+                    <button type="button" id="findPapersBtn" onclick="togglePapers()">🔎 Find papers</button>
+                    <span class="field-hint">Build a search string, collect papers and grow a knowledge base for your methodology and data stages.</span>
+                </div>
+                <section class="papers-box" id="papersBox" hidden></section>
+
+                <div class="write-layout">
+                    <nav class="write-stages" id="writeStages" aria-label="Research stages"></nav>
+                    <section class="write-editor">
+                        <h2 id="writeStageTitle"></h2>
+                        <p class="field-hint" id="writeStageDesc"></p>
+                        <textarea id="writeText" rows="16" placeholder="Write this section here. It saves automatically. Download your paper from the bottom of this page." oninput="onWriteInput()"></textarea>
+                        <div class="write-status"><span id="writeCount"></span><span id="writeSaveState" aria-live="polite"></span></div>
+                        <p class="field-hint" id="writeLastEdit"></p>
+                        <div class="write-tools" id="writeTools"></div>
+                        <div class="comments-box" id="writeComments"></div>
+                    </section>
+                </div>
+
+                <section class="compiled-box export-box">
+                    <div class="compiled-head">
+                        <div>
+                            <h2>Download</h2>
+                            <span class="field-hint" id="compiledCount"></span>
+                        </div>
+                        <span class="field-hint" id="exportStatus" aria-live="polite"></span>
+                    </div>
+                    <div class="export-grid">
+                        <div class="export-group">
+                            <h3>Paper</h3>
+                            <button type="button" onclick="exportAs('docx')">Word (.docx)</button>
+                            <button type="button" onclick="exportAs('pdf')">PDF</button>
+                        </div>
+                        <div class="export-group">
+                            <h3>Slides</h3>
+                            <button type="button" onclick="exportAs('pptx')">PowerPoint (.pptx)</button>
+                        </div>
+                        <div class="export-group">
+                            <h3>Data &amp; analysis</h3>
+                            <button type="button" onclick="exportAs('xlsx')">Excel (.xlsx)</button>
+                            <button type="button" onclick="exportAs('csv')">CSV</button>
+                        </div>
+                    </div>
+                    <p class="field-hint">Slides use the key points from each section. Excel and CSV export any tables you type in a section (rows separated by | or tabs) plus a section summary and your tasks.</p>
+                </section>
+            </div>
+        </div>
 
     </main>
 </div>
@@ -323,25 +446,72 @@ button:disabled{opacity:0.6;cursor:not-allowed;}
 // Point this at wherever researchflow-backend is running.
 const API_BASE = window.RESEARCHFLOW_API_BASE || 'http://localhost:4000/api';
 
-let currentProjectId = localStorage_safe_get('rf_current_project_id') || null;
-let aiToolsPollTimer = null;
+const COLUMNS = [
+    { key: 'todo', label: 'To Do' },
+    { key: 'progress', label: 'In Progress' },
+    { key: 'review', label: 'Review' },
+    { key: 'done', label: 'Done' },
+];
 
-function localStorage_safe_get(key){
-    // Artifacts/sandboxed previews may not have localStorage; degrade quietly.
-    try { return window.localStorage ? window.localStorage.getItem(key) : null; } catch(e){ return null; }
+// progressKey matches the backend's project.progress keys; toolStages match /ai-tools stage names.
+const STAGES = [
+    { n: 1, title: 'Problem Statement', progressKey: 'problemStatement', toolStages: ['problem'], desc: 'Develop topic, background, literature gap, research problem, aim, objectives, and research questions. In a paper this usually lives inside the Introduction.', tags: ['Research Gap', 'Problem', 'Objectives'] },
+    { n: 3, title: 'Literature Review', progressKey: 'literatureReview', toolStages: ['literature'], desc: 'Use the problem statement to build headings, subheadings, themes, debates, and gaps.', tags: ['Themes', 'Headings', 'Gap'] },
+    { n: 4, title: 'Conceptual & Theoretical Framework', progressKey: 'frameworks', toolStages: ['framework'], desc: 'Identify relevant theories, concepts, variables, constructs, and relationships for the study.', tags: ['Theory', 'Variables', 'Model'] },
+    { n: 5, title: 'Methodology', progressKey: 'methodology', toolStages: ['methodology'], desc: 'Curate research approach, design, population, sampling, instruments, validity, and analysis plan.', tags: ['Qualitative', 'Quantitative', 'Mixed Methods'] },
+    { n: 6, title: 'Ethics Decision', progressKey: 'ethics', toolStages: ['ethics'], desc: 'Determine whether ethics is required, not required, or already approved before data collection.', tags: ['Not Required', 'Required', 'Approved'] },
+    { n: 7, title: 'Data Collection', progressKey: 'dataCollection', toolStages: ['datacollection'], desc: 'Manage qualitative, quantitative, mixed-methods, laboratory, fieldwork, or secondary data collection.', tags: ['Survey', 'Interview', 'Dataset'] },
+    { n: 8, title: 'Data Cleaning', progressKey: null, toolStages: ['datacleaning'], desc: 'Prepare, code, validate, transform, anonymise, and organise data for analysis.', tags: ['Cleaning', 'Coding', 'Validation'] },
+    { n: 9, title: 'Data Analysis', progressKey: 'dataAnalysis', toolStages: ['dataanalysis'], desc: 'Run qualitative coding, statistical tests, models, visualisations, or experimental analysis.', tags: ['Statistics', 'Themes', 'Graphs'] },
+    { n: 10, title: 'Writing', progressKey: 'writing', toolStages: ['results', 'conclusion'], desc: 'Write introduction, literature review, methods, results, discussion, conclusion, and recommendations.', tags: ['Chapters', 'Manuscript', 'Drafting'] },
+    { n: 11, title: 'Review & Submission', progressKey: 'submission', toolStages: ['publication'], desc: 'Manage feedback, revision, formatting, referencing, journal submission, and final archiving.', tags: ['Review', 'Submission', 'Publication'] },
+];
+
+let projects = [];
+let conferences = [];
+let allTasks = [];
+let toolsByStage = null;
+let toolsMeta = {};
+let toolsError = null;
+let currentProjectId = null;
+let projectsRequestId = 0;
+let authToken = localStorage.getItem('rf_token');
+let currentUser = null;
+let resetToken = null;
+let toolsTimer = null;
+let tasksRequestId = 0;
+let ethicsRequestId = 0;
+
+/* ---------------- helpers ---------------- */
+function h(tag, className, text){
+    const node = document.createElement(tag);
+    if(className) node.className = className;
+    if(text !== undefined) node.textContent = text;
+    return node;
 }
-function localStorage_safe_set(key, value){
-    try { if (window.localStorage) window.localStorage.setItem(key, value); } catch(e){ /* no-op */ }
+
+function esc(value){
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function safeUrl(url){
+    return /^https?:\/\//i.test(url || '') ? url : '#';
+}
+
+function currentProject(){
+    return projects.find(p => p.id === currentProjectId) || null;
 }
 
 async function api(path, options = {}){
-    const res = await fetch(`${API_BASE}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-    });
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    if(authToken) headers.Authorization = `Bearer ${authToken}`;
+    const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed: ${res.status}`);
+        if (res.status === 401 && !path.startsWith('/auth/')) signOut('Your session has expired. Please sign in again.');
+        const error = new Error(body.error || `Request failed: ${res.status}`);
+        error.status = res.status;
+        throw error;
     }
     if (res.status === 204) return null;
     return res.json();
@@ -353,138 +523,1510 @@ function showPanel(panelId){
     document.getElementById(panelId).style.display = "block";
 }
 
-/* ---------------- Projects ---------------- */
-async function createNewProject(){
-    const title = document.getElementById("newProjectTitle").value;
-    const field = document.getElementById("newProjectField").value;
-    const deadline = document.getElementById("newProjectDeadline").value;
-    const result = document.getElementById("newProjectResult");
+/* ---------------- Navigation ---------------- */
+function setRibbon(page){
+    document.querySelectorAll('.ribbon-nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+}
 
-    if(title.trim() === ""){ alert("Please enter a project title."); return; }
+function showHome(){
+    flushSave();
+    currentProjectId = null;
+    ethicsRequestId++;
+    document.getElementById('homeView').hidden = false;
+    document.getElementById('projectView').hidden = true;
+    document.getElementById('infoView').hidden = true;
+    document.getElementById('navHome').classList.add('active');
+    setRibbon('home');
+    renderAll();
+    window.scrollTo({ top: 0 });
+}
 
+function openProject(projectId){
+    flushSave();
+    currentProjectId = projectId;
+    document.getElementById('homeView').hidden = true;
+    document.getElementById('projectView').hidden = false;
+    document.getElementById('infoView').hidden = true;
+    document.getElementById('navHome').classList.remove('active');
+    setRibbon('home');
+    writeKey = null;
+    kb = null;
+    kbProjectId = null;
+    kbMsg = '';
+    document.getElementById('papersBox').hidden = true;
+    showTab('overview');
+    renderAll();
+    loadWriteEditor();
+    loadKb();
+    fillTemplateInput();
+    renderBoard();
+    loadEthics();
+    const project = currentProject();
+    document.getElementById('researchInput').value = (project && project.problemStatement) || '';
+    document.getElementById('researchStage').value = 'problem';
+    window.scrollTo({ top: 0 });
+}
+
+/* ---------------- Ribbon pages ---------------- */
+// Replace with the address that should receive messages from the Contact Us form.
+const CONTACT_EMAIL = 'support@researchflow.app';
+
+const INFO_PAGES = {
+    about: {
+        title: 'About Us',
+        lead: 'ResearchFlow treats research as a managed project, so a paper or thesis moves from first idea to submission without losing track along the way.',
+        cards: [
+            { h: 'Why we built it', p: 'Researchers juggle literature, ethics, data, writing and deadlines across many tools. ResearchFlow brings the plan, the tasks, the tools and the manuscript into one workspace.' },
+            { h: 'Who it is for', p: 'Postgraduate students, academics and research teams writing journal articles, conference papers and theses.' },
+            { h: 'What we believe', p: 'Good research management should be simple, structured and respectful of how real papers are written, not a rigid form to fill in.' },
+        ],
+    },
+    what: {
+        title: 'What We Do',
+        lead: 'Everything you need to run a research project, in one place.',
+        cards: [
+            { h: 'Research cycle', p: 'Ten clear stages from problem statement to submission, each with progress tracking.' },
+            { h: 'AI and digital tools', p: 'A live directory of tools matched to the stage you are working on.' },
+            { h: 'Kanban task board', p: 'Plan and track the work for every project with a simple To do, In progress and Done board.' },
+            { h: 'One place to write', p: 'Write section by section, then download your paper as Word or PDF, turn it into PowerPoint slides, or export data to Excel or CSV.' },
+            { h: 'Conference templates', p: 'Pick a conference or upload its template, and your sections follow the required format.' },
+            { h: 'Concept note and ethics', p: 'Draft a concept note on its own and get guidance on ethics decisions.' },
+        ],
+    },
+    resources: {
+        title: 'Resources',
+        lead: 'Handy starting points for planning and writing your paper.',
+        cards: [
+            { h: 'Find a journal', p: 'Search for a journal that fits your topic.', action: 'Find journals', run: () => { showHome(); showPanel('journalPanel'); } },
+            { h: 'Start a new project', p: 'Choose journal, conference or thesis and get the matching structure.', action: 'Create a project', run: () => { showHome(); showPanel('newProjectPanel'); } },
+            { h: 'ACM paper template', p: 'The official proceedings template for ACM conferences.', link: 'https://www.acm.org/publications/proceedings-template' },
+            { h: 'Springer LNCS guidelines', p: 'Author guidelines and templates for LNCS conference proceedings.', link: 'https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines' },
+        ],
+    },
+    news: {
+        title: 'Newsroom',
+        lead: 'Upcoming conferences, research funding and calls for papers.',
+    },
+};
+
+const NEWS_FILTERS = [['all', 'All'], ['funding', 'Research funding'], ['conference', 'Conferences'], ['cfp', 'Calls for papers']];
+const NEWS_LABELS = { funding: 'Funding', conference: 'Conference', cfp: 'Call for papers' };
+
+async function renderNews(view, grid){
+    const bar = h('div', 'news-filters');
+    view.insertBefore(bar, grid);
+    grid.replaceChildren(h('div', 'info-card', 'Loading the latest news...'));
+    let items = [];
     try{
-        const project = await api('/projects', { method: 'POST', body: JSON.stringify({ title, field, deadline }) });
-        currentProjectId = project.id;
-        localStorage_safe_set('rf_current_project_id', project.id);
-
-        result.innerHTML = `
-            <h3>New Project Created</h3>
-            <p><strong>Title:</strong> ${project.title}</p>
-            <p><strong>Field:</strong> ${project.field}</p>
-            <p><strong>Deadline:</strong> ${project.deadline || "Not specified"}</p>
-            <p>The project workflow has been initialised from problem statement to publication.</p>
-            <span class="badge done">Project Created</span>
-        `;
-        refreshStats();
+        const data = await api('/news');
+        items = [...data.live, ...data.curated];
     } catch(err){
-        result.innerHTML = `<h3>Couldn't create project</h3><p>${err.message}. Is the backend running at ${API_BASE}?</p>`;
+        grid.replaceChildren(h('div', 'info-card', `Couldn't load the newsroom: ${err.message}`));
+        return;
     }
+    const draw = filter => {
+        bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+        grid.replaceChildren();
+        items.filter(i => filter === 'all' || i.category === filter).forEach(item => {
+            const el = h('div', 'info-card news-item');
+            el.appendChild(h('small', '', [NEWS_LABELS[item.category] || '', item.live ? 'Live' : '', item.date || ''].filter(Boolean).join(' · ')));
+            el.appendChild(h('h3', '', item.title));
+            el.appendChild(h('p', '', item.summary));
+            const a = h('a', 'info-link', `${item.source || 'Read more'} ↗`);
+            a.href = safeUrl(item.url); a.target = '_blank'; a.rel = 'noopener noreferrer';
+            el.appendChild(a);
+            grid.appendChild(el);
+        });
+        if(!grid.children.length) grid.appendChild(h('div', 'info-card', 'Nothing here yet.'));
+    };
+    NEWS_FILTERS.forEach(([key, label]) => {
+        const b = h('button', 'chip', label);
+        b.type = 'button'; b.dataset.filter = key;
+        b.addEventListener('click', () => draw(key));
+        bar.appendChild(b);
+    });
+    draw('all');
 }
 
-async function refreshStats(){
-    try{
-        const projects = await api('/projects');
-        document.getElementById('statProjects').textContent = projects.length;
-        const avg = projects.length
-            ? Math.round(projects.reduce((s,p)=>s+p.overallProgress,0) / projects.length)
-            : 0;
-        document.getElementById('statProgress').textContent = `${avg}%`;
-    } catch(e){ /* backend not reachable yet — leave defaults */ }
-
-    try{
-        const tasks = await api('/tasks');
-        const pending = tasks.filter(t => t.column !== 'done').length;
-        document.getElementById('statPending').textContent = pending;
-    } catch(e){ /* ignore */ }
-}
-
-/* ---------------- Journals ---------------- */
-async function findJournals(){
-    const field = document.getElementById("journalField").value;
-    const topic = document.getElementById("journalTopic").value || "your research topic";
-    const journalList = document.getElementById("journalList");
-
-    try{
-        const data = await api(`/journals?field=${encodeURIComponent(field)}&topic=${encodeURIComponent(topic)}`);
-        journalList.innerHTML = data.journals.map(j => `
-            <div class="journal-card">
-                <h4>${j.name}</h4>
-                <p>${j.fit}</p>
-                <p><strong>Topic fit:</strong> ${j.topicFit}</p>
-                <span class="badge progress">Suggested</span>
-            </div>
-        `).join("");
-    } catch(err){
-        journalList.innerHTML = `<div class="journal-card"><h4>Couldn't load journals</h4><p>${err.message}</p></div>`;
+function infoCard(card){
+    const el = h('div', 'info-card');
+    el.appendChild(h('h3', '', card.h));
+    el.appendChild(h('p', '', card.p));
+    if(card.run){
+        const btn = h('button', '', card.action);
+        btn.type = 'button';
+        btn.addEventListener('click', card.run);
+        el.appendChild(btn);
     }
-}
-
-/* ---------------- Kanban tasks ---------------- */
-function badgeForColumn(column){
-    if(column === "progress") return ["progress","In Progress"];
-    if(column === "review") return ["review","Review"];
-    if(column === "done") return ["done","Done"];
-    return ["pending","To Do"];
-}
-
-function renderTask(task){
-    const [badgeClass, badgeText] = badgeForColumn(task.column);
-    const el = document.createElement("div");
-    el.className = "sidebar-task";
-    el.innerHTML = `
-        <h4>${task.title}</h4>
-        <p>${task.output}</p>
-        <span class="badge ${badgeClass}">${badgeText}</span>
-    `;
+    if(card.link){
+        const a = h('a', 'info-link', 'Open ↗');
+        a.href = safeUrl(card.link);
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        el.appendChild(a);
+    }
     return el;
 }
 
-async function loadTasks(){
+function renderContact(wrap){
+    const form = h('form', 'info-card contact-form');
+    form.appendChild(h('h3', '', 'Send us a message'));
+    const fields = [['Your name', 'text', 'contactName'], ['Your email', 'email', 'contactEmail']];
+    fields.forEach(([label, type, id]) => {
+        form.appendChild(h('label', '', label)).htmlFor = id;
+        const input = h('input');
+        input.type = type; input.id = id; input.required = true;
+        form.appendChild(input);
+    });
+    form.appendChild(h('label', '', 'Message')).htmlFor = 'contactMessage';
+    const area = h('textarea');
+    area.id = 'contactMessage'; area.rows = 5; area.required = true;
+    form.appendChild(area);
+    const send = h('button', '', 'Send message');
+    send.type = 'submit';
+    form.appendChild(send);
+    form.appendChild(h('p', 'field-hint', `This opens your email app addressed to ${CONTACT_EMAIL}.`));
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const subject = encodeURIComponent(`ResearchFlow enquiry from ${area.form.contactName.value.trim()}`);
+        const body = encodeURIComponent(`${area.value.trim()}\n\n${area.form.contactName.value.trim()} (${area.form.contactEmail.value.trim()})`);
+        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    });
+    wrap.appendChild(form);
+
+    const side = h('div', 'info-card');
+    side.appendChild(h('h3', '', 'Other ways to reach us'));
+    side.appendChild(h('p', '', 'Questions, feedback or ideas for a feature are all welcome.'));
+    const mail = h('a', 'info-link', CONTACT_EMAIL);
+    mail.href = `mailto:${CONTACT_EMAIL}`;
+    side.appendChild(mail);
+    wrap.appendChild(side);
+}
+
+function showPage(page){
+    if(page === 'home') return currentUser ? showHome() : showAuth('signin');
+    const data = INFO_PAGES[page];
+    if(!data && page !== 'contact') return;
+    const signedOut = !currentUser;
+    if(signedOut){
+        document.getElementById('authView').hidden = true;
+    } else {
+        flushSave();
+        currentProjectId = null;
+        ethicsRequestId++;
+        document.getElementById('homeView').hidden = true;
+        document.getElementById('projectView').hidden = true;
+        document.getElementById('navHome').classList.remove('active');
+        renderSidebar();
+    }
+
+    const view = document.getElementById(signedOut ? 'publicInfo' : 'infoView');
+    view.replaceChildren();
+    const head = h('div', 'info-head');
+    head.appendChild(h('h1', '', page === 'contact' ? 'Contact Us' : data.title));
+    head.appendChild(h('p', '', page === 'contact' ? 'We would love to hear from you.' : data.lead));
+    view.appendChild(head);
+
+    const grid = h('div', 'info-grid');
+    if(page === 'contact') renderContact(grid);
+    else if(page === 'news'){ view.appendChild(grid); renderNews(view, grid); }
+    else data.cards.forEach(card => {
+        const shown = signedOut && card.run ? { ...card, run: () => showAuth('signup') } : card;
+        grid.appendChild(infoCard(shown));
+    });
+    view.appendChild(grid);
+
+    view.hidden = false;
+    setRibbon(page);
+    window.scrollTo({ top: 0 });
+}
+
+function renderAll(){
+    renderSidebar();
+    renderProjectGrid();
+    renderProjectHeader();
+    renderManuscript();
+    renderWrite();
+    renderTeam();
+    renderComments();
+    renderLastEdit();
+    renderBoard();
+    applyRole();
+}
+
+/* ---------------- Writing: one place for the whole manuscript ---------------- */
+const PAPER_SECTIONS = [
+    { key: 'abstract', title: 'Abstract', desc: 'About 150-250 words: the problem, approach, main findings and contribution. Easiest to write last.', stages: [] },
+    { key: 'keywords', title: 'Keywords', desc: '4-6 keywords separated by commas.', stages: [] },
+    { key: 'introduction', title: 'Introduction', desc: 'Background, the problem and gap, the aim, objectives or research questions, and a short outline of the paper. The problem statement lives here, not in a section of its own.', stages: ['problem'] },
+    { key: 'literatureReview', title: 'Literature Review', desc: 'Themes, debates and gaps in the literature, and the theory or framework the study builds on.', stages: ['literature', 'framework'] },
+    { key: 'methodology', title: 'Methodology', desc: 'Research design, participants or data, instruments, procedure, analysis plan and ethics statement.', stages: ['methodology', 'ethics', 'datacollection'] },
+    { key: 'results', title: 'Results', desc: 'What you found, reported clearly with tables or figures where needed.', stages: ['dataanalysis', 'datacleaning'] },
+    { key: 'discussion', title: 'Discussion', desc: 'What the results mean, how they relate to earlier work, and the limitations.', stages: ['results'] },
+    { key: 'conclusion', title: 'Conclusion', desc: 'Main takeaways, contribution, recommendations and future research.', stages: [] },
+    { key: 'references', title: 'References', desc: 'The reference list in the required citation style.', stages: ['publication'] },
+];
+
+// A thesis is the one case where the full structure is written out section by section.
+const THESIS_SECTIONS = [
+    { key: 'abstract', title: 'Abstract', desc: 'A summary of the whole thesis. Write it last.', stages: [] },
+    { key: 'introduction', title: 'Introduction & Background', desc: 'Context of the study and why it matters.', stages: [] },
+    { key: 'problemStatement', title: 'Problem Statement', desc: 'The research problem and the gap the study addresses.', stages: ['problem'] },
+    { key: 'objectives', title: 'Research Objectives & Questions', desc: 'The aim, objectives, research questions and any hypotheses.', stages: [] },
+    { key: 'literatureReview', title: 'Literature Review', desc: 'Themes, debates and gaps in the literature.', stages: ['literature'] },
+    { key: 'frameworks', title: 'Conceptual & Theoretical Framework', desc: 'The theories, concepts, variables and relationships guiding the study.', stages: ['framework'] },
+    { key: 'methodology', title: 'Methodology', desc: 'Design, population, sampling, instruments, validity, ethics and the analysis plan.', stages: ['methodology', 'ethics'] },
+    { key: 'dataCollection', title: 'Data Collection', desc: 'How the data was gathered.', stages: ['datacollection'] },
+    { key: 'dataAnalysis', title: 'Data Analysis', desc: 'How the data was cleaned and analysed.', stages: ['dataanalysis', 'datacleaning'] },
+    { key: 'results', title: 'Results & Discussion', desc: 'Findings and their interpretation against the literature.', stages: ['results'] },
+    { key: 'conclusion', title: 'Conclusions & Recommendations', desc: 'Conclusions, contribution, limitations and recommendations.', stages: [] },
+    { key: 'references', title: 'References', desc: 'The reference list.', stages: ['publication'] },
+];
+
+function structureFor(project){
+    if(!project) return PAPER_SECTIONS;
+    if(project.publicationType === 'thesis') return THESIS_SECTIONS;
+    if(project.templateSections && project.templateSections.length){
+        return project.templateSections.map(s => ({ key: s.key, title: s.title, desc: 'A section required by the conference template.', stages: [] }));
+    }
+    return PAPER_SECTIONS;
+}
+
+let writeKey = null;
+let saveTimer = null;
+let pendingSave = null;
+let saveChain = Promise.resolve();
+
+function activeWriteKey(project){
+    const list = structureFor(project);
+    return list.some(s => s.key === writeKey) ? writeKey : list[0].key;
+}
+
+function sectionText(project, key){
+    const saved = project.manuscript && project.manuscript[key];
+    if(typeof saved === 'string') return saved;
+    if(key === 'introduction' && project.publicationType !== 'thesis'){
+        return (project.manuscript && project.manuscript.problemStatement) || project.problemStatement || '';
+    }
+    return '';
+}
+
+function wordCount(text){
+    return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function showTab(tab){
+    flushSave();
+    const ids = { overview: ['overviewTab', 'tabOverview'], tasks: ['tasksTab', 'tabTasks'], write: ['writeTab', 'tabWrite'], concept: ['conceptTab', 'tabConcept'], support: ['supportTab', 'tabSupport'], team: ['teamTab', 'tabTeam'] };
+    Object.keys(ids).forEach(key => {
+        document.getElementById(ids[key][0]).hidden = key !== tab;
+        document.getElementById(ids[key][1]).setAttribute('aria-selected', String(key === tab));
+    });
+    if(tab === 'write') renderWrite();
+    if(tab === 'concept') loadConcept();
+}
+
+function openWriteStage(stageId){
+    const project = currentProject();
+    const section = structureFor(project).find(s => s.stages.includes(stageId));
+    showTab('write');
+    if(section) selectWriteSection(section.key);
+    document.getElementById('writeText').focus();
+}
+
+function selectWriteSection(key){
+    flushSave();
+    writeKey = key;
+    loadWriteEditor();
+    renderWrite();
+}
+
+function loadWriteEditor(){
+    const project = currentProject();
+    if(!project) return;
+    const key = activeWriteKey(project);
+    const section = structureFor(project).find(s => s.key === key);
+    document.getElementById('writeStageTitle').textContent = section.title;
+    document.getElementById('writeStageDesc').textContent = section.desc;
+    document.getElementById('writeText').value = sectionText(project, key);
+    document.getElementById('writeSaveState').textContent = '';
+    renderWriteTools(section);
+    renderComments(true);
+    renderLastEdit();
+    updateWriteCount();
+}
+
+function loadConcept(){
+    const project = currentProject();
+    if(!project) return;
+    document.getElementById('conceptText').value = sectionText(project, 'conceptNote');
+    document.getElementById('conceptSaveState').textContent = '';
+    updateWriteCount();
+}
+
+function updateWriteCount(){
+    const words = wordCount(document.getElementById('writeText').value);
+    document.getElementById('writeCount').textContent = `${words} word${words === 1 ? '' : 's'} in this section`;
+    const concept = wordCount(document.getElementById('conceptText').value);
+    document.getElementById('conceptCount').textContent = `${concept} word${concept === 1 ? '' : 's'}`;
+}
+
+function renderWrite(){
+    const project = currentProject();
+    if(!project) return;
+
+    const nav = document.getElementById('writeStages');
+    nav.replaceChildren();
+    const structure = structureFor(project);
+    const current = activeWriteKey(project);
+    structure.forEach((section, index) => {
+        const words = wordCount(sectionText(project, section.key));
+        const open = (project.comments || []).filter(c => c.section === section.key && !c.resolved).length;
+        const button = h('button', 'write-stage-btn');
+        button.type = 'button';
+        button.appendChild(h('span', '', `${index + 1}. ${section.title}`));
+        button.appendChild(h('small', '', [open ? `💬${open}` : '', words ? `${words}w` : ''].filter(Boolean).join(' ')));
+        if(section.key === current) button.setAttribute('aria-current', 'true');
+        button.addEventListener('click', () => selectWriteSection(section.key));
+        nav.appendChild(button);
+    });
+
+    const total = structure.reduce((sum, section) => sum + wordCount(sectionText(project, section.key)), 0);
+    document.getElementById('compiledCount').textContent = `${total} word${total === 1 ? '' : 's'} in your manuscript`;
+    renderTemplateStatus(project);
+}
+
+function onWriteInput(key){
+    const project = currentProject();
+    if(!project) return;
+    const isConcept = key === 'conceptNote';
+    key = key || activeWriteKey(project);
+    const value = document.getElementById(isConcept ? 'conceptText' : 'writeText').value;
+    project.manuscript = { ...(project.manuscript || {}), [key]: value };
+    updateWriteCount();
+    if(!isConcept) renderWrite();
+    pendingSave = { projectId: project.id, key };
+    document.getElementById(isConcept ? 'conceptSaveState' : 'writeSaveState').textContent = 'Unsaved changes...';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushSave, 700);
+}
+
+function flushSave(){
+    clearTimeout(saveTimer);
+    if(!pendingSave) return saveChain;
+    const { projectId, key } = pendingSave;
+    pendingSave = null;
+    const project = projects.find(p => p.id === projectId);
+    if(!project) return saveChain;
+    const text = sectionText(project, key);
+    const stillHere = () => projectId === currentProjectId;
+    const state = document.getElementById(key === 'conceptNote' ? 'conceptSaveState' : 'writeSaveState');
+    if(stillHere()) state.textContent = 'Saving...';
+
+    saveChain = saveChain.then(async () => {
+        try{
+            await api(`/projects/${encodeURIComponent(projectId)}/manuscript/${key}`, {
+                method: 'PUT',
+                body: JSON.stringify({ text }),
+            });
+            if(stillHere() && !pendingSave) state.textContent = 'All changes saved';
+        } catch(err){
+            pendingSave = pendingSave || { projectId, key };
+            if(stillHere()) state.textContent = `Couldn't save: ${err.message}. Will retry on your next edit.`;
+        }
+    });
+    return saveChain;
+}
+
+window.addEventListener('beforeunload', event => {
+    if(pendingSave){
+        flushSave();
+        event.preventDefault();
+    }
+});
+
+/* ---------------- Conference template upload ---------------- */
+function renderTemplateStatus(project){
+    const box = document.getElementById('templateBox');
+    box.hidden = project.publicationType !== 'conference';
+    if(box.hidden) return;
+    const custom = project.templateSections && project.templateSections.length;
+    document.getElementById('templateStatus').textContent = custom
+        ? `Writing to your template${project.templateFileName ? ` (${project.templateFileName})` : ''}: ${project.templateSections.length} sections.`
+        : 'No template uploaded. Using the standard paper stages. Upload the conference template to write to its sections instead.';
+    document.getElementById('templateReset').hidden = !custom;
+}
+
+function fillTemplateInput(){
+    const project = currentProject();
+    const input = document.getElementById('templateSections');
+    input.value = project && project.templateSections ? project.templateSections.map(s => s.title).join('\n') : '';
+    document.getElementById('templateMsg').textContent = '';
+}
+
+function cleanHeading(text){
+    return text.replace(/\s+/g, ' ').replace(/^(?:section\s+)?(?:\d+(?:\.\d+)*|[IVX]+)[.):]?\s+/i, '').replace(/[:.]$/, '').trim();
+}
+
+async function loadTemplateFile(input){
+    const file = input.files && input.files[0];
+    const msg = document.getElementById('templateMsg');
+    if(!file) return;
+    msg.textContent = 'Reading template...';
     try{
-        const tasks = await api(`/tasks${currentProjectId ? `?projectId=${currentProjectId}` : ''}`);
-        ["todo","progress","review","done"].forEach(col => document.getElementById(col).innerHTML = "");
-        tasks.forEach(t => document.getElementById(t.column).appendChild(renderTask(t)));
-    } catch(e){ /* backend not reachable yet */ }
+        const res = await fetch(`${API_BASE}/templates/parse`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${authToken}`, 'X-File-Name': encodeURIComponent(file.name) },
+            body: file,
+        });
+        const body = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(body.error || `upload failed (${res.status})`);
+        document.getElementById('templateSections').value = body.headings.join('\n');
+        document.getElementById('templateFile').dataset.name = file.name;
+        msg.textContent = `Found ${body.headings.length} headings. Edit them if needed, then press "Use these sections".`;
+    } catch(err){
+        msg.textContent = `Couldn't read the template: ${err.message}`;
+    }
+    input.value = '';
+}
+
+async function saveTemplate(sections, fileName){
+    const project = currentProject();
+    const msg = document.getElementById('templateMsg');
+    await flushSave();
+    try{
+        const updated = await api(`/projects/${encodeURIComponent(project.id)}/template`, {
+            method: 'PUT',
+            body: JSON.stringify({ sections, fileName }),
+        });
+        projects = projects.map(p => p.id === updated.id ? { ...updated, manuscript: p.manuscript || updated.manuscript } : p);
+        writeKey = null;
+        renderAll();
+        loadWriteEditor();
+        fillTemplateInput();
+        document.getElementById('templateMsg').textContent = sections.length ? 'Template sections applied.' : 'Back to the standard paper stages.';
+    } catch(err){
+        msg.textContent = `Couldn't save the template: ${err.message}.`;
+    }
+}
+
+function applyTemplate(){
+    const lines = document.getElementById('templateSections').value.split('\n').map(cleanHeading).filter(Boolean);
+    if(!lines.length){
+        document.getElementById('templateMsg').textContent = 'Add at least one section heading, or use the standard paper stages.';
+        return;
+    }
+    saveTemplate(lines, document.getElementById('templateFile').dataset.name || (currentProject().templateFileName || ''));
+}
+
+function resetTemplate(){
+    saveTemplate([], '');
+}
+
+async function exportAs(format){
+    const project = currentProject();
+    if(!project) return;
+    await flushSave();
+    const status = document.getElementById('exportStatus');
+    const sections = structureFor(project).map(s => ({ title: s.title, text: sectionText(project, s.key) }));
+    if(!sections.some(s => s.text.trim())){
+        status.textContent = 'Write something first, then download.';
+        return;
+    }
+    status.textContent = 'Preparing your file...';
+    try{
+        const res = await fetch(`${API_BASE}/export/${format}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify({
+                title: project.title,
+                conference: project.conference || null,
+                targetJournal: project.targetJournal || '',
+                sections,
+                tasks: allTasks.filter(t => t.projectId === project.id),
+            }),
+        });
+        if(!res.ok){
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `Export failed (${res.status})`);
+        }
+        const blob = await res.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${project.title.replace(/[^\w-]+/g, '_') || 'manuscript'}.${format}`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        status.textContent = 'Downloaded.';
+    } catch(err){
+        status.textContent = `Couldn't download: ${err.message}`;
+    }
+    setTimeout(() => { status.textContent = ''; }, 4000);
+}
+
+/* ---------------- Collaboration: roles, team, comments, live refresh ---------------- */
+function canWrite(project){
+    return !project || project.myRole === 'owner' || project.myRole === 'coauthor' || !project.myRole;
+}
+
+function roleLabel(role){
+    return { owner: 'Owner', coauthor: 'Co-author', reviewer: 'Reviewer' }[role] || role;
+}
+
+function sectionTitle(project, key){
+    if(key === 'general') return 'the project';
+    if(key === 'conceptNote') return 'the concept note';
+    const found = structureFor(project).find(s => s.key === key) || PAPER_SECTIONS.concat(THESIS_SECTIONS).find(s => s.key === key);
+    return found ? found.title : 'a section';
+}
+
+function timeAgo(iso){
+    const mins = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+    if(mins < 1) return 'just now';
+    if(mins < 60) return `${mins} min ago`;
+    const hours = Math.round(mins / 60);
+    if(hours < 24) return `${hours} h ago`;
+    return new Date(iso).toLocaleDateString();
+}
+
+// Reviewers get a read-only workspace; co-authors and owners see everything.
+function applyRole(){
+    const project = currentProject();
+    if(!project) return;
+    const writer = canWrite(project);
+    const banner = document.getElementById('roleBanner');
+    banner.hidden = project.myRole === 'owner';
+    banner.textContent = project.myRole === 'reviewer'
+        ? `You are a reviewer on this project (owner: ${project.ownerName || project.ownerEmail || 'unknown'}). You can read, comment and download, but not edit.`
+        : project.myRole === 'coauthor'
+            ? `You are a co-author on this project (owner: ${project.ownerName || project.ownerEmail || 'unknown'}). Your changes are visible to the owner.`
+            : '';
+    ['writeText', 'conceptText'].forEach(id => { document.getElementById(id).readOnly = !writer; });
+    document.querySelector('.add-task').hidden = !writer;
+    document.getElementById('teamAdd').hidden = project.myRole !== 'owner';
+    document.querySelectorAll('.ethics-box input, .ethics-box select').forEach(el => { el.disabled = !writer; });
+    if(!writer) document.getElementById('templateBox').hidden = true;
+}
+
+function renderTeam(){
+    const project = currentProject();
+    if(!project) return;
+    const list = document.getElementById('teamList');
+    list.replaceChildren();
+    const row = (name, detail, role, onRemove) => {
+        const el = h('div', 'team-row');
+        const who = h('div', 'team-who');
+        who.appendChild(h('strong', '', name));
+        if(detail) who.appendChild(h('small', '', detail));
+        el.appendChild(who);
+        el.appendChild(h('span', `role-tag role-${role}`, roleLabel(role)));
+        if(onRemove){
+            const remove = h('button', 'ghost-btn', 'Remove');
+            remove.type = 'button';
+            remove.addEventListener('click', onRemove);
+            el.appendChild(remove);
+        }
+        list.appendChild(el);
+    };
+    row(project.ownerName || project.ownerEmail || 'Owner', project.ownerEmail || '', 'owner');
+    (project.members || []).forEach(m => row(
+        m.name || m.email,
+        m.joined ? m.email : `${m.email} · invited, hasn't signed up yet`,
+        m.role,
+        project.myRole === 'owner' ? () => removeMember(m.email) : null
+    ));
+
+    const feed = document.getElementById('activityList');
+    feed.replaceChildren();
+    const activity = project.activity || [];
+    if(!activity.length) feed.appendChild(h('p', 'field-hint', 'No changes yet.'));
+    activity.slice(0, 25).forEach(a => {
+        const where = sectionTitle(project, a.section);
+        const text = {
+            edit: `${a.name} edited ${where}`,
+            comment: `${a.name} commented on ${where}`,
+            member: `${a.name}: ${a.detail || 'updated the team'}`,
+            template: `${a.name} updated the conference template (${a.detail || ''})`,
+        }[a.kind] || `${a.name} made a change`;
+        const item = h('div', 'activity-row');
+        item.appendChild(h('span', '', text));
+        item.appendChild(h('small', '', timeAgo(a.at)));
+        feed.appendChild(item);
+    });
+}
+
+async function addMember(event){
+    event.preventDefault();
+    const msg = document.getElementById('teamMsg');
+    const email = document.getElementById('memberEmail');
+    try{
+        const updated = await api(`/projects/${encodeURIComponent(currentProjectId)}/members`, {
+            method: 'POST',
+            body: JSON.stringify({ email: email.value, role: document.getElementById('memberRole').value }),
+        });
+        replaceProject(updated);
+        email.value = '';
+        const result = (updated.invites || [])[0];
+        msg.textContent = result && result.sent
+            ? 'Added, and an invitation email was sent.'
+            : `Added, but no email was sent. ${result ? result.reason : ''} Ask them to sign in with that email address.`;
+    } catch(err){
+        msg.textContent = err.message;
+    }
+}
+
+async function removeMember(email){
+    try{
+        replaceProject(await api(`/projects/${encodeURIComponent(currentProjectId)}/members/${encodeURIComponent(email)}`, { method: 'DELETE' }));
+        document.getElementById('teamMsg').textContent = '';
+    } catch(err){
+        document.getElementById('teamMsg').textContent = err.message;
+    }
+}
+
+function replaceProject(updated){
+    const index = projects.findIndex(p => p.id === updated.id);
+    if(index === -1) projects.push(updated);
+    else projects[index] = { ...updated, manuscript: { ...updated.manuscript, ...localDraft(updated.id) } };
+    renderAll();
+}
+
+// Text that is typed but not yet saved must not be overwritten by a server refresh.
+function localDraft(projectId){
+    if(!pendingSave || pendingSave.projectId !== projectId) return {};
+    const local = projects.find(p => p.id === projectId);
+    const value = local && local.manuscript && local.manuscript[pendingSave.key];
+    return typeof value === 'string' ? { [pendingSave.key]: value } : {};
+}
+
+function renderComments(force){
+    const project = currentProject();
+    const box = document.getElementById('writeComments');
+    if(!project) return;
+    const input = document.getElementById('commentText');
+    if(!force && input && (input.value || document.activeElement === input)) return;
+
+    const key = activeWriteKey(project);
+    const comments = (project.comments || []).filter(c => c.section === key);
+    box.replaceChildren(h('h3', '', `Comments${comments.length ? ` (${comments.length})` : ''}`));
+    if(!comments.length) box.appendChild(h('p', 'field-hint', 'No comments on this section yet.'));
+    comments.forEach(c => {
+        const item = h('div', `comment${c.resolved ? ' resolved' : ''}`);
+        const head = h('div', 'comment-head');
+        head.appendChild(h('strong', '', c.name));
+        head.appendChild(h('span', `role-tag role-${c.role}`, roleLabel(c.role)));
+        head.appendChild(h('small', '', timeAgo(c.createdAt)));
+        item.appendChild(head);
+        item.appendChild(h('p', '', c.text));
+        const actions = h('div', 'comment-actions');
+        if(canWrite(project)){
+            const resolve = h('button', 'ghost-btn', c.resolved ? 'Reopen' : 'Resolve');
+            resolve.type = 'button';
+            resolve.addEventListener('click', () => commentAction(`/${c.id}`, 'PATCH', { resolved: !c.resolved }));
+            actions.appendChild(resolve);
+        }
+        if(project.myRole === 'owner' || (currentUser && c.userId === currentUser.id)){
+            const del = h('button', 'ghost-btn', 'Delete');
+            del.type = 'button';
+            del.addEventListener('click', () => commentAction(`/${c.id}`, 'DELETE'));
+            actions.appendChild(del);
+        }
+        if(actions.children.length) item.appendChild(actions);
+        box.appendChild(item);
+    });
+
+    const form = h('form', 'comment-form');
+    const area = h('textarea');
+    area.id = 'commentText';
+    area.rows = 3;
+    area.maxLength = 4000;
+    area.placeholder = project.myRole === 'reviewer' ? 'Add feedback or extra information for this section...' : 'Add a comment for this section...';
+    const send = h('button', '', 'Post comment');
+    send.type = 'submit';
+    form.append(area, send);
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if(!area.value.trim()) return;
+        await commentAction('', 'POST', { section: key, text: area.value });
+    });
+    box.appendChild(form);
+}
+
+async function commentAction(suffix, method, body){
+    try{
+        const updated = await api(`/projects/${encodeURIComponent(currentProjectId)}/comments${suffix}`, { method, body: body ? JSON.stringify(body) : undefined });
+        const area = document.getElementById('commentText');
+        if(area && method === 'POST') area.value = '';
+        replaceProject(updated);
+        renderComments(true);
+    } catch(err){
+        alert(`Couldn't update comments: ${err.message}`);
+    }
+}
+
+function renderLastEdit(){
+    const project = currentProject();
+    const info = project && (project.lastEdit || {})[activeWriteKey(project)];
+    document.getElementById('writeLastEdit').textContent = info ? `Last edited by ${info.by} · ${timeAgo(info.at)}` : '';
+}
+
+// Pull in changes from co-authors and reviewers without disturbing what is being typed.
+let syncTimer = null;
+let syncing = false;
+async function syncProject(){
+    if(syncing || !currentProjectId || document.hidden) return;
+    syncing = true;
+    const projectId = currentProjectId;
+    try{
+        const loaded = await api('/projects');
+        if(projectId !== currentProjectId) return;
+        const typing = pendingSave || [document.getElementById('writeText'), document.getElementById('conceptText')].includes(document.activeElement);
+        const before = currentProject();
+        const draftKey = document.activeElement === document.getElementById('conceptText') ? 'conceptNote' : activeWriteKey(before);
+        projects = loaded.map(p => {
+            if(!typing || p.id !== projectId || !before) return p;
+            const mine = before.manuscript && before.manuscript[draftKey];
+            return typeof mine === 'string' ? { ...p, manuscript: { ...p.manuscript, [draftKey]: mine } } : p;
+        });
+        if(!currentProject()) return showHome();
+        renderAll();
+        const project = currentProject();
+        const writeArea = document.getElementById('writeText');
+        const conceptArea = document.getElementById('conceptText');
+        const key = activeWriteKey(project);
+        if(document.activeElement !== writeArea && !(pendingSave && pendingSave.key === key) && writeArea.value !== sectionText(project, key)){
+            writeArea.value = sectionText(project, key);
+            updateWriteCount();
+        }
+        if(document.activeElement !== conceptArea && !(pendingSave && pendingSave.key === 'conceptNote') && conceptArea.value !== sectionText(project, 'conceptNote')){
+            conceptArea.value = sectionText(project, 'conceptNote');
+            updateWriteCount();
+        }
+        loadTasks();
+    } catch(e){
+        /* try again on the next tick */
+    } finally {
+        syncing = false;
+    }
+}
+
+/* ---------------- Projects ---------------- */
+function openTaskCount(projectId){
+    return allTasks.filter(t => t.projectId === projectId && t.column !== 'done').length;
+}
+
+function renderSidebar(){
+    const list = document.getElementById('sidebarProjects');
+    list.replaceChildren();
+    if(!projects.length){
+        list.appendChild(h('p', 'sidebar-project-status', 'No projects yet. Create a project to see it here.'));
+        return;
+    }
+    projects.forEach(project => {
+        const button = h('button', 'sidebar-project', project.title);
+        if(project.myRole && project.myRole !== 'owner') button.appendChild(h('small', 'shared-tag', roleLabel(project.myRole)));
+        button.type = 'button';
+        button.setAttribute('aria-pressed', String(project.id === currentProjectId));
+        button.addEventListener('click', () => openProject(project.id));
+        list.appendChild(button);
+    });
+}
+
+function renderProjectGrid(){
+    const grid = document.getElementById('projectGrid');
+    grid.replaceChildren();
+    if(!projects.length){
+        grid.appendChild(h('div', 'empty-note', 'No projects yet. Use "Create New Project" above to start one.'));
+        return;
+    }
+    projects.forEach(project => {
+        const card = h('button', 'project-card');
+        card.type = 'button';
+        card.appendChild(h('h3', '', project.title));
+        card.appendChild(h('p', '', `${project.field} · Deadline: ${project.deadline || 'Not specified'}`));
+        card.appendChild(h('p', '', `${openTaskCount(project.id)} open task(s)`));
+        if(project.myRole && project.myRole !== 'owner') card.appendChild(h('p', 'shared-tag', `${roleLabel(project.myRole)} · shared by ${project.ownerName || project.ownerEmail || 'owner'}`));
+        card.addEventListener('click', () => openProject(project.id));
+        grid.appendChild(card);
+    });
+}
+
+function renderProjectHeader(){
+    const project = currentProject();
+    if(!project) return;
+    document.getElementById('projectTitle').textContent = project.title;
+    document.getElementById('projectMeta').textContent = `${project.field} · Deadline: ${project.deadline || 'Not specified'}`;
+}
+
+function updateStats(){
+    document.getElementById('statProjects').textContent = projects.length;
+    document.getElementById('statPending').textContent = allTasks.filter(t => t.column !== 'done').length;
+}
+
+async function refreshProjects(){
+    const requestId = ++projectsRequestId;
+    try{
+        const loaded = await api('/projects');
+        if(requestId !== projectsRequestId) return;
+        projects = loaded;
+        if(currentProjectId && !currentProject()){
+            showHome();
+        } else {
+            renderAll();
+        }
+        updateStats();
+    } catch(e){
+        if(requestId !== projectsRequestId) return;
+        const message = `Couldn't load projects: ${e.message}. Is the backend running at ${API_BASE}?`;
+        const sidebar = document.getElementById('sidebarProjects');
+        sidebar.replaceChildren(h('p', 'sidebar-project-status', message));
+        document.getElementById('projectGrid').replaceChildren(h('div', 'empty-note', message));
+    }
+}
+
+async function createNewProject(){
+    const titleInput = document.getElementById("newProjectTitle");
+    const fieldInput = document.getElementById("newProjectField");
+    const deadlineInput = document.getElementById("newProjectDeadline");
+    const typeInput = document.getElementById("newProjectType");
+    const conferenceInput = document.getElementById("newProjectConference");
+    const journalInput = document.getElementById("newProjectJournal");
+    const problemInput = document.getElementById("newProjectProblem");
+    const result = document.getElementById("newProjectResult");
+
+    if(titleInput.value.trim() === ""){ alert("Please enter a project title."); return; }
+
+    const publicationType = typeInput.value;
+    const payload = {
+        title: titleInput.value,
+        field: fieldInput.value,
+        deadline: deadlineInput.value,
+        publicationType,
+        coauthors: document.getElementById('newProjectCoauthors').value,
+        reviewers: document.getElementById('newProjectReviewers').value,
+    };
+    if(publicationType === 'conference'){
+        if(!conferenceInput.value){ alert("Please choose a conference."); return; }
+        payload.conferenceId = conferenceInput.value;
+    } else if(publicationType === 'journal'){
+        payload.targetJournal = journalInput.value;
+        payload.problemStatement = problemInput.value;
+        if(journalInput.value.trim() && !problemInput.value.trim()){
+            alert("A problem statement is required when you suggest a target journal.");
+            problemInput.focus();
+            return;
+        }
+    }
+
+    try{
+        const project = await api('/projects', { method: 'POST', body: JSON.stringify(payload) });
+        projects.push(project);
+        const failed = (project.invites || []).filter(i => !i.sent);
+        if(failed.length) alert(`Project created, but invitation emails were not sent to: ${failed.map(i => i.email).join(', ')}.\n${failed[0].reason}\nThey will still see the project when they sign in with that email.`);
+        [titleInput, fieldInput, deadlineInput, journalInput, problemInput, document.getElementById('newProjectCoauthors'), document.getElementById('newProjectReviewers')].forEach(el => { el.value = ""; });
+        document.getElementById('newProjectJournalList').hidden = true;
+        typeInput.value = 'journal';
+        conferenceInput.value = '';
+        updateProjectTypeFields();
+        result.innerHTML = `
+            <h3>Project Setup</h3>
+            <p>Enter the project details to initialise a new research workflow.</p>
+        `;
+        document.getElementById("newProjectPanel").style.display = "none";
+        updateStats();
+        openProject(project.id);
+    } catch(err){
+        result.innerHTML = `<h3>Couldn't create project</h3><p>${esc(err.message)}. Is the backend running at ${esc(API_BASE)}?</p>`;
+    }
+}
+
+/* ---------------- Publication target (journal / conference) ---------------- */
+function updateProjectTypeFields(){
+    const type = document.getElementById('newProjectType').value;
+    document.getElementById('conferenceFields').hidden = type !== 'conference';
+    document.getElementById('journalFields').hidden = type !== 'journal';
+    updateJournalRequirement();
+}
+
+function updateJournalRequirement(){
+    const suggested = document.getElementById('newProjectJournal').value.trim() !== '';
+    document.getElementById('journalHint').textContent = suggested
+        ? 'The problem statement above will prefill the Problem Statement stage.'
+        : 'Write your problem statement first. Journals are then suggested from real published papers on your topic.';
+}
+
+function updateConferencePreview(){
+    const conference = conferences.find(c => c.id === document.getElementById('newProjectConference').value);
+    document.getElementById('conferencePreview').textContent = conference
+        ? `Template: ${conference.format}. It will be attached to the project for the whole write-up.`
+        : 'The conference template is attached to the project and used for the whole write-up.';
+}
+
+async function loadPublicationOptions(){
+    try{
+        const data = await api('/conferences');
+        conferences = data.conferences;
+        const select = document.getElementById('newProjectConference');
+        conferences.forEach(c => {
+            const option = h('option', '', c.name);
+            option.value = c.id;
+            select.appendChild(option);
+        });
+    } catch(e){ /* the form reports the missing list when the user picks Conference */ }
+
+    try{
+        const data = await api('/journals?field=all');
+        const list = document.getElementById('journalOptions');
+        [...new Set(data.journals.map(j => j.name))].forEach(name => {
+            const option = h('option');
+            option.value = name;
+            list.appendChild(option);
+        });
+    } catch(e){ /* journal is free text, so suggestions are optional */ }
+}
+
+function renderManuscript(){
+    const box = document.getElementById('manuscriptBox');
+    box.replaceChildren();
+    const project = currentProject();
+    box.hidden = !project;
+    if(!project) return;
+
+    if(project.publicationType === 'conference' && project.conference){
+        const c = project.conference;
+        box.appendChild(h('h2', '', `Conference paper: ${c.name}`));
+        box.appendChild(h('p', '', `Write the whole project in the ${c.format} template. Follow this structure:`));
+        const list = h('ol');
+        c.sections.forEach(s => list.appendChild(h('li', '', s)));
+        box.appendChild(list);
+        const actions = h('div', 'manuscript-actions');
+        if(/^https?:\/\//i.test(c.templateUrl || '')){
+            const link = h('a', '', 'Official template →');
+            link.href = c.templateUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            actions.appendChild(link);
+        }
+        const download = h('button', '', 'Download outline (.md)');
+        download.addEventListener('click', () => downloadOutline(project));
+        actions.appendChild(download);
+        box.appendChild(actions);
+        box.appendChild(h('p', 'field-hint', 'Always check the conference call for papers for the current template and page limit.'));
+    } else if(project.publicationType === 'thesis'){
+        box.appendChild(h('h2', '', 'Thesis / dissertation'));
+        box.appendChild(h('p', '', 'The Write tab uses the full thesis structure, section by section: abstract, problem statement, objectives, literature review, framework, methodology, data, results and conclusions.'));
+    } else {
+        box.appendChild(h('p', '', project.targetJournal
+            ? `Target journal: ${project.targetJournal}`
+            : 'No target journal chosen yet. You can use Find Journals on the home page when you are ready.'));
+        if(project.problemStatement) box.appendChild(h('p', '', `Problem statement: ${project.problemStatement}`));
+    }
+}
+
+function downloadOutline(project){
+    const c = project.conference;
+    const lines = [`# ${project.title}`, '', `Conference: ${c.name}`, `Template: ${c.format}`, c.templateUrl ? `Official template: ${c.templateUrl}` : '', ''];
+    c.sections.forEach(s => lines.push(`## ${s}`, '', ''));
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${project.title.replace(/[^\w-]+/g, '_') || 'paper'}-outline.md`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+/* ---------------- Research cycle + tools ---------------- */
+function toolsForKeys(keys){
+    const seen = new Set();
+    return keys
+        .flatMap(key => (toolsByStage && toolsByStage[key]) || [])
+        .filter(tool => !seen.has(tool.name) && seen.add(tool.name));
+}
+
+const TITLE_TOOL_STAGES = [
+    [/abstract|summary/i, ['conclusion', 'publication']],
+    [/introduc|background|problem|objective|aim/i, ['problem']],
+    [/literature|related|review|state of the art/i, ['literature']],
+    [/framework|theor|concept/i, ['framework']],
+    [/method|design|material|ethic|procedure/i, ['methodology', 'ethics']],
+    [/data collection|sampling|participants/i, ['datacollection']],
+    [/analysis|result|finding|experiment|evaluation/i, ['dataanalysis', 'results']],
+    [/discussion/i, ['results']],
+    [/conclusion|recommend|future/i, ['conclusion']],
+    [/reference|bibliograph|citation|acknowledg|appendi/i, ['publication']],
+];
+
+function toolStagesForSection(section){
+    if(section.stages && section.stages.length) return section.stages;
+    const hit = TITLE_TOOL_STAGES.find(([re]) => re.test(section.title));
+    return hit ? hit[1] : [];
+}
+
+function renderWriteTools(section){
+    const box = document.getElementById('writeTools');
+    box.replaceChildren();
+    box.appendChild(h('h3', '', `AI & digital tools for ${section.title}`));
+    if(toolsError){
+        box.appendChild(h('p', 'tools-note', `Couldn't load tools: ${toolsError}`));
+        return;
+    }
+    if(!toolsByStage){
+        box.appendChild(h('p', 'tools-note', 'Loading tools...'));
+        return;
+    }
+    const list = toolsForKeys(toolStagesForSection(section));
+    if(!list.length) box.appendChild(h('p', 'tools-note', 'No tools catalogued for this section.'));
+    const addGroup = (label, tools) => {
+        if(!tools.length) return;
+        box.appendChild(h('h4', 'tools-group', `${label} (${tools.length})`));
+        const grid = h('div', 'write-tools-grid');
+        tools.forEach(tool => {
+            const item = h('div', 'stage-tool');
+            const link = h('a', '', tool.name);
+            link.href = safeUrl(tool.url);
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            item.appendChild(link);
+            if(tool.embeddable) item.appendChild(h('span', 'pill', 'usable in-app'));
+            item.appendChild(h('p', '', tool.description));
+            grid.appendChild(item);
+        });
+        box.appendChild(grid);
+    };
+    addGroup('AI tools', list.filter(t => t.source !== 'curated'));
+    addGroup('Databases, libraries & digital tools', list.filter(t => t.source === 'curated'));
+    renderKbNote(section, box);
+}
+
+/* ---------------- Find papers + knowledge base ---------------- */
+let kb = null;
+let kbProjectId = null;
+let kbMsg = '';
+const KB_STAGES = ['methodology', 'datacollection', 'datacleaning', 'dataanalysis'];
+
+async function loadKb(){
+    const projectId = currentProjectId;
+    if(!projectId) return;
+    try{
+        const data = await api(`/literature/${encodeURIComponent(projectId)}`);
+        if(projectId !== currentProjectId) return;
+        kb = data;
+        kbProjectId = projectId;
+    } catch(e){
+        kb = null;
+    }
+    if(!document.getElementById('papersBox').hidden) renderPapers();
+    const project = currentProject();
+    if(project) renderWriteTools(structureFor(project).find(s => s.key === activeWriteKey(project)));
+}
+
+function kbYears(papers){
+    const years = {};
+    papers.forEach(p => { if(p.year) years[p.year] = (years[p.year] || 0) + 1; });
+    return Object.keys(years).sort().map(y => [y, years[y]]);
+}
+
+function yearBars(papers){
+    const rows = kbYears(papers);
+    const wrap = h('div', 'year-bars');
+    if(!rows.length) return wrap;
+    const max = Math.max(...rows.map(r => r[1]));
+    rows.forEach(([year, n]) => {
+        const bar = h('div', 'year-bar');
+        bar.title = `${year}: ${n} paper${n === 1 ? '' : 's'}`;
+        const fill = h('span');
+        fill.style.height = `${Math.max(6, Math.round((n / max) * 100))}%`;
+        bar.append(fill, h('small', '', String(year).slice(2)));
+        wrap.appendChild(bar);
+    });
+    return wrap;
+}
+
+function comingSoon(name, what){
+    kbMsg = `${name} is not connected yet. ${what}`;
+    const note = document.getElementById('kbMsg');
+    if(note) note.textContent = kbMsg;
+    document.querySelectorAll('.kb-msg').forEach(el => { el.textContent = kbMsg; });
+}
+
+function analysisButtons(){
+    const row = h('div', 'kb-actions');
+    [
+        ['Expert model', 'Expand knowledge base', 'It will read the papers found so far, expand the knowledge base and propose a wider search string.'],
+        ['VOSviewer', 'Map keywords & co-citation', 'It will build keyword, author and co-citation maps from this knowledge base.'],
+        ['Word2Vec', 'Find related terms', 'It will train term embeddings on the collected abstracts to find related concepts and time trends.'],
+    ].forEach(([name, label, what]) => {
+        const b = h('button', 'ghost-btn', `${name}: ${label}`);
+        b.type = 'button';
+        b.addEventListener('click', () => comingSoon(name, what));
+        row.appendChild(b);
+    });
+    return row;
+}
+
+function renderKbNote(section, box){
+    if(!toolStagesForSection(section).some(s => KB_STAGES.includes(s))) return;
+    const note = h('div', 'kb-note');
+    note.appendChild(h('h4', 'tools-group', 'Knowledge base from your literature search'));
+    const papers = kbProjectId === currentProjectId && kb ? kb.papers : [];
+    if(!papers.length){
+        note.appendChild(h('p', 'tools-note', 'Nothing collected yet. Use "Find papers" at the top of the Write tab to build a search string and collect papers.'));
+    } else {
+        const last = kb.searches[0];
+        note.appendChild(h('p', 'tools-note', `${papers.length} papers collected${last ? ` · latest search: ${last.query}` : ''}. Use them to justify your methods, plan data collection and choose analyses.`));
+        note.appendChild(yearBars(papers));
+        note.appendChild(analysisButtons());
+        note.appendChild(h('p', 'field-hint kb-msg', kbMsg));
+    }
+    box.appendChild(note);
+}
+
+function togglePapers(){
+    const box = document.getElementById('papersBox');
+    box.hidden = !box.hidden;
+    if(!box.hidden){
+        renderPapers();
+        if(kbProjectId !== currentProjectId) loadKb();
+    }
+}
+
+function renderPapers(){
+    const project = currentProject();
+    const box = document.getElementById('papersBox');
+    if(!project) return;
+    const writer = canWrite(project);
+    const keep = document.getElementById('searchString');
+    const typed = keep ? keep.value : null;
+    box.replaceChildren();
+
+    box.appendChild(h('h3', '', 'Find papers'));
+    box.appendChild(h('p', 'field-hint', '1. Build a search string from your problem statement. 2. Edit it and search. 3. Each search adds to your knowledge base. Use AND, OR, NOT and "quoted phrases".'));
+
+    const area = h('textarea');
+    area.id = 'searchString';
+    area.rows = 3;
+    area.maxLength = 500;
+    area.placeholder = 'e.g. ("project management" OR "research management") AND (framework OR workflow)';
+    area.value = typed != null ? typed : ((kb && kb.searches[0] && kb.searches[0].query) || '');
+    box.appendChild(area);
+
+    const actions = h('div', 'kb-actions');
+    const suggest = h('button', 'ghost-btn', 'Build from my problem statement');
+    suggest.type = 'button';
+    suggest.addEventListener('click', async () => {
+        setPapersStatus('Building search string...');
+        try{
+            const data = await api(`/literature/${encodeURIComponent(project.id)}/suggest`, { method: 'POST' });
+            area.value = data.searchString;
+            setPapersStatus('Review and edit the string, then search.');
+        } catch(err){ setPapersStatus(err.message); }
+    });
+    actions.appendChild(suggest);
+
+    const year = h('select');
+    year.id = 'searchFromYear';
+    year.setAttribute('aria-label', 'Published from');
+    [['', 'Any year'], ['2024', 'Since 2024'], ['2020', 'Since 2020'], ['2015', 'Since 2015'], ['2010', 'Since 2010']].forEach(([v, l]) => { const o = h('option', '', l); o.value = v; year.appendChild(o); });
+    actions.appendChild(year);
+
+    const search = h('button', '', 'Search papers');
+    search.type = 'button';
+    search.disabled = !writer;
+    search.addEventListener('click', async () => {
+        if(!area.value.trim()){ setPapersStatus('Enter a search string first.'); return; }
+        search.disabled = true;
+        setPapersStatus('Searching published papers...');
+        try{
+            kb = await api(`/literature/${encodeURIComponent(project.id)}/search`, { method: 'POST', body: JSON.stringify({ searchString: area.value, fromYear: year.value }) });
+            kbProjectId = project.id;
+            const last = kb.searches[0];
+            renderPapers();
+            setPapersStatus(`Found ${last.found} papers, ${last.added} new. Knowledge base now has ${kb.papers.length}.`);
+            const current = currentProject();
+            renderWriteTools(structureFor(current).find(s => s.key === activeWriteKey(current)));
+        } catch(err){
+            search.disabled = false;
+            setPapersStatus(err.message);
+        }
+    });
+    actions.appendChild(search);
+    box.appendChild(actions);
+    const status = h('p', 'field-hint');
+    status.id = 'papersStatus';
+    status.setAttribute('aria-live', 'polite');
+    box.appendChild(status);
+
+    box.appendChild(h('h4', 'tools-group', 'Go further with your knowledge base'));
+    box.appendChild(analysisButtons());
+    box.appendChild(h('p', 'field-hint kb-msg', kbMsg));
+
+    const papers = kbProjectId === project.id && kb ? kb.papers : [];
+    if(!papers.length){
+        box.appendChild(h('p', 'tools-note', 'No papers collected yet.'));
+        return;
+    }
+    const head = h('div', 'kb-head');
+    head.appendChild(h('h4', 'tools-group', `Knowledge base: ${papers.length} papers`));
+    const csv = h('button', 'ghost-btn', 'Download CSV');
+    csv.type = 'button';
+    csv.addEventListener('click', () => downloadKbCsv(project, papers));
+    head.appendChild(csv);
+    box.appendChild(head);
+    box.appendChild(yearBars(papers));
+
+    const list = h('div', 'paper-list');
+    [...papers].sort((a, b) => b.citations - a.citations).slice(0, 100).forEach(paper => {
+        const row = h('div', 'paper-row');
+        const title = h('a', '', paper.title);
+        title.href = safeUrl(paper.url);
+        title.target = '_blank';
+        title.rel = 'noopener noreferrer';
+        row.appendChild(title);
+        row.appendChild(h('small', '', [paper.authors.slice(0, 3).join(', ') + (paper.authors.length > 3 ? ' et al.' : ''), paper.year, paper.venue, `${paper.citations} citations`].filter(Boolean).join(' · ')));
+        if(paper.abstract) row.appendChild(h('p', '', paper.abstract.length > 240 ? `${paper.abstract.slice(0, 240)}...` : paper.abstract));
+        if(writer){
+            const remove = h('button', 'ghost-btn', 'Remove');
+            remove.type = 'button';
+            remove.addEventListener('click', async () => {
+                kb = await api(`/literature/${encodeURIComponent(project.id)}/papers/${encodeURIComponent(paper.id)}`, { method: 'DELETE' }).catch(() => kb);
+                renderPapers();
+            });
+            row.appendChild(remove);
+        }
+        list.appendChild(row);
+    });
+    box.appendChild(list);
+    if(papers.length > 100) box.appendChild(h('p', 'field-hint', 'Showing the 100 most cited. Download the CSV for all of them.'));
+}
+
+function setPapersStatus(text){
+    const el = document.getElementById('papersStatus');
+    if(el) el.textContent = text;
+}
+
+function downloadKbCsv(project, papers){
+    const cell = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const rows = [['Title', 'Authors', 'Year', 'Source', 'DOI', 'Citations', 'Abstract'].map(cell).join(',')]
+        .concat(papers.map(p => [p.title, p.authors.join('; '), p.year, p.venue, p.doi, p.citations, p.abstract].map(cell).join(',')));
+    const blob = new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${project.title.replace(/[^\w-]+/g, '_') || 'project'}-knowledge-base.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+async function loadTools(){
+    try{
+        const data = await api('/ai-tools');
+        toolsByStage = data.stages || {};
+        toolsMeta = data.meta || {};
+        toolsError = null;
+    } catch(e){
+        if(!toolsByStage) toolsError = e.message;
+    }
+    if(currentProjectId) loadWriteEditor();
+}
+
+/* ---------------- Kanban board ---------------- */
+function renderBoard(){
+    const board = document.getElementById('board');
+    board.replaceChildren();
+    if(!currentProjectId) return;
+    const tasks = allTasks.filter(t => t.projectId === currentProjectId);
+
+    COLUMNS.forEach((column, index) => {
+        const col = h('div', 'board-col');
+        const columnTasks = tasks.filter(t => t.column === column.key);
+        const title = h('h3', '', column.label);
+        title.appendChild(h('span', '', String(columnTasks.length)));
+        col.appendChild(title);
+
+        if(!columnTasks.length) col.appendChild(h('p', 'board-empty', 'No tasks'));
+        columnTasks.forEach(task => {
+            const card = h('div', 'board-task');
+            card.appendChild(h('h4', '', task.title));
+            card.appendChild(h('p', '', task.output));
+            const actions = h('div', 'task-actions');
+            const editable = canWrite(currentProject());
+            if(editable && index > 0){
+                const back = h('button', '', '←');
+                back.title = `Move to ${COLUMNS[index - 1].label}`;
+                back.addEventListener('click', () => moveTask(task, COLUMNS[index - 1].key));
+                actions.appendChild(back);
+            }
+            if(editable && index < COLUMNS.length - 1){
+                const forward = h('button', '', '→');
+                forward.title = `Move to ${COLUMNS[index + 1].label}`;
+                forward.addEventListener('click', () => moveTask(task, COLUMNS[index + 1].key));
+                actions.appendChild(forward);
+            }
+            if(editable){
+                const remove = h('button', 'delete-task', 'Delete');
+                remove.addEventListener('click', () => deleteTask(task));
+                actions.appendChild(remove);
+            }
+            card.appendChild(actions);
+            col.appendChild(card);
+        });
+        board.appendChild(col);
+    });
+}
+
+async function loadTasks(){
+    const requestId = ++tasksRequestId;
+    try{
+        const loaded = await api('/tasks');
+        if(requestId !== tasksRequestId) return;
+        allTasks = loaded;
+        renderBoard();
+        renderProjectGrid();
+        updateStats();
+    } catch(e){
+        if(requestId === tasksRequestId && currentProjectId){
+            document.getElementById('board').replaceChildren(h('div', 'empty-note', `Couldn't load tasks: ${e.message}`));
+        }
+    }
 }
 
 async function addTask(){
-    const title = document.getElementById("taskTitle").value;
-    const stage = document.getElementById("taskStage").value;
-    const output = document.getElementById("taskOutput").value;
+    const titleInput = document.getElementById("taskTitle");
+    const stageInput = document.getElementById("taskStage");
+    const outputInput = document.getElementById("taskOutput");
 
-    if(title.trim() === ""){ alert("Please enter a task title."); return; }
+    if(titleInput.value.trim() === ""){ alert("Please enter a task title."); return; }
 
     try{
-        const task = await api('/tasks', {
+        await api('/tasks', {
             method: 'POST',
-            body: JSON.stringify({ title, column: stage, output, projectId: currentProjectId }),
+            body: JSON.stringify({
+                title: titleInput.value,
+                column: stageInput.value,
+                output: outputInput.value,
+                projectId: currentProjectId,
+            }),
         });
-        document.getElementById(stage).appendChild(renderTask(task));
-        document.getElementById("taskTitle").value = "";
-        document.getElementById("taskOutput").value = "";
-        document.getElementById("taskStage").value = "todo";
-        refreshStats();
+        titleInput.value = "";
+        outputInput.value = "";
+        stageInput.value = "todo";
+        loadTasks();
     } catch(err){
         alert(`Couldn't add task: ${err.message}`);
     }
 }
 
-/* ---------------- Ethics ---------------- */
-async function loadEthics(){
-    if(!currentProjectId) return;
+async function moveTask(task, column){
     try{
-        const record = await api(`/ethics/${currentProjectId}`);
-        if(record.status) document.getElementById('ethicsStatus').value = record.status;
-        renderEthicsResult(record);
-    } catch(e){ /* ignore */ }
+        await api(`/tasks/${encodeURIComponent(task.id)}`, { method: 'PATCH', body: JSON.stringify({ column }) });
+        loadTasks();
+    } catch(err){
+        alert(`Couldn't move task: ${err.message}`);
+    }
 }
 
+async function deleteTask(task){
+    try{
+        await api(`/tasks/${encodeURIComponent(task.id)}`, { method: 'DELETE' });
+        loadTasks();
+    } catch(err){
+        alert(`Couldn't delete task: ${err.message}`);
+    }
+}
+
+/* ---------------- Journals ---------------- */
+function journalCard(j, onPick){
+    const card = h('div', 'journal-card');
+    card.appendChild(h('h4', '', j.name));
+    const meta = [j.publisher, j.openAccess ? 'Open access' : '', j.impact != null ? `Impact ${j.impact}` : ''].filter(Boolean).join(' · ');
+    if(meta) card.appendChild(h('p', '', meta));
+    card.appendChild(h('p', '', `${j.relatedPapers} of the closest papers to your topic were published here.`));
+    const row = h('div', 'journal-actions');
+    if(onPick){
+        const pick = h('button', 'ghost-btn', 'Use as target journal');
+        pick.type = 'button';
+        pick.addEventListener('click', () => onPick(j));
+        row.appendChild(pick);
+    }
+    if(j.url){
+        const a = h('a', 'info-link', 'Journal site ↗');
+        a.href = safeUrl(j.url); a.target = '_blank'; a.rel = 'noopener noreferrer';
+        row.appendChild(a);
+    }
+    card.appendChild(row);
+    return card;
+}
+
+async function loadJournalSuggestions(problem, field, box, onPick){
+    box.hidden = false;
+    box.replaceChildren(h('div', 'journal-card', 'Searching published papers for matching journals...'));
+    try{
+        const data = await api(`/journals/suggest?problem=${encodeURIComponent(problem)}&field=${encodeURIComponent(field || '')}`);
+        box.replaceChildren();
+        if(!data.journals.length){
+            box.appendChild(h('div', 'journal-card', 'No matching journals found. Try describing the problem in more detail.'));
+            return;
+        }
+        box.appendChild(h('p', 'field-hint', `Matched on: ${data.keywords.join(', ')}`));
+        data.journals.forEach(j => box.appendChild(journalCard(j, onPick)));
+    } catch(err){
+        box.replaceChildren(h('div', 'journal-card', err.message));
+    }
+}
+
+function suggestForNewProject(){
+    const problem = document.getElementById('newProjectProblem');
+    if(problem.value.trim().length < 20){
+        alert('Please write your problem statement first. Journals are suggested from it.');
+        problem.focus();
+        return;
+    }
+    loadJournalSuggestions(problem.value, document.getElementById('newProjectField').value,
+        document.getElementById('newProjectJournalList'), j => {
+            document.getElementById('newProjectJournal').value = j.name;
+            updateJournalRequirement();
+        });
+}
+
+function findJournals(){
+    loadJournalSuggestions(document.getElementById('journalTopic').value, document.getElementById('journalField').value,
+        document.getElementById('journalList'), null);
+}
+
+/* ---------------- Ethics ---------------- */
 function renderEthicsResult({ title, message, badge }){
     const result = document.getElementById("ethicsResult");
-    result.innerHTML = `<h3>${title}</h3><p>${message}</p>${badge ? `<span class="badge ${badge}">${badge === 'done' ? 'Proceed' : 'Awaiting Approval'}</span>` : ''}`;
+    result.innerHTML = `<h3>${esc(title)}</h3><p>${esc(message)}</p>${badge ? `<span class="badge ${esc(badge)}">${badge === 'done' ? 'Proceed' : 'Awaiting Approval'}</span>` : ''}`;
+}
+
+async function loadEthics(){
+    const projectId = currentProjectId;
+    const requestId = ++ethicsRequestId;
+    document.getElementById('ethicsStatus').value = '';
+    document.getElementById('ethicsReason').value = '';
+    document.getElementById('ethicsAppNumber').value = '';
+    document.getElementById('ethicsApprovalDate').value = '';
+    document.getElementById('ethicsCommittee').value = '';
+    document.getElementById('ethicsFile').value = '';
+    document.getElementById('ethicsExtra').style.display = 'none';
+    renderEthicsResult({ title: "Awaiting Ethics Decision", message: "Select whether ethics is not required, required, or already approved." });
+    if(!projectId) return;
+    try{
+        const record = await api(`/ethics/${encodeURIComponent(projectId)}`);
+        if(requestId !== ethicsRequestId) return;
+        document.getElementById('ethicsStatus').value = record.status || '';
+        document.getElementById('ethicsReason').value = record.reason || '';
+        document.getElementById('ethicsAppNumber').value = record.applicationNumber || '';
+        document.getElementById('ethicsApprovalDate').value = record.approvalDate || '';
+        document.getElementById('ethicsCommittee').value = record.committee || '';
+        document.getElementById('ethicsExtra').style.display = record.status && record.status !== 'not_required' ? 'block' : 'none';
+        renderEthicsResult(record);
+    } catch(e){
+        if(requestId === ethicsRequestId) renderEthicsResult({ title: "Couldn't load ethics decision", message: e.message });
+    }
 }
 
 async function updateEthicsStatus(){
+    const requestId = ++ethicsRequestId;
+    const projectId = currentProjectId;
     const status = document.getElementById("ethicsStatus").value;
     const extra = document.getElementById("ethicsExtra");
     const reason = document.getElementById("ethicsReason").value;
@@ -496,10 +2038,10 @@ async function updateEthicsStatus(){
     }
 
     extra.style.display = status === "not_required" ? "none" : "block";
+    if(!projectId) return;
 
-    const projectId = currentProjectId || 'demo-project';
     try{
-        const record = await api(`/ethics/${projectId}`, {
+        const record = await api(`/ethics/${encodeURIComponent(projectId)}`, {
             method: 'PUT',
             body: JSON.stringify({
                 status, reason,
@@ -508,13 +2050,13 @@ async function updateEthicsStatus(){
                 committee: document.getElementById('ethicsCommittee').value,
             }),
         });
-        renderEthicsResult(record);
+        if(requestId === ethicsRequestId) renderEthicsResult(record);
     } catch(err){
-        renderEthicsResult({ title: "Couldn't save ethics decision", message: err.message });
+        if(requestId === ethicsRequestId) renderEthicsResult({ title: "Couldn't save ethics decision", message: err.message });
     }
 }
 
-/* ---------------- Research assistant + live AI tools ---------------- */
+/* ---------------- Research assistant ---------------- */
 async function generateResearchSupport(){
     const stage = document.getElementById("researchStage").value;
     const topic = document.getElementById("researchTopic").value;
@@ -529,76 +2071,205 @@ async function generateResearchSupport(){
             body: JSON.stringify({ stage, topic, draftText }),
         });
         result.innerHTML = `
-            <h3>${data.title}</h3>
-            <p><strong>Topic:</strong> ${data.topic}</p>
-            <ul>${data.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+            <h3>${esc(data.title)}</h3>
+            <p><strong>Topic:</strong> ${esc(data.topic)}</p>
+            <ul>${data.bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
             <p style="font-size:11px;margin-top:8px;">${data.generatedBy === 'claude' ? 'AI-generated for your topic' : 'Standard guidance template'}</p>
         `;
     } catch(err){
-        result.innerHTML = `<h3>Couldn't generate guidance</h3><p>${err.message}. Is the backend running at ${API_BASE}?</p>`;
+        result.innerHTML = `<h3>Couldn't generate guidance</h3><p>${esc(err.message)}. Is the backend running at ${esc(API_BASE)}?</p>`;
     }
-
-    loadAiToolsForStage(stage);
 }
 
-function onStageChange(){
-    loadAiToolsForStage(document.getElementById("researchStage").value);
+/* ---------------- Sign in / sign up / password reset ---------------- */
+const AUTH_FORMS = { signin: 'authSignin', signup: 'authSignup', forgot: 'authForgot', reset: 'authReset' };
+const PASSWORD_RULES = {
+    len: p => p.length >= 8,
+    letter: p => /[A-Za-z]/.test(p),
+    digit: p => /\d/.test(p),
+    special: p => /[^A-Za-z0-9\s]/.test(p),
+};
+
+function passwordProblem(password){
+    if(!PASSWORD_RULES.len(password)) return 'Password must be at least 8 characters.';
+    if(!PASSWORD_RULES.letter(password)) return 'Password must contain at least one letter.';
+    if(!PASSWORD_RULES.digit(password)) return 'Password must contain at least one digit.';
+    if(!PASSWORD_RULES.special(password)) return 'Password must contain at least one special character.';
+    return null;
 }
 
-function renderAiTools(stage, meta, tools){
-    document.getElementById('aiToolsMeta').textContent =
-        `${tools.length} tool(s) for "${stage}" · catalog last refreshed: ${meta.lastRefreshed ? new Date(meta.lastRefreshed).toLocaleString() : 'never (seed list only)'}`;
-
-    const grid = document.getElementById('aiToolsGrid');
-    if(!tools.length){
-        grid.innerHTML = `<div class="ai-tool-card"><p>No tools catalogued yet for this stage.</p></div>`;
-        return;
-    }
-
-    grid.innerHTML = tools.map(t => `
-        <div class="ai-tool-card">
-            <h4>${t.name} ${t.embeddable ? '<span class="embeddable-pill">usable in-app</span>' : ''}</h4>
-            <p>${t.description}</p>
-            <a href="${t.url}" target="_blank" rel="noopener">Visit ${t.name} →</a>
-        </div>
-    `).join('');
-}
-
-async function loadAiToolsForStage(stage){
-    if(!stage) return;
-    if(aiToolsPollTimer) clearInterval(aiToolsPollTimer);
-
-    const fetchAndRender = async () => {
-        try{
-            const data = await api(`/ai-tools/${stage}`);
-            renderAiTools(stage, data.meta, data.tools);
-        } catch(err){
-            document.getElementById('aiToolsMeta').textContent = `Couldn't load AI tools: ${err.message}`;
-        }
-    };
-
-    await fetchAndRender();
-    // Keep the panel current without a page reload — mirrors the backend's
-    // own scheduled discovery job, just at a UI-friendly interval.
-    aiToolsPollTimer = setInterval(fetchAndRender, 5 * 60 * 1000);
-}
-
-document.querySelectorAll('.stage-card').forEach(card => {
-    card.addEventListener('click', () => {
-        const stage = card.getAttribute('data-stage');
-        document.getElementById('researchStage').value = stage in {problem:1,literature:1,framework:1,methodology:1,datacollection:1,dataanalysis:1,results:1,conclusion:1,publication:1} ? stage : document.getElementById('researchStage').value;
-        loadAiToolsForStage(stage);
-        window.scrollTo({ top: document.querySelector('.assistant-box').offsetTop - 20, behavior: 'smooth' });
+function updatePasswordRules(inputId){
+    const value = document.getElementById(inputId).value;
+    document.querySelectorAll(`.pw-rules[data-for="${inputId}"] li`).forEach(li => {
+        li.classList.toggle('ok', PASSWORD_RULES[li.dataset.rule](value));
     });
-});
+}
+
+function togglePassword(inputId, button){
+    const input = document.getElementById(inputId);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    button.textContent = show ? 'Hide' : 'Show';
+}
+
+function authMessage(id, text, kind){
+    const box = document.getElementById(id);
+    box.hidden = !text;
+    box.textContent = text || '';
+    box.className = `auth-msg ${kind || 'error'}`;
+}
+
+function showAuth(view, notice){
+    document.getElementById('appShell').hidden = true;
+    document.getElementById('authView').hidden = false;
+    document.getElementById('publicRibbon').hidden = false;
+    document.getElementById('publicInfo').hidden = true;
+    setRibbon('home');
+    Object.entries(AUTH_FORMS).forEach(([key, id]) => { document.getElementById(id).hidden = key !== view; });
+    ['signinMsg', 'signupMsg', 'forgotMsg', 'resetMsg'].forEach(id => authMessage(id, ''));
+    if(notice) authMessage(`${view}Msg`, notice, 'info');
+    const first = document.querySelector(`#${AUTH_FORMS[view]} input`);
+    if(first) first.focus();
+}
+
+function enterApp(user){
+    currentUser = user;
+    document.getElementById('authView').hidden = true;
+    document.getElementById('publicRibbon').hidden = true;
+    document.getElementById('publicInfo').hidden = true;
+    document.getElementById('appShell').hidden = false;
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('userAvatar').textContent = (user.name.trim()[0] || '?').toUpperCase();
+    startApp();
+}
+
+function startSession(data){
+    authToken = data.token;
+    localStorage.setItem('rf_token', authToken);
+    enterApp(data.user);
+}
+
+async function submitSignin(event){
+    event.preventDefault();
+    const email = document.getElementById('signinEmail').value.trim();
+    const password = document.getElementById('signinPassword').value;
+    if(!email || !password) return authMessage('signinMsg', 'Enter your email and password.');
+    try{
+        startSession(await api('/auth/signin', { method: 'POST', body: JSON.stringify({ email, password }) }));
+        document.getElementById('signinPassword').value = '';
+    } catch(err){
+        authMessage('signinMsg', err.message);
+    }
+}
+
+async function submitSignup(event){
+    event.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if(!name) return authMessage('signupMsg', 'Please enter your name.');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return authMessage('signupMsg', 'Please enter a valid email address.');
+    const problem = passwordProblem(password);
+    if(problem) return authMessage('signupMsg', problem);
+    if(password !== document.getElementById('signupConfirm').value) return authMessage('signupMsg', 'The passwords do not match.');
+    try{
+        startSession(await api('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) }));
+        ['signupPassword', 'signupConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+        updatePasswordRules('signupPassword');
+    } catch(err){
+        authMessage('signupMsg', err.message);
+    }
+}
+
+async function submitForgot(event){
+    event.preventDefault();
+    const email = document.getElementById('forgotEmail').value.trim();
+    if(!email) return authMessage('forgotMsg', 'Enter the email you signed up with.');
+    try{
+        const data = await api('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+        const box = document.getElementById('forgotMsg');
+        authMessage('forgotMsg', data.message, 'success');
+        if(data.resetToken){
+            const link = document.createElement('a');
+            link.href = `${location.href.split(/[?#]/)[0]}?reset=${encodeURIComponent(data.resetToken)}`;
+            link.textContent = 'Open your reset link';
+            box.appendChild(document.createElement('br'));
+            box.appendChild(document.createTextNode('Email sending is not set up yet, so the link is shown here. '));
+            box.appendChild(link);
+        }
+    } catch(err){
+        authMessage('forgotMsg', err.message);
+    }
+}
+
+async function submitReset(event){
+    event.preventDefault();
+    const password = document.getElementById('resetPassword').value;
+    const problem = passwordProblem(password);
+    if(problem) return authMessage('resetMsg', problem);
+    if(password !== document.getElementById('resetConfirm').value) return authMessage('resetMsg', 'The passwords do not match.');
+    try{
+        const data = await api('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token: resetToken, password }) });
+        ['resetPassword', 'resetConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+        updatePasswordRules('resetPassword');
+        leaveReset(data.message);
+    } catch(err){
+        authMessage('resetMsg', err.message);
+    }
+}
+
+function leaveReset(notice){
+    resetToken = null;
+    history.replaceState(null, '', location.href.split(/[?#]/)[0]);
+    showAuth('signin', typeof notice === 'string' ? notice : '');
+}
+
+async function signOut(notice){
+    try{ await flushSave(); } catch(e){ /* signing out anyway */ }
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('rf_token');
+    projects = [];
+    allTasks = [];
+    currentProjectId = null;
+    ethicsRequestId++;
+    document.getElementById('homeView').hidden = false;
+    document.getElementById('projectView').hidden = true;
+    document.getElementById('infoView').hidden = true;
+    setRibbon('home');
+    showAuth('signin', typeof notice === 'string' ? notice : '');
+}
 
 /* ---------------- Init ---------------- */
-window.addEventListener('DOMContentLoaded', () => {
-    refreshStats();
+let optionsLoaded = false;
+function startApp(){
+    showHome();
+    refreshProjects();
     loadTasks();
-    loadEthics();
-    loadAiToolsForStage(document.getElementById("researchStage").value);
+    loadTools();
+    if(!optionsLoaded){ optionsLoaded = true; loadPublicationOptions(); }
+    // Keep the tool lists current without a reload; the backend refreshes its catalog on a schedule.
+    if(!toolsTimer) toolsTimer = setInterval(loadTools, 5 * 60 * 1000);
+    if(!syncTimer) syncTimer = setInterval(syncProject, 15000);
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    const reset = new URLSearchParams(location.search).get('reset');
+    if(reset){
+        resetToken = reset;
+        showAuth('reset');
+        return;
+    }
+    if(!authToken) return showAuth('signin');
+    try{
+        enterApp((await api('/auth/me')).user);
+    } catch(err){
+        if(err.status === 401) return signOut('Your session has expired. Please sign in again.');
+        if(authToken) showAuth('signin',  `Couldn't reach the server (${err.message}). Is the backend running at ${API_BASE}?`);
+    }
 });
+
 </script>
 
 </body>

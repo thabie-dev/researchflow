@@ -1,0 +1,109 @@
+{
+  "problem": [
+    { "name": "Google Scholar", "description": "Free search across scholarly articles, theses, books and citations. A quick way to see what has already been published on your problem.", "url": "https://scholar.google.com", "category": "academic-database", "tags": ["search", "citations"] },
+    { "name": "Scopus", "description": "Elsevier's abstract and citation database. Check research trends and the volume of work on your topic (usually via institutional access).", "url": "https://www.scopus.com", "category": "academic-database", "tags": ["search", "citations", "institutional"] },
+    { "name": "Web of Science", "description": "Curated citation index across disciplines, useful for scoping a field and finding highly cited work.", "url": "https://www.webofscience.com", "category": "academic-database", "tags": ["search", "citations", "institutional"] },
+    { "name": "Google Trends", "description": "Shows how interest in a topic changes over time and by region, helpful for motivating a problem.", "url": "https://trends.google.com", "category": "data-source", "tags": ["trends"] }
+  ],
+  "literature": [
+    { "name": "Google Scholar", "description": "Free search across scholarly literature with 'cited by' and 'related articles' links, plus alerts for new papers.", "url": "https://scholar.google.com", "category": "academic-database", "tags": ["search", "alerts"] },
+    { "name": "Scopus", "description": "Large abstract and citation database with filters, author profiles and citation analysis (institutional access).", "url": "https://www.scopus.com", "category": "academic-database", "tags": ["search", "citations", "institutional"] },
+    { "name": "Web of Science", "description": "Citation index for tracing how ideas spread and for systematic searches (institutional access).", "url": "https://www.webofscience.com", "category": "academic-database", "tags": ["search", "citations", "institutional"] },
+    { "name": "ScienceDirect", "description": "Elsevier full-text journals and book chapters (institutional access).", "url": "https://www.sciencedirect.com", "category": "publisher-library", "tags": ["full text"] },
+    { "name": "JSTOR", "description": "Archive of journals, books and primary sources, strong in humanities and social sciences.", "url": "https://www.jstor.org", "category": "publisher-library", "tags": ["full text", "humanities"] },
+    { "name": "Springer Link", "description": "Springer journals, books and conference proceedings.", "url": "https://link.springer.com", "category": "publisher-library", "tags": ["full text"] },
+    { "name": "Wiley Online Library", "description": "Wiley journals, books and reference works.", "url": "https://onlinelibrary.wiley.com", "category": "publisher-library", "tags": ["full text"] },
+    { "name": "Taylor & Francis Online", "description": "Taylor & Francis journals across the social sciences, humanities and STEM.", "url": "https://www.tandfonline.com", "category": "publisher-library", "tags": ["full text"] },
+    { "name": "SAGE Journals", "description": "SAGE journals, strong in social science, education and management.", "url": "https://journals.sagepub.com", "category": "publisher-library", "tags": ["full text"] },
+    { "name": "EBSCOhost", "description": "Library platform with many databases such as Academic Search and Business Source (institutional access).", "url": "https://search.ebscohost.com", "category": "academic-database", "tags": ["search", "institutional"] },
+    { "name": "ProQuest", "description": "Databases of dissertations, theses, journals and newspapers (institutional access).", "url": "https://www.proquest.com", "category": "academic-database", "tags": ["theses", "institutional"] },
+    { "name": "PubMed", "description": "Free index of biomedical and life-science literature from the US National Library of Medicine.", "url": "https://pubmed.ncbi.nlm.nih.gov", "category": "academic-database", "tags": ["biomedical", "free"] },
+    { "name": "IEEE Xplore", "description": "Engineering, computing and electronics papers and standards.", "url": "https://ieeexplore.ieee.org", "category": "academic-database", "tags": ["engineering", "computing"] },
+    { "name": "ERIC", "description": "Free database of education research and documents.", "url": "https://eric.ed.gov", "category": "academic-database", "tags": ["education", "free"] },
+    { "name": "SSRN", "description": "Free preprints in social sciences, economics, law and business.", "url": "https://www.ssrn.com", "category": "preprint-server", "tags": ["preprints", "free"] },
+    { "name": "arXiv", "description": "Free preprints in physics, maths, computer science and related fields.", "url": "https://arxiv.org", "category": "preprint-server", "tags": ["preprints", "free"] },
+    { "name": "CORE", "description": "The world's largest collection of open access research papers.", "url": "https://core.ac.uk", "category": "open-access", "tags": ["open access", "free"] },
+    { "name": "DOAJ", "description": "Directory of open access journals, useful for finding free full-text articles.", "url": "https://doaj.org", "category": "open-access", "tags": ["open access", "free"] },
+    { "name": "OpenAlex", "description": "Open index of scholarly works, authors and institutions with a free API.", "url": "https://openalex.org", "category": "open-access", "tags": ["open data", "free"] },
+    { "name": "Unpaywall", "description": "Finds a legal free version of paywalled papers.", "url": "https://unpaywall.org", "category": "open-access", "tags": ["open access", "free"] },
+    { "name": "Mendeley", "description": "Reference manager with a PDF library, annotation and a Word citation plugin.", "url": "https://www.mendeley.com", "category": "reference-manager", "tags": ["references"] },
+    { "name": "Zotero", "description": "Free, open-source reference manager that captures sources from the browser and cites in Word and Google Docs.", "url": "https://www.zotero.org", "category": "reference-manager", "tags": ["references", "free"] }
+  ],
+  "framework": [
+    { "name": "Google Scholar", "description": "Look up the original theory papers and see how others have applied them.", "url": "https://scholar.google.com", "category": "academic-database", "tags": ["search"] },
+    { "name": "Scopus", "description": "Find and compare how a theory or model has been used across studies (institutional access).", "url": "https://www.scopus.com", "category": "academic-database", "tags": ["search", "institutional"] },
+    { "name": "Lucidchart", "description": "Diagramming tool for drawing conceptual frameworks and relationships.", "url": "https://www.lucidchart.com", "category": "diagramming", "tags": ["diagrams"] },
+    { "name": "draw.io (diagrams.net)", "description": "Free diagramming tool for conceptual and theoretical framework figures.", "url": "https://app.diagrams.net", "category": "diagramming", "tags": ["diagrams", "free"] },
+    { "name": "Miro", "description": "Online whiteboard for mapping concepts and variables with co-authors.", "url": "https://miro.com", "category": "diagramming", "tags": ["whiteboard"] }
+  ],
+  "methodology": [
+    { "name": "Google Scholar", "description": "Find methods papers and examples of designs similar to yours.", "url": "https://scholar.google.com", "category": "academic-database", "tags": ["search"] },
+    { "name": "SAGE Research Methods", "description": "Guides, case studies and datasets covering quantitative, qualitative and mixed methods (institutional access).", "url": "https://methods.sagepub.com", "category": "methods-reference", "tags": ["methods", "institutional"] },
+    { "name": "G*Power", "description": "Free tool to calculate the sample size and statistical power for your design.", "url": "https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower", "category": "sample-size", "tags": ["sample size", "free"] },
+    { "name": "Raosoft Sample Size Calculator", "description": "Quick online calculator for survey sample sizes.", "url": "http://www.raosoft.com/samplesize.html", "category": "sample-size", "tags": ["sample size", "free"] },
+    { "name": "PRISMA Statement", "description": "Checklists and flow diagrams for reporting systematic reviews.", "url": "https://www.prisma-statement.org", "category": "reporting-guideline", "tags": ["systematic review"] },
+    { "name": "Covidence", "description": "Screening and data extraction platform for systematic reviews.", "url": "https://www.covidence.org", "category": "review-management", "tags": ["systematic review"] }
+  ],
+  "ethics": [
+    { "name": "Declaration of Helsinki", "description": "World Medical Association ethical principles for research involving human participants.", "url": "https://www.wma.net/policies-post/wma-declaration-of-helsinki", "category": "ethics-guideline", "tags": ["guideline"] },
+    { "name": "Committee on Publication Ethics (COPE)", "description": "Guidance on research and publication ethics, authorship and misconduct.", "url": "https://publicationethics.org", "category": "ethics-guideline", "tags": ["publication ethics"] },
+    { "name": "Turnitin", "description": "Similarity checking to protect against plagiarism before you submit (institutional access).", "url": "https://www.turnitin.com", "category": "integrity", "tags": ["plagiarism", "institutional"] },
+    { "name": "iThenticate", "description": "Plagiarism checker used by publishers and researchers.", "url": "https://www.ithenticate.com", "category": "integrity", "tags": ["plagiarism"] }
+  ],
+  "datacollection": [
+    { "name": "Google Forms", "description": "Free survey and questionnaire builder with responses collected in a spreadsheet.", "url": "https://forms.google.com", "category": "survey", "tags": ["survey", "free"] },
+    { "name": "Microsoft Forms", "description": "Survey tool included with Microsoft 365.", "url": "https://forms.office.com", "category": "survey", "tags": ["survey"] },
+    { "name": "Qualtrics", "description": "Professional survey and experiment platform (often provided by universities).", "url": "https://www.qualtrics.com", "category": "survey", "tags": ["survey", "institutional"] },
+    { "name": "KoboToolbox", "description": "Free tool for field data collection, including offline mobile surveys.", "url": "https://www.kobotoolbox.org", "category": "survey", "tags": ["field data", "free"] },
+    { "name": "REDCap", "description": "Secure web application for building surveys and databases, common in health research.", "url": "https://projectredcap.org", "category": "survey", "tags": ["clinical", "institutional"] },
+    { "name": "Zoom", "description": "Video calls with recording for interviews and focus groups.", "url": "https://zoom.us", "category": "interviewing", "tags": ["interviews"] },
+    { "name": "Otter.ai", "description": "Records and transcribes interviews.", "url": "https://otter.ai", "category": "transcription", "tags": ["transcription"] },
+    { "name": "World Bank Open Data", "description": "Free development indicators for countries and regions.", "url": "https://data.worldbank.org", "category": "data-source", "tags": ["secondary data", "free"] },
+    { "name": "Statistics South Africa", "description": "Official South African statistics and datasets.", "url": "https://www.statssa.gov.za", "category": "data-source", "tags": ["secondary data", "free"] },
+    { "name": "Google Dataset Search", "description": "Search engine for publicly available datasets.", "url": "https://datasetsearch.research.google.com", "category": "data-source", "tags": ["secondary data", "free"] },
+    { "name": "Zenodo", "description": "Open repository for research data, code and supplementary material.", "url": "https://zenodo.org", "category": "data-source", "tags": ["open data", "free"] }
+  ],
+  "datacleaning": [
+    { "name": "Microsoft Excel", "description": "Spreadsheet for cleaning, sorting, filtering and checking data.", "url": "https://www.microsoft.com/microsoft-365/excel", "category": "spreadsheet", "tags": ["cleaning"] },
+    { "name": "OpenRefine", "description": "Free tool for cleaning messy data, finding duplicates and standardising values.", "url": "https://openrefine.org", "category": "data-cleaning", "tags": ["cleaning", "free"] },
+    { "name": "R (tidyverse)", "description": "Free language and packages for reproducible data cleaning and wrangling.", "url": "https://www.tidyverse.org", "category": "programming", "tags": ["cleaning", "free"] },
+    { "name": "Python (pandas)", "description": "Free library for data cleaning and transformation.", "url": "https://pandas.pydata.org", "category": "programming", "tags": ["cleaning", "free"] }
+  ],
+  "dataanalysis": [
+    { "name": "SPSS", "description": "Statistical software widely used in the social sciences (institutional access).", "url": "https://www.ibm.com/products/spss-statistics", "category": "statistics", "tags": ["quantitative"] },
+    { "name": "R", "description": "Free statistical computing environment with thousands of packages.", "url": "https://www.r-project.org", "category": "statistics", "tags": ["quantitative", "free"] },
+    { "name": "RStudio (Posit)", "description": "Free IDE for working with R.", "url": "https://posit.co/download/rstudio-desktop", "category": "statistics", "tags": ["quantitative", "free"] },
+    { "name": "jamovi", "description": "Free, easy-to-use statistics software with a spreadsheet-style interface.", "url": "https://www.jamovi.org", "category": "statistics", "tags": ["quantitative", "free"] },
+    { "name": "JASP", "description": "Free statistics software with classical and Bayesian analysis.", "url": "https://jasp-stats.org", "category": "statistics", "tags": ["quantitative", "free"] },
+    { "name": "Stata", "description": "Statistical package popular in economics and health research.", "url": "https://www.stata.com", "category": "statistics", "tags": ["quantitative"] },
+    { "name": "NVivo", "description": "Qualitative data analysis: coding interviews, text and media (institutional access).", "url": "https://lumivero.com/products/nvivo", "category": "qualitative", "tags": ["qualitative", "coding"] },
+    { "name": "ATLAS.ti", "description": "Qualitative coding and analysis of text, audio and images.", "url": "https://atlasti.com", "category": "qualitative", "tags": ["qualitative", "coding"] },
+    { "name": "Taguette", "description": "Free, open-source tool for qualitative coding.", "url": "https://www.taguette.org", "category": "qualitative", "tags": ["qualitative", "free"] },
+    { "name": "SmartPLS", "description": "Software for PLS structural equation modelling.", "url": "https://www.smartpls.com", "category": "statistics", "tags": ["SEM"] },
+    { "name": "Microsoft Excel", "description": "Spreadsheet for descriptive statistics, pivot tables and charts.", "url": "https://www.microsoft.com/microsoft-365/excel", "category": "spreadsheet", "tags": ["quantitative"] }
+  ],
+  "results": [
+    { "name": "Tableau Public", "description": "Free tool to build interactive charts and dashboards for your results.", "url": "https://public.tableau.com", "category": "visualisation", "tags": ["charts", "free"] },
+    { "name": "Microsoft Power BI", "description": "Business analytics and charting tool.", "url": "https://powerbi.microsoft.com", "category": "visualisation", "tags": ["charts"] },
+    { "name": "Datawrapper", "description": "Create clean charts and tables for publication.", "url": "https://www.datawrapper.de", "category": "visualisation", "tags": ["charts", "free"] },
+    { "name": "Google Scholar", "description": "Find earlier studies to compare your findings against in the discussion.", "url": "https://scholar.google.com", "category": "academic-database", "tags": ["search"] },
+    { "name": "Scopus", "description": "Find and cite related findings for your discussion (institutional access).", "url": "https://www.scopus.com", "category": "academic-database", "tags": ["search", "institutional"] }
+  ],
+  "conclusion": [
+    { "name": "Grammarly", "description": "Grammar, clarity and tone checking for your final drafts.", "url": "https://www.grammarly.com", "category": "writing", "tags": ["proofreading"] },
+    { "name": "Hemingway Editor", "description": "Highlights long or complex sentences to help you tighten your writing.", "url": "https://hemingwayapp.com", "category": "writing", "tags": ["proofreading", "free"] },
+    { "name": "Overleaf", "description": "Online LaTeX editor for collaborative academic writing.", "url": "https://www.overleaf.com", "category": "writing", "tags": ["LaTeX", "collaboration"] }
+  ],
+  "publication": [
+    { "name": "Scopus Sources", "description": "Check whether a journal is indexed in Scopus and see its metrics.", "url": "https://www.scopus.com/sources", "category": "journal-finder", "tags": ["journals", "metrics"] },
+    { "name": "Journal Citation Reports", "description": "Impact factors and rankings for journals (institutional access).", "url": "https://jcr.clarivate.com", "category": "journal-finder", "tags": ["journals", "metrics"] },
+    { "name": "Scimago Journal Rank", "description": "Free journal rankings and quartiles by subject area.", "url": "https://www.scimagojr.com", "category": "journal-finder", "tags": ["journals", "metrics", "free"] },
+    { "name": "Think. Check. Submit.", "description": "Checklist to help you avoid predatory journals and publishers.", "url": "https://thinkchecksubmit.org", "category": "journal-finder", "tags": ["journals", "trust"] },
+    { "name": "DOAJ", "description": "Directory of quality open access journals.", "url": "https://doaj.org", "category": "journal-finder", "tags": ["journals", "open access"] },
+    { "name": "ORCID", "description": "Free persistent identifier that links you to your publications.", "url": "https://orcid.org", "category": "researcher-profile", "tags": ["identity", "free"] },
+    { "name": "ResearchGate", "description": "Share your papers and follow other researchers.", "url": "https://www.researchgate.net", "category": "researcher-profile", "tags": ["networking"] },
+    { "name": "Zotero", "description": "Free reference manager to format citations and bibliographies in any journal style.", "url": "https://www.zotero.org", "category": "reference-manager", "tags": ["references", "free"] },
+    { "name": "Mendeley", "description": "Reference manager with a Word plugin for citation styles.", "url": "https://www.mendeley.com", "category": "reference-manager", "tags": ["references"] },
+    { "name": "EndNote", "description": "Reference manager and citation tool (often provided by universities).", "url": "https://endnote.com", "category": "reference-manager", "tags": ["references", "institutional"] }
+  ]
+}

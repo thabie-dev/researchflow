@@ -1,7 +1,15 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const store = require('../services/store');
+const KNOWLEDGE_BASE = 'knowledgeBase';
+const MAX_CHAT_QUESTION = 1000;
+const MAX_CHAT_HISTORY = 12;
+const MAX_CHAT_MESSAGE = 3000;
+const MAX_CHAT_STAGE = 500;
 const config = require('../config');
+const corpusAssistant = require('../services/corpusAssistant');
+const { accessibleProject } = require('../services/ownership');
 
 // Same structured guidance the original frontend hard-coded, now served from
 // the backend so it can be edited centrally and reused by other clients.
@@ -146,6 +154,63 @@ router.post('/generate', async (req, res) => {
   }
 
   res.json({ stage, title: template.title, topic: safeTopic, bullets, generatedBy });
+});
+
+router.post('/chat', async (req, res) => {
+  const { projectId, question, history, stage } = req.body || {};
+  if (typeof projectId !== 'string' || !projectId) {
+    return res.status(400).json({ error: 'projectId is required' });
+  }
+  const project = accessibleProject(req.user, projectId);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+  if (typeof question !== 'string' || !question.trim()) {
+    return res.status(400).json({ error: 'Enter a question for the corpus assistant' });
+  }
+  if (question.trim().length > MAX_CHAT_QUESTION) {
+    return res.status(400).json({ error: `Question must be at most ${MAX_CHAT_QUESTION} characters` });
+  }
+  if (stage !== undefined && (typeof stage !== 'string' || !stage.trim() || stage.length > MAX_CHAT_STAGE)) {
+    return res.status(400).json({ error: `stage must be a non-empty string of at most ${MAX_CHAT_STAGE} characters` });
+  }
+  if (history !== undefined && !Array.isArray(history)) {
+    return res.status(400).json({ error: 'history must be an array of chat messages' });
+  }
+  const messages = history || [];
+  if (messages.length > MAX_CHAT_HISTORY || messages.some((message) =>
+    !message || !['user', 'assistant'].includes(message.role)
+    || typeof message.content !== 'string' || !message.content.trim()
+    || message.content.length > MAX_CHAT_MESSAGE)) {
+    return res.status(400).json({ error: `history must contain at most ${MAX_CHAT_HISTORY} valid messages of up to ${MAX_CHAT_MESSAGE} characters` });
+  }
+
+  const knowledge = store.read(KNOWLEDGE_BASE, []).find((item) => item.projectId === projectId);
+  const papers = knowledge && Array.isArray(knowledge.papers) ? knowledge.papers : [];
+  if (!papers.length) {
+    return res.status(409).json({ error: 'This project has no papers in its literature library yet. Use Find papers to collect papers before chatting with the corpus.' });
+  }
+
+  const sources = corpusAssistant.rankPapers(papers, question.trim());
+  if (!sources.length) {
+    return res.status(422).json({ error: 'No papers in this project library matched that question. Try different keywords or collect more papers.' });
+  }
+
+  try {
+    const answer = await corpusAssistant.askCorpus({
+      question: question.trim(),
+      history: messages,
+      sources,
+      stage: stage && stage.trim(),
+    });
+    res.json({
+      answer,
+      sources: sources.map(({ abstract, ...source }) => source),
+      sourceScope: 'paper titles and abstracts',
+    });
+  } catch (error) {
+    if (error.status === 503) return res.status(error.status).json({ error: error.message });
+    console.error('[assistant] Corpus chat failed:', error.message);
+    res.status(502).json({ error: 'The corpus assistant could not complete the request. Please try again shortly.' });
+  }
 });
 
 module.exports = router;

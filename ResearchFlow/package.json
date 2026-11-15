@@ -1,0 +1,26 @@
+{
+  "name": "researchflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "test": "npm run test -w backend",
+    "start:frontend": "npm run dev -w frontend",
+    "start:backend": "npm start -w backend",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  },
+  "dependencies": {
+    "papaparse": "^5.7.0"
+  }
+}

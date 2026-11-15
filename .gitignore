@@ -7,6 +7,14 @@ data/projects.json
 data/tasks.json
 data/ethicsRecords.json
 data/knowledgeBase.json
+data/analysisDocuments.json
 data/passwordResets.json
 data/authSecret.txt
 data/*.corrupt-*
+
+ResearchFlow/backend/data/
+node_modules/
+venv/
+.venv/
+.env
+__pycache__/

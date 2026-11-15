@@ -1,7 +1,7 @@
 const path = require('path');
 const { spawn } = require('child_process');
 const JSZip = require('jszip');
-const pdfParse = require('pdf-parse');
+const { extractPdfText } = require('./pdfText');
 
 function docText(buffer) {
   return new Promise((resolve, reject) => {
@@ -73,11 +73,11 @@ async function extractHeadings(buffer, fileName) {
   const ext = path.extname(fileName || '').toLowerCase().replace('.', '');
   switch (ext) {
     case 'pdf': {
-      const data = await pdfParse(buffer);
-      if (!data.text || !data.text.trim()) {
+      const text = await extractPdfText(buffer);
+      if (!text || !text.trim()) {
         throw new Error('this PDF has no selectable text (it may be a scan). Paste the section headings instead');
       }
-      return headingsFromText(data.text);
+      return headingsFromText(text);
     }
     case 'docx': return fromDocx(buffer);
     case 'doc': return headingsFromText(await docText(buffer));

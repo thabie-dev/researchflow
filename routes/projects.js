@@ -5,6 +5,8 @@ const store = require('../services/store');
 const conferences = require('../services/conferences');
 const mailer = require('../services/mailer');
 const { roleOf, accessibleProject, normaliseEmail, WRITERS } = require('../services/ownership');
+const { STYLES } = require('../services/references');
+const { validateRichDocument, RichDocumentError } = require('../services/richDocument');
 
 const COLLECTION = 'projects';
 
@@ -27,6 +29,8 @@ const TEMPLATE_KEY = /^t\d{1,4}$/;
 const MAX_TEMPLATE_SECTIONS = 40;
 const MAX_TITLE_LENGTH = 120;
 const MAX_SECTION_LENGTH = 200000;
+const MAX_MANUSCRIPT_VERSIONS = 25;
+const asyncRoute = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 function newProject({ ownerId, title, field, deadline, publicationType, conference, targetJournal, problemStatement }) {
   const progress = Object.fromEntries(STAGE_KEYS.map((k) => [k, 0]));
@@ -41,6 +45,7 @@ function newProject({ ownerId, title, field, deadline, publicationType, conferen
     targetJournal: targetJournal || null,
     problemStatement: problemStatement || null,
     manuscript: problemStatement ? { problemStatement } : {},
+    manuscriptVersions: {},
     createdAt: new Date().toISOString(),
     progress,
     overallProgress: 0,
@@ -65,6 +70,46 @@ function validSection(section) {
   return section === 'general' || MANUSCRIPT_KEYS.includes(section) || TEMPLATE_KEY.test(section);
 }
 
+function manuscriptInput(req, res) {
+  const { section } = req.params;
+  const { text } = req.body || {};
+  if (!MANUSCRIPT_KEYS.includes(section) && !TEMPLATE_KEY.test(section)) {
+    res.status(400).json({ error: `section must be one of: ${MANUSCRIPT_KEYS.join(', ')} or a template section (t1, t2, ...)` });
+    return null;
+  }
+  if (typeof text !== 'string') {
+    res.status(400).json({ error: 'text must be a string' });
+    return null;
+  }
+  if (text.length > MAX_SECTION_LENGTH) {
+    res.status(413).json({ error: `text is too long (max ${MAX_SECTION_LENGTH} characters)` });
+    return null;
+  }
+  const hasDocument = Object.hasOwn(req.body, 'document');
+  if (!hasDocument) return { text };
+  try {
+    const derived = validateRichDocument(req.body.document);
+    if (derived !== text) {
+      res.status(400).json({ error: 'text must match the text derived from document' });
+      return null;
+    }
+    return { text, document: req.body.document };
+  } catch (error) {
+    if (!(error instanceof RichDocumentError)) throw error;
+    res.status(400).json({ error: error.message });
+    return null;
+  }
+}
+
+function documentUpdate(project, section, input) {
+  const rich = { ...(project.manuscriptRich || {}) };
+  if (input.document) rich[section] = input.document;
+  else if (rich[section] && input.text !== (project.manuscript || {})[section]) {
+    return { error: 409, message: 'This section contains formatting. Use a rich-document editor to change it.' };
+  }
+  return { manuscript: { ...(project.manuscript || {}), [section]: input.text }, manuscriptRich: rich };
+}
+
 // What a signed-in user sees: the project plus their role, the owner and who has joined.
 function present(project, user) {
   const users = store.read('users', []);
@@ -81,6 +126,7 @@ function present(project, user) {
     comments: project.comments || [],
     activity: project.activity || [],
     lastEdit: project.lastEdit || {},
+    manuscriptVersions: project.manuscriptVersions || {},
   };
 }
 
@@ -101,9 +147,9 @@ function cleanEmails(list) {
 }
 
 // Runs `change` on a project the user may modify; returns the updated project, or an error code.
-async function modifyProject(req, roles, change) {
+async function modifyProject(req, roles, change, strict = false) {
   let outcome = { error: 404 };
-  await store.update(COLLECTION, [], (all) =>
+  await (strict ? store.updateStrict : store.update)(COLLECTION, [], (all) =>
     all.map((p) => {
       if (p.id !== req.params.id) return p;
       const role = roleOf(req.user, p);
@@ -119,7 +165,7 @@ async function modifyProject(req, roles, change) {
 }
 
 function sendOutcome(req, res, outcome, status = 200) {
-  if (outcome.error === 404) return res.status(404).json({ error: 'Project not found' });
+  if (outcome.error === 404) return res.status(404).json({ error: outcome.message || 'Project not found' });
   if (outcome.error === 403) return res.status(403).json({ error: 'You do not have permission to do that on this project' });
   if (outcome.error) return res.status(outcome.error).json({ error: outcome.message });
   return res.status(status).json(present(outcome.project, req.user));
@@ -173,24 +219,101 @@ router.post('/', async (req, res) => {
   res.status(201).json({ ...present(project, req.user), invites });
 });
 
-router.put('/:id/manuscript/:section', async (req, res) => {
+router.put('/:id/manuscript/:section', asyncRoute(async (req, res) => {
   const { section } = req.params;
-  const { text } = req.body || {};
+  const input = manuscriptInput(req, res);
+  if (input === null) return;
+
+  const outcome = await modifyProject(req, WRITERS, (p) => {
+    const update = documentUpdate(p, section, input);
+    if (update.error) return update;
+    return withActivity({
+      ...p,
+      ...update,
+      lastEdit: { ...(p.lastEdit || {}), [section]: { by: req.user.name, userId: req.user.id, at: new Date().toISOString() } },
+    }, req.user, 'edit', section);
+  }, true);
+  sendOutcome(req, res, outcome);
+}));
+
+router.post('/:id/manuscript/:section/versions', asyncRoute(async (req, res) => {
+  const { section } = req.params;
+  const input = manuscriptInput(req, res);
+  if (input === null) return;
+
+  const outcome = await modifyProject(req, WRITERS, (p) => {
+    const update = documentUpdate(p, section, input);
+    if (update.error) return update;
+    const timestamp = new Date().toISOString();
+    const versions = [...((p.manuscriptVersions || {})[section] || []), {
+      id: uuid(),
+      timestamp,
+      text: input.text,
+      ...(update.manuscriptRich[section] ? { document: update.manuscriptRich[section] } : {}),
+    }].slice(-MAX_MANUSCRIPT_VERSIONS);
+    return withActivity({
+      ...p,
+      ...update,
+      manuscriptVersions: { ...(p.manuscriptVersions || {}), [section]: versions },
+      lastEdit: { ...(p.lastEdit || {}), [section]: { by: req.user.name, userId: req.user.id, at: timestamp } },
+    }, req.user, 'version', section, 'Saved manuscript version');
+  }, true);
+  sendOutcome(req, res, outcome, 201);
+}));
+
+router.post('/:id/manuscript/:section/versions/:versionId/restore', asyncRoute(async (req, res) => {
+  const { section, versionId } = req.params;
   if (!MANUSCRIPT_KEYS.includes(section) && !TEMPLATE_KEY.test(section)) {
     return res.status(400).json({ error: `section must be one of: ${MANUSCRIPT_KEYS.join(', ')} or a template section (t1, t2, ...)` });
   }
-  if (typeof text !== 'string') return res.status(400).json({ error: 'text must be a string' });
-  if (text.length > MAX_SECTION_LENGTH) {
-    return res.status(413).json({ error: `text is too long (max ${MAX_SECTION_LENGTH} characters)` });
-  }
 
-  const outcome = await modifyProject(req, WRITERS, (p) => withActivity({
-    ...p,
-    manuscript: { ...(p.manuscript || {}), [section]: text },
-    lastEdit: { ...(p.lastEdit || {}), [section]: { by: req.user.name, userId: req.user.id, at: new Date().toISOString() } },
-  }, req.user, 'edit', section));
+  const outcome = await modifyProject(req, WRITERS, (p) => {
+    const existing = (p.manuscriptVersions || {})[section] || [];
+    const selected = existing.find((version) => version.id === versionId);
+    if (!selected) return { error: 404, message: 'Manuscript version not found' };
+
+    const timestamp = new Date().toISOString();
+    const currentText = typeof (p.manuscript || {})[section] === 'string' ? p.manuscript[section] : '';
+    const rich = { ...(p.manuscriptRich || {}) };
+    const versions = [...existing, {
+      id: uuid(), timestamp, text: currentText,
+      ...(rich[section] ? { document: rich[section] } : {}),
+    }].slice(-MAX_MANUSCRIPT_VERSIONS);
+    if (selected.document) rich[section] = selected.document;
+    else delete rich[section];
+    return withActivity({
+      ...p,
+      manuscript: { ...(p.manuscript || {}), [section]: selected.text },
+      manuscriptRich: rich,
+      manuscriptVersions: { ...(p.manuscriptVersions || {}), [section]: versions },
+      lastEdit: { ...(p.lastEdit || {}), [section]: { by: req.user.name, userId: req.user.id, at: timestamp } },
+    }, req.user, 'restore', section, 'Restored manuscript version');
+  }, true);
   sendOutcome(req, res, outcome);
-});
+}));
+
+router.post('/:id/manuscript/:section/plain-text', asyncRoute(async (req, res) => {
+  const { section } = req.params;
+  if (!MANUSCRIPT_KEYS.includes(section) && !TEMPLATE_KEY.test(section)) {
+    return res.status(400).json({ error: 'Invalid manuscript section' });
+  }
+  const outcome = await modifyProject(req, WRITERS, (p) => {
+    const rich = { ...(p.manuscriptRich || {}) };
+    if (!rich[section]) return { error: 409, message: 'This section has no formatting to remove' };
+    const timestamp = new Date().toISOString();
+    const versions = [...((p.manuscriptVersions || {})[section] || []), {
+      id: uuid(), timestamp, text: (p.manuscript || {})[section] || '', document: rich[section],
+    }].slice(-MAX_MANUSCRIPT_VERSIONS);
+    delete rich[section];
+    return withActivity({
+      ...p,
+      manuscriptRich: rich,
+      manuscriptVersions: { ...(p.manuscriptVersions || {}), [section]: versions },
+      lastEdit: { ...(p.lastEdit || {}), [section]: { by: req.user.name, userId: req.user.id, at: timestamp } },
+    }, req.user, 'edit', section, 'Converted formatted section to plain text');
+  }, true);
+  sendOutcome(req, res, outcome);
+}));
 
 router.put('/:id/template', async (req, res) => {
   const { sections, fileName } = req.body || {};
@@ -222,6 +345,15 @@ router.put('/:id/template', async (req, res) => {
       templateFileName: next.length ? String(fileName || '').slice(0, 200) || null : null,
     }, req.user, 'template', null, next.length ? `${next.length} sections` : 'standard stages');
   });
+  sendOutcome(req, res, outcome);
+});
+
+router.put('/:id/reference-style', async (req, res) => {
+  const { style } = req.body || {};
+  if (typeof style !== 'string' || !Object.hasOwn(STYLES, style)) {
+    return res.status(400).json({ error: `style must be one of: ${Object.keys(STYLES).join(', ')}` });
+  }
+  const outcome = await modifyProject(req, WRITERS, (p) => ({ ...p, referenceStyle: style }));
   sendOutcome(req, res, outcome);
 });
 
@@ -304,14 +436,15 @@ router.delete('/:id/comments/:commentId', async (req, res) => {
   sendOutcome(req, res, outcome);
 });
 
-router.delete('/:id', async (req, res) => {
-  let existed = false;
-  await store.update(COLLECTION, [], (all) => {
-    const mine = (p) => p.id === req.params.id && p.ownerId === req.user.id;
-    existed = all.some(mine);
-    return all.filter((p) => !mine(p));
-  });
-  if (!existed) return res.status(404).json({ error: 'Project not found' });
+router.delete('/:id', async (req, res, next) => {
+  const found = store.read(COLLECTION, []).some((p) => p.id === req.params.id && p.ownerId === req.user.id);
+  if (!found) return res.status(404).json({ error: 'Project not found' });
+  try {
+    await store.updateStrict('analysisDocuments', [], (all) => all.filter((document) => document.projectId !== req.params.id));
+    await store.updateStrict(COLLECTION, [], (all) => all.filter((p) => !(p.id === req.params.id && p.ownerId === req.user.id)));
+  } catch (error) {
+    return next(error);
+  }
   res.status(204).send();
 });
 

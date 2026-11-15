@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ResearchFlow | Project-Managed Research</title>
 
-<link rel="stylesheet" href="styles.css?v=20261110">
+<link rel="stylesheet" href="styles.css?v=20261115-auto-references">
 </head>
 
 <body>
@@ -153,13 +153,6 @@
                 </div>
             </div>
 
-            <ol class="steps" aria-label="How ResearchFlow works">
-                <li><b>1</b><span>Create a project<small>Choose journal or conference</small></span></li>
-                <li><b>2</b><span>Write each stage<small>Tools for every stage</small></span></li>
-                <li><b>3</b><span>Manage tasks<small>Kanban board</small></span></li>
-                <li><b>4</b><span>Write &amp; export<small>Word, PDF, slides, Excel</small></span></li>
-            </ol>
-
             <section class="stats">
                 <div class="stat-card"><h3>Active Projects</h3><strong id="statProjects">0</strong></div>
                 <div class="stat-card"><h3>Research Stages</h3><strong>11</strong></div>
@@ -226,8 +219,8 @@
             </section>
 
             <div class="section-head">
-                <h2 class="section-title">Your Projects</h2>
-                <p>Select a project to open its research cycle, tasks and manuscript.</p>
+                <h2 class="section-title">Deadline risk overview</h2>
+                <p>Based on days until the deadline, not project progress. Open a project from the sidebar.</p>
             </div>
             <section class="project-grid" id="projectGrid" aria-live="polite">
                 <div class="empty-note">Loading projects...</div>
@@ -337,6 +330,28 @@
                 <p>Get structured guidance for the stage you are working on.</p>
             </div>
             <section class="assistant-box">
+                <section class="document-comparer">
+                    <div class="corpus-chat-head">
+                        <div>
+                            <h3>Document comparer</h3>
+                            <p>Compare two papers or analyze a collection of 2–30 documents for similarity and prominent lexical themes. Supports PDF, Word (.docx), Markdown, text, and CSV files. Uploads are processed temporarily and are not added to your project library.</p>
+                        </div>
+                    </div>
+                    <div class="comparison-upload">
+                        <label for="comparisonMode">Analysis</label>
+                        <select id="comparisonMode" onchange="updateComparisonMode()">
+                            <option value="pair">Compare two documents</option>
+                            <option value="bulk">Compare a collection (2–30)</option>
+                        </select>
+                        <label for="comparisonFiles">Documents</label>
+                        <input type="file" id="comparisonFiles" multiple accept=".pdf,.docx,.md,.txt,.csv">
+                        <button type="button" id="comparisonSubmit" onclick="compareDocuments()">Analyze documents</button>
+                    </div>
+                    <p class="comparison-note">Maximum 10 MB per document and 30 MB total. Scanned PDFs without selectable text cannot be analyzed.</p>
+                    <div id="comparisonStatus" class="comparison-status" role="status" aria-live="polite"></div>
+                    <div id="comparisonResult" class="comparison-result" hidden></div>
+                </section>
+
                 <div class="form-grid">
                     <select id="researchStage">
                         <option value="problem">Problem Statement & Concept Note</option>
@@ -359,6 +374,28 @@
                     <h3>Research Support Output</h3>
                     <p>Select a research stage and enter your topic to receive structured guidance.</p>
                 </div>
+                <div id="supportChatSlot">
+                <section class="corpus-chat" id="corpusChat">
+                    <div class="corpus-chat-head">
+                        <div>
+                            <h3>Chat with your literature library</h3>
+                            <p>Ask questions about papers collected for this project. Answers use stored titles and abstracts and cite matching papers. Your question, current stage name, chat history and relevant paper text are sent to the configured AI provider; your draft is not sent automatically.</p>
+                            <p id="corpusChatStage" class="corpus-chat-stage"></p>
+                        </div>
+                        <button type="button" class="ghost-btn" id="corpusChatClear" onclick="clearCorpusChat()">Clear chat</button>
+                    </div>
+                    <div class="corpus-chat-messages" id="corpusChatMessages" role="log" aria-live="polite">
+                        <p class="corpus-chat-empty">Collect papers in the Write tab, then ask a question about their abstracts.</p>
+                    </div>
+                    <form class="corpus-chat-form" id="corpusChatForm" onsubmit="sendCorpusChat(event)">
+                        <textarea id="corpusChatInput" rows="2" maxlength="1000" required placeholder="Ask a question about the papers in this project's literature library..."></textarea>
+                        <div class="corpus-chat-actions">
+                            <button type="submit" id="corpusChatSubmit">Ask the literature</button>
+                            <span id="corpusChatStatus" role="status" aria-live="polite"></span>
+                        </div>
+                    </form>
+                </section>
+                </div>
             </section>
             </div>
 
@@ -368,9 +405,41 @@
                     <p>Optional. Use this if you want to pitch or plan the paper before drafting it. It is kept apart from the manuscript.</p>
                 </div>
                 <section class="write-editor concept-editor">
+                  <div class="writing-workspace">
+                   <div class="writing-draft">
                     <p class="field-hint">Cover: rationale, contribution, scope, methods, expected outputs and feasibility.</p>
+                    <p class="field-hint">Formatting is saved with the draft. Formatted Word and PDF downloads are not yet available.</p>
+                    <p class="field-hint">Paste tables from Word, spreadsheets or web pages. Unmerge cells first; unsupported styling and column widths are not retained.</p>
+                    <p class="field-hint" id="conceptEditorStatus" role="status" aria-live="polite"></p>
+                    <button type="button" class="ghost-btn" id="conceptPlainText" onclick="convertToPlainText('conceptNote')">Remove formatting (save a version first)</button>
+                    <div id="conceptRichEditor"></div>
+                    <div class="text-case-controls" role="group" aria-label="Concept note text case">
+                        <button type="button" class="ghost-btn" data-case-editor="conceptText" onclick="changeSelectedCase('conceptText', 'upper')">UPPERCASE</button>
+                        <button type="button" class="ghost-btn" data-case-editor="conceptText" onclick="changeSelectedCase('conceptText', 'lower')">lowercase</button>
+                        <span id="conceptCaseStatus" class="field-hint" role="status" aria-live="polite"></span>
+                    </div>
                     <textarea id="conceptText" rows="16" placeholder="Write your concept note here. It saves automatically." oninput="onWriteInput('conceptNote')"></textarea>
-                    <div class="write-status"><span id="conceptCount"></span><span id="conceptSaveState" aria-live="polite"></span></div>
+                    <div class="write-status"><span id="conceptCount"></span><span id="conceptSaveState" aria-live="polite"></span><button type="button" class="ghost-btn" onclick="retryDraftSave('conceptNote')">Save now / retry</button></div>
+                    <section class="generated-references" aria-labelledby="conceptReferencesHeading">
+                        <h3 id="conceptReferencesHeading">References</h3>
+                        <p class="field-hint">Automatically generated from linked citations in this concept note.</p>
+                        <p id="conceptBibliographyStatus" class="field-hint" role="status"></p>
+                        <div id="conceptBibliography" class="generated-references-list"></div>
+                    </section>
+                    <div class="version-controls">
+                        <div class="version-control-actions">
+                            <button type="button" class="ghost-btn" id="conceptSaveVersion" onclick="saveManuscriptVersion('conceptNote')">Save Version</button>
+                            <select id="conceptVersionSelect" aria-label="Concept note versions"></select>
+                            <button type="button" class="ghost-btn" id="conceptRestoreVersion" onclick="restoreManuscriptVersion('conceptNote')" disabled>Restore</button>
+                        </div>
+                        <span id="conceptVersionMsg" role="status" aria-live="polite"></span>
+                    </div>
+                   </div>
+                   <aside class="writing-assist" aria-label="Concept note references and chatbot">
+                    <div id="conceptReferenceSlot"></div>
+                    <div id="conceptChatSlot"></div>
+                   </aside>
+                  </div>
                 </section>
             </div>
 
@@ -400,13 +469,119 @@
                 <div class="write-layout">
                     <nav class="write-stages" id="writeStages" aria-label="Research stages"></nav>
                     <section class="write-editor">
+                      <div class="writing-workspace">
+                       <div class="writing-draft">
                         <h2 id="writeStageTitle"></h2>
                         <p class="field-hint" id="writeStageDesc"></p>
+                        <p class="field-hint">Formatting is saved with the draft. Formatted Word and PDF downloads are not yet available.</p>
+                        <p class="field-hint">Paste tables from Word, spreadsheets or web pages. Unmerge cells first; unsupported styling and column widths are not retained.</p>
+                        <p class="field-hint" id="writeEditorStatus" role="status" aria-live="polite"></p>
+                        <button type="button" class="ghost-btn" id="writePlainText" onclick="convertToPlainText(activeWriteKey(currentProject()))">Remove formatting (save a version first)</button>
+                        <div id="writeRichEditor"></div>
+                        <div class="text-case-controls" role="group" aria-label="Manuscript text case">
+                            <button type="button" class="ghost-btn" data-case-editor="writeText" onclick="changeSelectedCase('writeText', 'upper')">UPPERCASE</button>
+                            <button type="button" class="ghost-btn" data-case-editor="writeText" onclick="changeSelectedCase('writeText', 'lower')">lowercase</button>
+                            <span id="writeCaseStatus" class="field-hint" role="status" aria-live="polite"></span>
+                        </div>
                         <textarea id="writeText" rows="16" placeholder="Write this section here. It saves automatically. Download your paper from the bottom of this page." oninput="onWriteInput()"></textarea>
-                        <div class="write-status"><span id="writeCount"></span><span id="writeSaveState" aria-live="polite"></span></div>
+                        <div class="write-status"><span id="writeCount"></span><span id="writeSaveState" aria-live="polite"></span><button type="button" class="ghost-btn" onclick="retryDraftSave(activeWriteKey(currentProject()))">Save now / retry</button></div>
+                        <section id="writeBibliographySection" class="generated-references" aria-labelledby="writeReferencesHeading" hidden>
+                            <h3 id="writeReferencesHeading">Automatically generated references</h3>
+                            <p class="field-hint">Linked citations across the manuscript appear here. Any references you type above are kept separately.</p>
+                            <p id="writeBibliographyStatus" class="field-hint" role="status"></p>
+                            <div id="writeBibliography" class="generated-references-list"></div>
+                        </section>
+                        <div class="version-controls">
+                            <div class="version-control-actions">
+                                <button type="button" class="ghost-btn" id="writeSaveVersion" onclick="saveManuscriptVersion(activeWriteKey(currentProject()))">Save Version</button>
+                                <select id="writeVersionSelect" aria-label="Manuscript section versions"></select>
+                                <button type="button" class="ghost-btn" id="writeRestoreVersion" onclick="restoreManuscriptVersion(activeWriteKey(currentProject()))" disabled>Restore</button>
+                            </div>
+                            <span id="writeVersionMsg" role="status" aria-live="polite"></span>
+                        </div>
                         <p class="field-hint" id="writeLastEdit"></p>
-                        <div class="write-tools" id="writeTools"></div>
+                        <div id="methodologyWord2Vec" hidden></div>
+                        <details class="write-tools-disclosure">
+                            <summary><span class="tools-show">Show</span><span class="tools-hide">Hide</span> AI tools, digital tools &amp; research libraries</summary>
+                            <div class="write-tools" id="writeTools"></div>
+                        </details>
                         <div class="comments-box" id="writeComments"></div>
+                       </div>
+                       <aside class="writing-assist" aria-label="Writing references and chatbot">
+                        <div id="writeReferenceSlot">
+                            <section class="reference-tool" id="referenceTool">
+                                <h3>References</h3>
+                                <p class="field-hint">Choose your journal's style and insert a linked citation from the project library. Citations display in the chosen style; verify source metadata and journal requirements.</p>
+                                <details class="generated-references-sidebar" open>
+                                    <summary>Automatically generated reference list</summary>
+                                    <p class="field-hint">Updates from linked citations in this document.</p>
+                                    <p id="sidebarBibliographyStatus" class="field-hint" role="status"></p>
+                                    <div id="sidebarBibliography" class="generated-references-list"></div>
+                                </details>
+                                <label for="referenceStyle">Citation style</label>
+                                <select id="referenceStyle" onchange="saveReferenceStyle()">
+                                    <option value="apa">APA 7</option>
+                                    <option value="harvard">Harvard (Cite Them Right)</option>
+                                    <option value="ieee">IEEE</option>
+                                    <option value="vancouver">Vancouver</option>
+                                </select>
+                                <label for="referenceSearch">Find a collected paper</label>
+                                <input id="referenceSearch" type="search" placeholder="Search title, author or year" oninput="renderReferencePapers()">
+                                <select id="referencePaper" aria-label="Collected paper"></select>
+                                <div class="reference-actions">
+                                    <button type="button" id="referenceInsert" onclick="insertReference()">Insert citation at cursor</button>
+                                    <button type="button" class="ghost-btn" onclick="previewReferences()">Preview citations and references</button>
+                                </div>
+                                <details class="manual-reference" id="manualReference">
+                                    <summary>Add a reference manually</summary>
+                                    <form id="manualReferenceForm" onsubmit="addManualReference(event)">
+                                        <p class="field-hint">Add a source not found in search. Enter one author per line, as given name followed by family name. Only the title and source type are required.</p>
+                                        <fieldset id="manualReferenceFields">
+                                        <label for="manualPdf">Optional: prefill from a PDF</label>
+                                        <input type="file" id="manualPdf" accept=".pdf,application/pdf">
+                                        <button type="button" class="ghost-btn" id="manualPdfPrefill" onclick="prefillReferenceFromPdf()">Read PDF details</button>
+                                        <p class="field-hint">Up to 5 MB. Reads embedded title and authors and a DOI from the first page when available. The PDF is processed locally and not saved. Only empty fields are filled; verify all details against the source.</p>
+                                        <p id="manualPdfStatus" class="field-hint" role="status" aria-live="polite"></p>
+                                        <label for="manualType">Source type</label>
+                                        <select id="manualType" required>
+                                            <option value="article-journal">Journal article</option>
+                                            <option value="book">Book</option>
+                                            <option value="paper-conference">Conference paper</option>
+                                            <option value="report">Report</option>
+                                            <option value="webpage">Web page</option>
+                                        </select>
+                                        <label for="manualTitle">Title <span aria-hidden="true">*</span></label>
+                                        <input id="manualTitle" required maxlength="500" autocomplete="off">
+                                        <label for="manualAuthors">Authors, one per line</label>
+                                        <textarea id="manualAuthors" rows="3" placeholder="Jane Smith&#10;John Brown"></textarea>
+                                        <label for="manualYear">Publication year</label>
+                                        <input id="manualYear" type="number" min="1" step="1" placeholder="e.g. 2024">
+                                        <label for="manualVenue">Journal or conference name</label>
+                                        <input id="manualVenue" maxlength="300">
+                                        <label for="manualPublisher">Publisher or organization</label>
+                                        <input id="manualPublisher" maxlength="300">
+                                        <div class="manual-reference-grid">
+                                            <div><label for="manualVolume">Volume</label><input id="manualVolume" maxlength="60"></div>
+                                            <div><label for="manualIssue">Issue</label><input id="manualIssue" maxlength="60"></div>
+                                        </div>
+                                        <label for="manualPages">Pages</label>
+                                        <input id="manualPages" maxlength="100" placeholder="e.g. 10-25">
+                                        <label for="manualDoi">DOI</label>
+                                        <input id="manualDoi" maxlength="300" placeholder="e.g. 10.1234/example">
+                                        <label for="manualUrl">URL</label>
+                                        <input id="manualUrl" type="url" maxlength="2000" placeholder="https://...">
+                                        </fieldset>
+                                        <button type="submit" id="manualReferenceSubmit">Add to project library</button>
+                                        <p id="manualReferenceStatus" class="field-hint" role="status" aria-live="polite"></p>
+                                    </form>
+                                </details>
+                                <p id="referenceStatus" class="field-hint" role="status" aria-live="polite"></p>
+                                <pre id="referencePreview" class="reference-preview" hidden></pre>
+                            </section>
+                        </div>
+                        <div id="writeChatSlot"></div>
+                       </aside>
+                      </div>
                     </section>
                 </div>
 
@@ -442,6 +617,7 @@
     </main>
 </div>
 
+<script src="rich-editor.js?v=20261115-citation-display"></script>
 <script>
 // Point this at wherever researchflow-backend is running.
 const API_BASE = window.RESEARCHFLOW_API_BASE || 'http://localhost:4000/api';
@@ -481,6 +657,10 @@ let resetToken = null;
 let toolsTimer = null;
 let tasksRequestId = 0;
 let ethicsRequestId = 0;
+const corpusChats = Object.create(null);
+const corpusChatStatuses = Object.create(null);
+const corpusChatPending = new Set();
+let corpusChatGeneration = 0;
 
 /* ---------------- helpers ---------------- */
 function h(tag, className, text){
@@ -503,7 +683,7 @@ function currentProject(){
 }
 
 async function api(path, options = {}){
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const headers = { ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...(options.headers || {}) };
     if(authToken) headers.Authorization = `Bearer ${authToken}`;
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     if (!res.ok) {
@@ -530,6 +710,7 @@ function setRibbon(page){
 
 function showHome(){
     flushSave();
+    manualPdfRequestId++;
     currentProjectId = null;
     ethicsRequestId++;
     document.getElementById('homeView').hidden = false;
@@ -543,6 +724,11 @@ function showHome(){
 
 function openProject(projectId){
     flushSave();
+    manualPdfRequestId++;
+    ['write', 'concept'].forEach(prefix => {
+        clearTimeout(citationLabelTimers[prefix]);
+        citationLabelGenerations[prefix]++;
+    });
     currentProjectId = projectId;
     document.getElementById('homeView').hidden = true;
     document.getElementById('projectView').hidden = false;
@@ -553,11 +739,24 @@ function openProject(projectId){
     kb = null;
     kbProjectId = null;
     kbMsg = '';
+    document.getElementById('manualReferenceForm').reset();
+    document.getElementById('manualReferenceStatus').textContent = '';
+    document.getElementById('manualPdfStatus').textContent = '';
+    document.getElementById('manualReference').open = false;
+    analysisDocuments = [];
+    analysisDocumentsProjectId = null;
+    analysisDocumentsError = '';
+    document.getElementById('referenceSearch').value = '';
+    document.getElementById('referenceStatus').textContent = '';
+    document.getElementById('referencePreview').hidden = true;
+    setGeneratedReferences('write', '', 'Loading references...');
+    setGeneratedReferences('concept', '', 'Loading references...');
     document.getElementById('papersBox').hidden = true;
     showTab('overview');
     renderAll();
     loadWriteEditor();
     loadKb();
+    renderCorpusChat(projectId);
     fillTemplateInput();
     renderBoard();
     loadEthics();
@@ -595,7 +794,7 @@ const INFO_PAGES = {
     },
     resources: {
         title: 'Resources',
-        lead: 'Handy starting points for planning and writing your paper.',
+        lead: 'Learn how to use ResearchFlow and find starting points for planning and writing your paper.',
         cards: [
             { h: 'Find a journal', p: 'Search for a journal that fits your topic.', action: 'Find journals', run: () => { showHome(); showPanel('journalPanel'); } },
             { h: 'Start a new project', p: 'Choose journal, conference or thesis and get the matching structure.', action: 'Create a project', run: () => { showHome(); showPanel('newProjectPanel'); } },
@@ -668,6 +867,28 @@ function infoCard(card){
     return el;
 }
 
+function researchFlowGuide(){
+    const section = h('section', 'usage-guide');
+    section.appendChild(h('h2', '', 'How to use ResearchFlow'));
+    const steps = h('ol', 'steps');
+    [
+        ['Create a project', 'Choose a journal, conference or thesis, then enter your project details.'],
+        ['Write each stage', 'Open your project and use the Write tab to draft each section. Find stage-specific tools, references and the literature chatbot beside your writing.'],
+        ['Manage tasks', 'Use the Tasks tab and Kanban board to organize and track your work.'],
+        ['Write & export', 'Download your manuscript as Word or PDF, create slides, or export data to Excel or CSV.'],
+    ].forEach(([title, description], index) => {
+        const item = h('li');
+        const number = h('b', '', String(index + 1));
+        number.setAttribute('aria-hidden', 'true');
+        const text = h('span', '', title);
+        text.appendChild(h('small', '', description));
+        item.append(number, text);
+        steps.appendChild(item);
+    });
+    section.appendChild(steps);
+    return section;
+}
+
 function renderContact(wrap){
     const form = h('form', 'info-card contact-form');
     form.appendChild(h('h3', '', 'Send us a message'));
@@ -727,6 +948,7 @@ function showPage(page){
     head.appendChild(h('p', '', page === 'contact' ? 'We would love to hear from you.' : data.lead));
     view.appendChild(head);
 
+    if(page === 'resources') view.appendChild(researchFlowGuide());
     const grid = h('div', 'info-grid');
     if(page === 'contact') renderContact(grid);
     else if(page === 'news'){ view.appendChild(grid); renderNews(view, grid); }
@@ -752,6 +974,7 @@ function renderAll(){
     renderLastEdit();
     renderBoard();
     applyRole();
+    renderReferencePapers();
 }
 
 /* ---------------- Writing: one place for the whole manuscript ---------------- */
@@ -796,6 +1019,25 @@ let writeKey = null;
 let saveTimer = null;
 let pendingSave = null;
 let saveChain = Promise.resolve();
+const dirtyDrafts = new Map();
+const richEditors = {};
+const lockedEditors = new Set();
+function draftId(projectId, key){ return JSON.stringify([projectId, key]); }
+function setupRichEditors(){
+    if(!window.ResearchFlowRichEditor) throw new Error('Rich editor could not be loaded. Reload the page before editing.');
+    ['write', 'concept'].forEach(prefix => {
+        const textarea = document.getElementById(`${prefix}Text`);
+        richEditors[prefix] = window.ResearchFlowRichEditor.createEditor(
+            document.getElementById(`${prefix}RichEditor`), textarea,
+            (richDocument, text) => {
+                document.getElementById(`${prefix}EditorStatus`).textContent = '';
+                onWriteInput(prefix === 'concept' ? 'conceptNote' : undefined, richDocument, text);
+            },
+            error => { document.getElementById(`${prefix}EditorStatus`).textContent = error; }
+        );
+    });
+}
+setupRichEditors();
 
 function activeWriteKey(project){
     const list = structureFor(project);
@@ -815,6 +1057,13 @@ function wordCount(text){
     return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
+function changeSelectedCase(editorId, mode){
+    const project = currentProject();
+    if(!project || !canWrite(project) || lockedEditors.has(editorId === 'conceptText' ? 'concept' : 'write')) return;
+    const status = document.getElementById(editorId === 'conceptText' ? 'conceptCaseStatus' : 'writeCaseStatus');
+    status.textContent = richEditors[editorId === 'conceptText' ? 'concept' : 'write'].changeCase(mode);
+}
+
 function showTab(tab){
     flushSave();
     const ids = { overview: ['overviewTab', 'tabOverview'], tasks: ['tasksTab', 'tabTasks'], write: ['writeTab', 'tabWrite'], concept: ['conceptTab', 'tabConcept'], support: ['supportTab', 'tabSupport'], team: ['teamTab', 'tabTeam'] };
@@ -822,8 +1071,23 @@ function showTab(tab){
         document.getElementById(ids[key][0]).hidden = key !== tab;
         document.getElementById(ids[key][1]).setAttribute('aria-selected', String(key === tab));
     });
-    if(tab === 'write') renderWrite();
+    if(tab === 'write') {
+        renderWrite();
+        scheduleCitationLabels('write');
+    }
     if(tab === 'concept') loadConcept();
+    const slot = tab === 'write' ? 'writeChatSlot' : tab === 'concept' ? 'conceptChatSlot' : 'supportChatSlot';
+    const chat = document.getElementById('corpusChat');
+    const destination = document.getElementById(slot);
+    if(chat.parentElement !== destination) destination.appendChild(chat);
+    if(tab === 'write' || tab === 'concept'){
+        const referenceTool = document.getElementById('referenceTool');
+        const referenceSlot = document.getElementById(tab === 'write' ? 'writeReferenceSlot' : 'conceptReferenceSlot');
+        referenceSlot.appendChild(referenceTool);
+        renderReferencePapers();
+        document.getElementById('referencePreview').hidden = true;
+    }
+    updateCorpusChatStage();
 }
 
 function openWriteStage(stageId){
@@ -831,7 +1095,7 @@ function openWriteStage(stageId){
     const section = structureFor(project).find(s => s.stages.includes(stageId));
     showTab('write');
     if(section) selectWriteSection(section.key);
-    document.getElementById('writeText').focus();
+    richEditors.write.focus();
 }
 
 function selectWriteSection(key){
@@ -848,20 +1112,29 @@ function loadWriteEditor(){
     const section = structureFor(project).find(s => s.key === key);
     document.getElementById('writeStageTitle').textContent = section.title;
     document.getElementById('writeStageDesc').textContent = section.desc;
-    document.getElementById('writeText').value = sectionText(project, key);
-    document.getElementById('writeSaveState').textContent = '';
+    document.getElementById('writeBibliographySection').hidden = !/^references$|^bibliography$/i.test(section.title.trim()) && key !== 'references';
+    richEditors.write.load((project.manuscriptRich || {})[key], sectionText(project, key));
+    document.getElementById('writeSaveState').textContent = dirtyDrafts.has(draftId(project.id, key)) ? 'Unsaved changes. Use Save now / retry.' : '';
+    applyRole();
     renderWriteTools(section);
     renderComments(true);
     renderLastEdit();
     updateWriteCount();
+    renderManuscriptVersions(key);
+    updateCorpusChatStage();
+    document.getElementById('referencePreview').hidden = true;
+    scheduleCitationLabels('write');
 }
 
 function loadConcept(){
     const project = currentProject();
     if(!project) return;
-    document.getElementById('conceptText').value = sectionText(project, 'conceptNote');
-    document.getElementById('conceptSaveState').textContent = '';
+    richEditors.concept.load((project.manuscriptRich || {}).conceptNote, sectionText(project, 'conceptNote'));
+    document.getElementById('conceptSaveState').textContent = dirtyDrafts.has(draftId(project.id, 'conceptNote')) ? 'Unsaved changes. Use Save now / retry.' : '';
+    applyRole();
     updateWriteCount();
+    renderManuscriptVersions('conceptNote');
+    scheduleCitationLabels('concept');
 }
 
 function updateWriteCount(){
@@ -896,15 +1169,24 @@ function renderWrite(){
     renderTemplateStatus(project);
 }
 
-function onWriteInput(key){
+function onWriteInput(key, richDocument, value){
     const project = currentProject();
     if(!project) return;
     const isConcept = key === 'conceptNote';
     key = key || activeWriteKey(project);
-    const value = document.getElementById(isConcept ? 'conceptText' : 'writeText').value;
+    if(pendingSave && (pendingSave.projectId !== project.id || pendingSave.key !== key)) flushSave();
+    const plain = richDocument.content.every(node => node.type === 'paragraph' &&
+        (!node.attrs || !node.attrs.textAlign) &&
+        (node.content || []).every(child => ['citation', 'text'].includes(child.type) && !child.marks));
+    if(plain && !(project.manuscriptRich || {})[key]) richDocument = null;
     project.manuscript = { ...(project.manuscript || {}), [key]: value };
+    if(richDocument) project.manuscriptRich = { ...(project.manuscriptRich || {}), [key]: richDocument };
+    document.getElementById(isConcept ? 'conceptPlainText' : 'writePlainText').disabled = !richDocument;
+    dirtyDrafts.set(draftId(project.id, key), { projectId: project.id, key, text: value, document: richDocument });
+    document.getElementById('referencePreview').hidden = true;
     updateWriteCount();
     if(!isConcept) renderWrite();
+    scheduleCitationLabels(isConcept ? 'concept' : 'write');
     pendingSave = { projectId: project.id, key };
     document.getElementById(isConcept ? 'conceptSaveState' : 'writeSaveState').textContent = 'Unsaved changes...';
     clearTimeout(saveTimer);
@@ -916,10 +1198,10 @@ function flushSave(){
     if(!pendingSave) return saveChain;
     const { projectId, key } = pendingSave;
     pendingSave = null;
-    const project = projects.find(p => p.id === projectId);
-    if(!project) return saveChain;
-    const text = sectionText(project, key);
-    const stillHere = () => projectId === currentProjectId;
+    const id = draftId(projectId, key);
+    const draft = dirtyDrafts.get(id);
+    if(!draft) return saveChain;
+    const stillHere = () => projectId === currentProjectId && (key === 'conceptNote' || activeWriteKey(currentProject()) === key);
     const state = document.getElementById(key === 'conceptNote' ? 'conceptSaveState' : 'writeSaveState');
     if(stillHere()) state.textContent = 'Saving...';
 
@@ -927,19 +1209,178 @@ function flushSave(){
         try{
             await api(`/projects/${encodeURIComponent(projectId)}/manuscript/${key}`, {
                 method: 'PUT',
-                body: JSON.stringify({ text }),
+                body: JSON.stringify(draft.document ? { text: draft.text, document: draft.document } : { text: draft.text }),
             });
-            if(stillHere() && !pendingSave) state.textContent = 'All changes saved';
+            if(dirtyDrafts.get(id) === draft) dirtyDrafts.delete(id);
+            if(stillHere() && !dirtyDrafts.has(id)) state.textContent = 'All changes saved';
         } catch(err){
-            pendingSave = pendingSave || { projectId, key };
             if(stillHere()) state.textContent = `Couldn't save: ${err.message}. Will retry on your next edit.`;
         }
     });
     return saveChain;
 }
 
+async function flushAllDrafts(){
+    await flushSave();
+    for(const draft of [...dirtyDrafts.values()]){
+        pendingSave = { projectId: draft.projectId, key: draft.key };
+        await flushSave();
+    }
+}
+
+function retryDraftSave(key){
+    const project = currentProject();
+    if(!project || !canWrite(project)) return;
+    if(pendingSave && (pendingSave.projectId !== project.id || pendingSave.key !== key)) flushSave();
+    if(dirtyDrafts.has(draftId(project.id, key))){
+        pendingSave = { projectId: project.id, key };
+        flushSave();
+    } else {
+        document.getElementById(key === 'conceptNote' ? 'conceptSaveState' : 'writeSaveState').textContent = 'No unsaved changes.';
+    }
+}
+
+function versionControlPrefix(key){
+    return key === 'conceptNote' ? 'concept' : 'write';
+}
+
+function renderManuscriptVersions(key){
+    const project = currentProject();
+    if(!project) return;
+    const prefix = versionControlPrefix(key);
+    const select = document.getElementById(`${prefix}VersionSelect`);
+    const restoreButton = document.getElementById(`${prefix}RestoreVersion`);
+    if(!select || !restoreButton) return;
+
+    const versions = ((project.manuscriptVersions || {})[key] || []);
+    select.replaceChildren();
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = versions.length ? 'Select a saved version' : 'No saved versions';
+    select.appendChild(placeholder);
+    [...versions].reverse().forEach((version, index) => {
+        const option = document.createElement('option');
+        option.value = version.id;
+        const date = new Date(version.timestamp);
+        const dateLabel = Number.isNaN(date.getTime()) ? 'Unknown date' : date.toLocaleString();
+        option.textContent = `Version ${versions.length - index} — ${dateLabel}`;
+        select.appendChild(option);
+    });
+    restoreButton.disabled = versions.length === 0;
+}
+
+async function saveManuscriptVersion(key){
+    const project = currentProject();
+    if(!project) return;
+    const prefix = versionControlPrefix(key);
+    const textarea = document.getElementById(key === 'conceptNote' ? 'conceptText' : 'writeText');
+    const message = document.getElementById(`${prefix}VersionMsg`);
+    const saveButton = document.getElementById(`${prefix}SaveVersion`);
+    const text = textarea.value;
+    const richDocument = (project.manuscriptRich || {})[key];
+    const editor = richEditors[key === 'conceptNote' ? 'concept' : 'write'];
+    saveButton.disabled = true;
+    lockedEditors.add(prefix);
+    editor.setEditable(false);
+    message.textContent = 'Saving version...';
+    try{
+        await flushSave();
+        if(dirtyDrafts.has(draftId(project.id, key))) throw new Error('Your latest edits could not be saved.');
+        const updated = await api(`/projects/${encodeURIComponent(project.id)}/manuscript/${encodeURIComponent(key)}/versions`, {
+            method: 'POST',
+            body: JSON.stringify(richDocument ? { text, document: richDocument } : { text }),
+        });
+        replaceProject(updated);
+        if(currentProjectId === project.id){
+            renderManuscriptVersions(key);
+            message.textContent = 'Version saved.';
+        }
+    } catch(err){
+        if(currentProjectId === project.id) message.textContent = `Couldn't save version: ${err.message}`;
+    } finally{
+        saveButton.disabled = false;
+        lockedEditors.delete(prefix);
+        if(currentProject()) applyRole();
+    }
+}
+
+async function restoreManuscriptVersion(key){
+    const project = currentProject();
+    if(!project) return;
+    const prefix = versionControlPrefix(key);
+    const select = document.getElementById(`${prefix}VersionSelect`);
+    const restoreButton = document.getElementById(`${prefix}RestoreVersion`);
+    const textarea = document.getElementById(key === 'conceptNote' ? 'conceptText' : 'writeText');
+    const message = document.getElementById(`${prefix}VersionMsg`);
+    const version = ((project.manuscriptVersions || {})[key] || []).find(v => v.id === select.value);
+    if(!version) return;
+    const timestamp = new Date(version.timestamp).toLocaleString();
+    if(!window.confirm(`Restore the version saved on ${timestamp}?\n\nYour current text will be saved as a safety version first.`)) return;
+
+    restoreButton.disabled = true;
+    const editor = richEditors[key === 'conceptNote' ? 'concept' : 'write'];
+    lockedEditors.add(prefix);
+    editor.setEditable(false);
+    message.textContent = 'Restoring version...';
+    try{
+        await flushSave();
+        if(dirtyDrafts.has(draftId(project.id, key))){
+            throw new Error('Your latest edits could not be saved. Please retry the save before restoring.');
+        }
+        const updated = await api(`/projects/${encodeURIComponent(project.id)}/manuscript/${encodeURIComponent(key)}/versions/${encodeURIComponent(version.id)}/restore`, {
+            method: 'POST',
+        });
+        if(pendingSave && pendingSave.projectId === project.id && pendingSave.key === key) pendingSave = null;
+        replaceProject(updated);
+        if(currentProjectId === project.id && (key === 'conceptNote' || activeWriteKey(currentProject()) === key)){
+            editor.load((updated.manuscriptRich || {})[key], sectionText(updated, key));
+            scheduleCitationLabels(prefix);
+            if(key === 'conceptNote') updateWriteCount();
+            else renderWrite();
+            renderManuscriptVersions(key);
+            message.textContent = 'Version restored. Your previous text is saved as a safety version.';
+            document.getElementById(key === 'conceptNote' ? 'conceptSaveState' : 'writeSaveState').textContent = 'All changes saved';
+        }
+    } catch(err){
+        if(currentProjectId === project.id) message.textContent = `Couldn't restore version: ${err.message}`;
+    } finally{
+        lockedEditors.delete(prefix);
+        if(currentProject()) applyRole();
+        const latestProject = currentProject();
+        restoreButton.disabled = !latestProject || !((latestProject.manuscriptVersions || {})[key] || []).length;
+    }
+}
+
+async function convertToPlainText(key){
+    const project = currentProject();
+    if(!project || !canWrite(project) || !(project.manuscriptRich || {})[key]) return;
+    if(!window.confirm('Remove formatting and turn tables into plain text? A formatted safety version will be saved first.')) return;
+    const prefix = versionControlPrefix(key);
+    const editor = richEditors[prefix];
+    const message = document.getElementById(`${prefix}VersionMsg`);
+    lockedEditors.add(prefix);
+    applyRole();
+    message.textContent = 'Saving and removing formatting...';
+    try{
+        await flushSave();
+        if(dirtyDrafts.has(draftId(project.id, key))) throw new Error('Your latest edits could not be saved.');
+        const updated = await api(`/projects/${encodeURIComponent(project.id)}/manuscript/${encodeURIComponent(key)}/plain-text`, { method: 'POST' });
+        replaceProject(updated);
+        if(currentProjectId === project.id && (key === 'conceptNote' || activeWriteKey(currentProject()) === key)){
+            editor.load(null, sectionText(updated, key));
+            renderManuscriptVersions(key);
+            message.textContent = 'Formatting removed. A formatted safety version was saved.';
+        }
+    } catch(error){
+        if(currentProjectId === project.id) message.textContent = `Couldn't remove formatting: ${error.message}`;
+    } finally{
+        lockedEditors.delete(prefix);
+        if(currentProject()) applyRole();
+    }
+}
+
 window.addEventListener('beforeunload', event => {
-    if(pendingSave){
+    if(pendingSave || dirtyDrafts.size){
         flushSave();
         event.preventDefault();
     }
@@ -999,7 +1440,7 @@ async function saveTemplate(sections, fileName){
             method: 'PUT',
             body: JSON.stringify({ sections, fileName }),
         });
-        projects = projects.map(p => p.id === updated.id ? { ...updated, manuscript: p.manuscript || updated.manuscript } : p);
+        projects = projects.map(p => p.id === updated.id ? { ...updated, manuscript: p.manuscript || updated.manuscript, manuscriptRich: p.manuscriptRich || updated.manuscriptRich } : p);
         writeKey = null;
         renderAll();
         loadWriteEditor();
@@ -1023,18 +1464,294 @@ function resetTemplate(){
     saveTemplate([], '');
 }
 
+/* ---------------- Linked citations ---------------- */
+let referenceStyleUpdate = null;
+let manualReferenceUpdate = null;
+let manualPdfRequestId = 0;
+let manualPdfPending = false;
+const citationLabelTimers = {};
+const citationLabelGenerations = { write: 0, concept: 0 };
+
+function setGeneratedReferences(prefix, bibliography, status){
+    document.getElementById(`${prefix}Bibliography`).textContent = bibliography;
+    document.getElementById(`${prefix}BibliographyStatus`).textContent = status;
+    const activePrefix = document.getElementById('conceptTab').hidden ? 'write' : 'concept';
+    if(prefix === activePrefix){
+        document.getElementById('sidebarBibliography').textContent = bibliography;
+        document.getElementById('sidebarBibliographyStatus').textContent = status;
+    }
+}
+
+function scheduleCitationLabels(prefix){
+    clearTimeout(citationLabelTimers[prefix]);
+    const generation = ++citationLabelGenerations[prefix];
+    setGeneratedReferences(prefix, '', 'Updating references...');
+    citationLabelTimers[prefix] = setTimeout(async () => {
+        const project = currentProject();
+        if(!project) return;
+        const concept = prefix === 'concept';
+        const activeKey = activeWriteKey(project);
+        const style = project.referenceStyle || 'apa';
+        const sections = referenceSections(project, concept);
+        const editorStatus = document.getElementById(`${prefix}EditorStatus`);
+        if(!sections.some(section => section.text.includes('[[cite:'))){
+            richEditors[prefix].setCitationLabels([]);
+            if(editorStatus.textContent.startsWith('Could not display citations:')) editorStatus.textContent = '';
+            setGeneratedReferences(prefix, '', 'No linked citations in this document yet.');
+            return;
+        }
+        try {
+            const result = await formatProjectReferences(project, sections);
+            if(generation !== citationLabelGenerations[prefix] || currentProjectId !== project.id ||
+                (!concept && activeKey !== activeWriteKey(currentProject())) ||
+                style !== (currentProject().referenceStyle || 'apa') ||
+                JSON.stringify(sections) !== JSON.stringify(referenceSections(currentProject(), concept))) return;
+            const index = concept ? 0 : structureFor(project).findIndex(section => section.key === activeKey);
+            if(!Array.isArray(result.citations) || !Array.isArray(result.citations[index]) ||
+                !richEditors[prefix].setCitationLabels(result.citations[index])){
+                throw new Error('The citation display is out of sync. Reload the page or check the citation markers.');
+            }
+            if(editorStatus.textContent.startsWith('Could not display citations:')) editorStatus.textContent = '';
+            setGeneratedReferences(prefix, result.bibliography, result.warnings.join(' '));
+        } catch(error) {
+            if(generation === citationLabelGenerations[prefix] && currentProjectId === project.id){
+                richEditors[prefix].setCitationLabels([]);
+                editorStatus.textContent = `Could not display citations: ${error.message}`;
+                setGeneratedReferences(prefix, '', `Could not generate references: ${error.message}`);
+            }
+        }
+    }, 250);
+}
+
+function referenceSections(project, concept){
+    return concept
+        ? [{ title: 'Concept Note', text: sectionText(project, 'conceptNote') }]
+        : structureFor(project).map(section => ({ title: section.title, text: sectionText(project, section.key) }));
+}
+
+function renderReferencePapers(){
+    const project = currentProject();
+    if(!project) return;
+    const style = document.getElementById('referenceStyle');
+    const savingStyle = referenceStyleUpdate && referenceStyleUpdate.projectId === project.id;
+    if(!savingStyle) style.value = project.referenceStyle || 'apa';
+    style.disabled = !canWrite(project) || Boolean(savingStyle);
+    const select = document.getElementById('referencePaper');
+    const selected = select.value;
+    const search = document.getElementById('referenceSearch').value.trim().toLowerCase();
+    const papers = kbProjectId === project.id && kb ? kb.papers : [];
+    select.replaceChildren();
+    const matches = papers.filter(p => [p.title, ...(p.authors || []), p.year].join(' ').toLowerCase().includes(search));
+    if(!matches.length){
+        const option = h('option', '', kbProjectId === project.id ? 'No matching sources. Search or add one manually.' : 'Loading project library...');
+        option.value = '';
+        select.appendChild(option);
+    }
+    matches.forEach(paper => {
+        const option = h('option', '', `${paper.title} (${paper.year || 'n.d.'}) — ${(paper.authors || []).slice(0, 2).join(', ') || 'Unknown author'}${paper.authorsIncomplete ? ' [authors need review]' : ''}`);
+        option.value = paper.id;
+        select.appendChild(option);
+    });
+    if(matches.some(paper => paper.id === selected)) select.value = selected;
+    document.getElementById('referenceInsert').disabled = !canWrite(project) || !select.value;
+    const manual = document.getElementById('manualReference');
+    manual.hidden = !canWrite(project);
+    document.getElementById('manualReferenceSubmit').disabled = Boolean(manualReferenceUpdate) || manualPdfPending;
+    document.getElementById('manualPdfPrefill').disabled = Boolean(manualReferenceUpdate) || manualPdfPending;
+}
+
+async function prefillReferenceFromPdf(){
+    const project = currentProject();
+    if(!project || !canWrite(project) || manualReferenceUpdate || manualPdfPending) return;
+    const input = document.getElementById('manualPdf');
+    const status = document.getElementById('manualPdfStatus');
+    if(!input.files.length){ status.textContent = 'Choose a PDF file first.'; return; }
+    if(input.files[0].size > 5 * 1024 * 1024){ status.textContent = 'The PDF must be no larger than 5 MB.'; return; }
+    const requestId = ++manualPdfRequestId;
+    const file = input.files[0];
+    const body = new FormData();
+    body.append('document', file);
+    manualPdfPending = true;
+    renderReferencePapers();
+    status.textContent = 'Reading PDF details...';
+    try {
+        const result = await api(`/literature/${encodeURIComponent(project.id)}/references/pdf-prefill`, { method: 'POST', body });
+        if(currentProjectId !== project.id || requestId !== manualPdfRequestId || !canWrite(currentProject())) return;
+        if(input.files[0] !== file){ status.textContent = 'The selected PDF changed. Read the new file to prefill its details.'; return; }
+        const fields = [['Title', result.fields.title], ['Authors', (result.fields.authors || []).join('\n')], ['Doi', result.fields.doi]];
+        const filled = [];
+        for(const [name, value] of fields){
+            const element = document.getElementById(`manual${name}`);
+            if(value && !element.value.trim()){ element.value = value; filled.push(name.toLowerCase()); }
+        }
+        status.textContent = `${filled.length ? `Prefilled ${filled.join(', ')}.` : 'No additional details could be filled.'} ${result.textExtracted ? '' : 'No readable first-page text was found; scanned PDFs may need OCR. '}Review the details and complete the remaining fields before adding the reference.`;
+    } catch(error) {
+        if(currentProjectId === project.id && requestId === manualPdfRequestId) status.textContent = `Could not read PDF: ${error.message}`;
+    } finally {
+        manualPdfPending = false;
+        if(currentProject()) renderReferencePapers();
+    }
+}
+
+async function addManualReference(event){
+    event.preventDefault();
+    const project = currentProject();
+    if(!project || !canWrite(project) || manualReferenceUpdate || manualPdfPending) return;
+    const field = id => document.getElementById(`manual${id}`).value.trim();
+    const status = document.getElementById('manualReferenceStatus');
+    const payload = {
+        type: field('Type'), title: field('Title'),
+        authors: field('Authors').split(/\r?\n/).map(name => name.trim()).filter(Boolean),
+        year: field('Year'), venue: field('Venue'), publisher: field('Publisher'),
+        volume: field('Volume'), issue: field('Issue'), pages: field('Pages'),
+        doi: field('Doi'), url: field('Url'),
+    };
+    const request = api(`/literature/${encodeURIComponent(project.id)}/papers`, {
+        method: 'POST', body: JSON.stringify(payload),
+    });
+    manualReferenceUpdate = request;
+    document.getElementById('manualReferenceSubmit').disabled = true;
+    document.getElementById('manualReferenceFields').disabled = true;
+    status.textContent = 'Adding reference...';
+    try{
+        const result = await request;
+        if(currentProjectId !== project.id) return;
+        kbLoadRequest++;
+        kb = result.knowledgeBase;
+        kbProjectId = project.id;
+        document.getElementById('referenceSearch').value = '';
+        renderReferencePapers();
+        document.getElementById('referencePaper').value = result.paper.id;
+        document.getElementById('referenceInsert').disabled = !canWrite(currentProject());
+        document.getElementById('manualReferenceForm').reset();
+        document.getElementById('manualPdfStatus').textContent = '';
+        status.textContent = 'Added and selected. You can now insert its citation.';
+        document.getElementById('referencePreview').hidden = true;
+        if(!document.getElementById('papersBox').hidden) renderPapers();
+    } catch(error){
+        if(currentProjectId === project.id) status.textContent = `Could not add reference: ${error.message}`;
+    } finally{
+        if(manualReferenceUpdate === request) manualReferenceUpdate = null;
+        document.getElementById('manualReferenceFields').disabled = false;
+        if(currentProject()) renderReferencePapers();
+    }
+}
+
+async function saveReferenceStyle(){
+    const project = currentProject();
+    if(!project || !canWrite(project)) return;
+    const select = document.getElementById('referenceStyle');
+    const status = document.getElementById('referenceStatus');
+    const style = select.value;
+    select.disabled = true;
+    status.textContent = 'Saving citation style...';
+    const update = api(`/projects/${encodeURIComponent(project.id)}/reference-style`, {
+        method: 'PUT', body: JSON.stringify({ style }),
+    });
+    referenceStyleUpdate = { projectId: project.id, promise: update };
+    try{
+        await update;
+        const local = projects.find(p => p.id === project.id);
+        if(local) local.referenceStyle = style;
+        if(currentProjectId === project.id){
+            document.getElementById('referencePreview').hidden = true;
+            status.textContent = 'Style saved. Linked citations are updating.';
+            scheduleCitationLabels('write');
+            scheduleCitationLabels('concept');
+        }
+    } catch(error){
+        if(currentProjectId === project.id){
+            select.value = project.referenceStyle || 'apa';
+            status.textContent = `Could not save citation style: ${error.message}`;
+        }
+    } finally{
+        if(referenceStyleUpdate && referenceStyleUpdate.promise === update) referenceStyleUpdate = null;
+        if(currentProjectId === project.id) select.disabled = !canWrite(currentProject());
+    }
+}
+
+function insertReference(){
+    const project = currentProject();
+    const id = document.getElementById('referencePaper').value;
+    if(!project || !canWrite(project) || !id) return;
+    const concept = !document.getElementById('conceptTab').hidden;
+    if(lockedEditors.has(concept ? 'concept' : 'write')){
+        document.getElementById('referenceStatus').textContent = 'Wait for the current save or restore to finish.';
+        return;
+    }
+    richEditors[concept ? 'concept' : 'write'].insertCitation(id);
+    document.getElementById('referencePreview').hidden = true;
+    document.getElementById('referenceStatus').textContent = 'Linked citation inserted.';
+}
+
+async function formatProjectReferences(project, sections){
+    if(referenceStyleUpdate && referenceStyleUpdate.projectId === project.id) await referenceStyleUpdate.promise;
+    return api(`/literature/${encodeURIComponent(project.id)}/references/render`, {
+        method: 'POST', body: JSON.stringify({ sections }),
+    });
+}
+
+function withBibliography(sections, bibliography){
+    if(!bibliography) return sections;
+    const result = sections.map(section => ({ ...section }));
+    const existing = result.find(section => /^references$/i.test(section.title.trim()));
+    if(existing) existing.text = [existing.text.trim(), bibliography].filter(Boolean).join('\n\n');
+    else result.push({ title: 'References', text: bibliography });
+    return result;
+}
+
+async function previewReferences(){
+    const project = currentProject();
+    if(!project) return;
+    const concept = !document.getElementById('conceptTab').hidden;
+    const sectionIndex = concept ? 0 : structureFor(project).findIndex(s => s.key === activeWriteKey(project));
+    const status = document.getElementById('referenceStatus');
+    const preview = document.getElementById('referencePreview');
+    const sections = referenceSections(project, concept);
+    const activeKey = activeWriteKey(project);
+    const expectedStyle = project.referenceStyle || 'apa';
+    status.textContent = 'Formatting references...';
+    try{
+        const result = await formatProjectReferences(project, sections);
+        if(currentProjectId !== project.id || concept !== !document.getElementById('conceptTab').hidden ||
+            (!concept && activeKey !== activeWriteKey(currentProject())) ||
+            expectedStyle !== (currentProject().referenceStyle || 'apa') ||
+            JSON.stringify(sections) !== JSON.stringify(referenceSections(currentProject(), concept))) return;
+        const current = result.sections[sectionIndex];
+        preview.textContent = `${current.title}\n\n${current.text || '(This section is empty.)'}${result.bibliography ? `\n\nReferences\n\n${result.bibliography}` : '\n\nNo linked citations in this document.'}`;
+        preview.hidden = false;
+        status.textContent = result.warnings.join(' ');
+    } catch(error){
+        if(currentProjectId === project.id){
+            preview.hidden = true;
+            status.textContent = `Could not format citations: ${error.message}`;
+        }
+    }
+}
+
 async function exportAs(format){
     const project = currentProject();
     if(!project) return;
     await flushSave();
     const status = document.getElementById('exportStatus');
-    const sections = structureFor(project).map(s => ({ title: s.title, text: sectionText(project, s.key) }));
+    if([...dirtyDrafts.values()].some(draft => draft.projectId === project.id)){
+        status.textContent = 'Save your changes before downloading. Please retry the failed save.';
+        return;
+    }
+    if(structureFor(project).some(section => (project.manuscriptRich || {})[section.key])){
+        status.textContent = 'This manuscript contains rich formatting that this version cannot export yet. Your formatted document is preserved.';
+        return;
+    }
+    let sections = structureFor(project).map(s => ({ title: s.title, text: sectionText(project, s.key) }));
     if(!sections.some(s => s.text.trim())){
         status.textContent = 'Write something first, then download.';
         return;
     }
     status.textContent = 'Preparing your file...';
     try{
+        const formatted = await formatProjectReferences(project, sections);
+        if(currentProjectId !== project.id) return;
+        sections = withBibliography(formatted.sections, formatted.bibliography);
         const res = await fetch(`${API_BASE}/export/${format}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
@@ -1056,11 +1773,10 @@ async function exportAs(format){
         link.download = `${project.title.replace(/[^\w-]+/g, '_') || 'manuscript'}.${format}`;
         link.click();
         URL.revokeObjectURL(link.href);
-        status.textContent = 'Downloaded.';
+        status.textContent = formatted.warnings.length ? `Downloaded. ${formatted.warnings.join(' ')}` : 'Downloaded.';
     } catch(err){
         status.textContent = `Couldn't download: ${err.message}`;
     }
-    setTimeout(() => { status.textContent = ''; }, 4000);
 }
 
 /* ---------------- Collaboration: roles, team, comments, live refresh ---------------- */
@@ -1100,7 +1816,13 @@ function applyRole(){
         : project.myRole === 'coauthor'
             ? `You are a co-author on this project (owner: ${project.ownerName || project.ownerEmail || 'unknown'}). Your changes are visible to the owner.`
             : '';
-    ['writeText', 'conceptText'].forEach(id => { document.getElementById(id).readOnly = !writer; });
+    richEditors.write.setEditable(writer && !lockedEditors.has('write'));
+    richEditors.concept.setEditable(writer && !lockedEditors.has('concept'));
+    document.querySelectorAll('[data-case-editor]').forEach(button => {
+        button.disabled = !writer || lockedEditors.has(button.dataset.caseEditor === 'conceptText' ? 'concept' : 'write');
+    });
+    document.getElementById('writePlainText').disabled = !writer || lockedEditors.has('write') || !(project.manuscriptRich || {})[activeWriteKey(project)];
+    document.getElementById('conceptPlainText').disabled = !writer || lockedEditors.has('concept') || !(project.manuscriptRich || {}).conceptNote;
     document.querySelector('.add-task').hidden = !writer;
     document.getElementById('teamAdd').hidden = project.myRole !== 'owner';
     document.querySelectorAll('.ethics-box input, .ethics-box select').forEach(el => { el.disabled = !writer; });
@@ -1186,16 +1908,20 @@ async function removeMember(email){
 function replaceProject(updated){
     const index = projects.findIndex(p => p.id === updated.id);
     if(index === -1) projects.push(updated);
-    else projects[index] = { ...updated, manuscript: { ...updated.manuscript, ...localDraft(updated.id) } };
+    else {
+        const draft = localDraft(updated.id);
+        projects[index] = { ...updated, manuscript: { ...updated.manuscript, ...draft.text }, manuscriptRich: { ...updated.manuscriptRich, ...draft.rich } };
+    }
     renderAll();
 }
 
 // Text that is typed but not yet saved must not be overwritten by a server refresh.
 function localDraft(projectId){
-    if(!pendingSave || pendingSave.projectId !== projectId) return {};
-    const local = projects.find(p => p.id === projectId);
-    const value = local && local.manuscript && local.manuscript[pendingSave.key];
-    return typeof value === 'string' ? { [pendingSave.key]: value } : {};
+    const text = {}, rich = {};
+    for(const draft of dirtyDrafts.values()){
+        if(draft.projectId === projectId){ text[draft.key] = draft.text; if(draft.document) rich[draft.key] = draft.document; }
+    }
+    return { text, rich };
 }
 
 function renderComments(force){
@@ -1279,13 +2005,19 @@ async function syncProject(){
     try{
         const loaded = await api('/projects');
         if(projectId !== currentProjectId) return;
-        const typing = pendingSave || [document.getElementById('writeText'), document.getElementById('conceptText')].includes(document.activeElement);
         const before = currentProject();
-        const draftKey = document.activeElement === document.getElementById('conceptText') ? 'conceptNote' : activeWriteKey(before);
+        const oldWriteReferences = before && JSON.stringify(referenceSections(before, false));
+        const oldConceptReferences = before && JSON.stringify(referenceSections(before, true));
+        const oldReferenceStyle = before && before.referenceStyle;
+        const focused = richEditors.concept.hasFocus() ? 'conceptNote' : richEditors.write.hasFocus() ? activeWriteKey(before) : null;
         projects = loaded.map(p => {
-            if(!typing || p.id !== projectId || !before) return p;
-            const mine = before.manuscript && before.manuscript[draftKey];
-            return typeof mine === 'string' ? { ...p, manuscript: { ...p.manuscript, [draftKey]: mine } } : p;
+            if(p.id !== projectId || !before) return p;
+            const draft = localDraft(projectId);
+            if(focused){
+                draft.text[focused] = sectionText(before, focused);
+                if((before.manuscriptRich || {})[focused]) draft.rich[focused] = before.manuscriptRich[focused];
+            }
+            return { ...p, manuscript: { ...p.manuscript, ...draft.text }, manuscriptRich: { ...p.manuscriptRich, ...draft.rich } };
         });
         if(!currentProject()) return showHome();
         renderAll();
@@ -1293,14 +2025,18 @@ async function syncProject(){
         const writeArea = document.getElementById('writeText');
         const conceptArea = document.getElementById('conceptText');
         const key = activeWriteKey(project);
-        if(document.activeElement !== writeArea && !(pendingSave && pendingSave.key === key) && writeArea.value !== sectionText(project, key)){
-            writeArea.value = sectionText(project, key);
+        if(!richEditors.write.hasFocus() && !dirtyDrafts.has(draftId(projectId, key)) &&
+            (writeArea.value !== sectionText(project, key) || JSON.stringify(richEditors.write.getDocument()) !== JSON.stringify((project.manuscriptRich || {})[key] || richEditors.write.getDocument()))){
+            richEditors.write.load((project.manuscriptRich || {})[key], sectionText(project, key));
             updateWriteCount();
         }
-        if(document.activeElement !== conceptArea && !(pendingSave && pendingSave.key === 'conceptNote') && conceptArea.value !== sectionText(project, 'conceptNote')){
-            conceptArea.value = sectionText(project, 'conceptNote');
+        if(!richEditors.concept.hasFocus() && !dirtyDrafts.has(draftId(projectId, 'conceptNote')) &&
+            (conceptArea.value !== sectionText(project, 'conceptNote') || JSON.stringify(richEditors.concept.getDocument()) !== JSON.stringify((project.manuscriptRich || {}).conceptNote || richEditors.concept.getDocument()))){
+            richEditors.concept.load((project.manuscriptRich || {}).conceptNote, sectionText(project, 'conceptNote'));
             updateWriteCount();
         }
+        if(oldWriteReferences !== JSON.stringify(referenceSections(project, false)) || oldReferenceStyle !== project.referenceStyle) scheduleCitationLabels('write');
+        if(oldConceptReferences !== JSON.stringify(referenceSections(project, true)) || oldReferenceStyle !== project.referenceStyle) scheduleCitationLabels('concept');
         loadTasks();
     } catch(e){
         /* try again on the next tick */
@@ -1331,6 +2067,29 @@ function renderSidebar(){
     });
 }
 
+function deadlineRisk(deadline, today = new Date()){
+    if(!deadline) return { key: 'none', label: 'No deadline', detail: 'No deadline set', rank: 4 };
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(deadline);
+    if(!match) return { key: 'invalid', label: 'Invalid deadline', detail: `Check deadline: ${deadline}`, rank: 5 };
+    const [, year, month, day] = match.map(Number);
+    const due = new Date(0);
+    due.setUTCHours(0, 0, 0, 0);
+    due.setUTCFullYear(year, month - 1, day);
+    if(due.getUTCFullYear() !== year || due.getUTCMonth() !== month - 1 || due.getUTCDate() !== day){
+        return { key: 'invalid', label: 'Invalid deadline', detail: `Check deadline: ${deadline}`, rank: 5 };
+    }
+    const current = new Date(0);
+    current.setUTCHours(0, 0, 0, 0);
+    current.setUTCFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+    const days = Math.round((due - current) / 86400000);
+    const detail = days < 0 ? `${-days} day${days === -1 ? '' : 's'} overdue`
+        : days === 0 ? 'Due today' : `${days} day${days === 1 ? '' : 's'} remaining`;
+    if(days < 0) return { key: 'overdue', label: 'Overdue', detail, rank: 0 };
+    if(days <= 7) return { key: 'high', label: 'High risk', detail, rank: 1 };
+    if(days <= 30) return { key: 'medium', label: 'Medium risk', detail, rank: 2 };
+    return { key: 'low', label: 'Low risk', detail, rank: 3 };
+}
+
 function renderProjectGrid(){
     const grid = document.getElementById('projectGrid');
     grid.replaceChildren();
@@ -1338,14 +2097,16 @@ function renderProjectGrid(){
         grid.appendChild(h('div', 'empty-note', 'No projects yet. Use "Create New Project" above to start one.'));
         return;
     }
-    projects.forEach(project => {
-        const card = h('button', 'project-card');
-        card.type = 'button';
+    const today = new Date();
+    const entries = projects.map(project => ({ project, risk: deadlineRisk(project.deadline, today) }));
+    entries.sort((a, b) => a.risk.rank - b.risk.rank || String(a.project.deadline || '').localeCompare(String(b.project.deadline || '')) || a.project.title.localeCompare(b.project.title));
+    entries.forEach(({ project, risk }) => {
+        const card = h('article', `risk-card risk-${risk.key}`);
         card.appendChild(h('h3', '', project.title));
-        card.appendChild(h('p', '', `${project.field} · Deadline: ${project.deadline || 'Not specified'}`));
-        card.appendChild(h('p', '', `${openTaskCount(project.id)} open task(s)`));
+        card.appendChild(h('span', 'risk-badge', risk.label));
+        card.appendChild(h('p', '', risk.detail));
+        if(risk.key !== 'none' && risk.key !== 'invalid') card.appendChild(h('p', '', `Deadline: ${project.deadline}`));
         if(project.myRole && project.myRole !== 'owner') card.appendChild(h('p', 'shared-tag', `${roleLabel(project.myRole)} · shared by ${project.ownerName || project.ownerEmail || 'owner'}`));
-        card.addEventListener('click', () => openProject(project.id));
         grid.appendChild(card);
     });
 }
@@ -1367,7 +2128,10 @@ async function refreshProjects(){
     try{
         const loaded = await api('/projects');
         if(requestId !== projectsRequestId) return;
-        projects = loaded;
+        projects = loaded.map(project => {
+            const draft = localDraft(project.id);
+            return { ...project, manuscript: { ...project.manuscript, ...draft.text }, manuscriptRich: { ...project.manuscriptRich, ...draft.rich } };
+        });
         if(currentProjectId && !currentProject()){
             showHome();
         } else {
@@ -1562,61 +2326,286 @@ function toolStagesForSection(section){
 }
 
 function renderWriteTools(section){
+    const methodologyPanel = document.getElementById('methodologyWord2Vec');
+    const isMethodology = toolStagesForSection(section).includes('methodology');
+    methodologyPanel.hidden = !isMethodology;
+    methodologyPanel.replaceChildren();
+    if(isMethodology) methodologyPanel.appendChild(methodologyWord2VecPanel(currentProject()));
     const box = document.getElementById('writeTools');
     box.replaceChildren();
     box.appendChild(h('h3', '', `AI & digital tools for ${section.title}`));
     if(toolsError){
         box.appendChild(h('p', 'tools-note', `Couldn't load tools: ${toolsError}`));
-        return;
-    }
-    if(!toolsByStage){
+    } else if(!toolsByStage){
         box.appendChild(h('p', 'tools-note', 'Loading tools...'));
-        return;
+    } else {
+        const list = toolsForKeys(toolStagesForSection(section));
+        if(!list.length) box.appendChild(h('p', 'tools-note', 'No tools catalogued for this section.'));
+        const addGroup = (label, tools) => {
+            if(!tools.length) return;
+            box.appendChild(h('h4', 'tools-group', `${label} (${tools.length})`));
+            const grid = h('div', 'write-tools-grid');
+            tools.forEach(tool => {
+                const item = h('div', 'stage-tool');
+                const link = h('a', '', tool.name);
+                link.href = safeUrl(tool.url);
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                item.appendChild(link);
+                if(tool.embeddable) item.appendChild(h('span', 'pill', 'usable in-app'));
+                item.appendChild(h('p', '', tool.description));
+                grid.appendChild(item);
+            });
+            box.appendChild(grid);
+        };
+        addGroup('AI tools', list.filter(t => t.source !== 'curated'));
+        addGroup('Databases, libraries & digital tools', list.filter(t => t.source === 'curated'));
     }
-    const list = toolsForKeys(toolStagesForSection(section));
-    if(!list.length) box.appendChild(h('p', 'tools-note', 'No tools catalogued for this section.'));
-    const addGroup = (label, tools) => {
-        if(!tools.length) return;
-        box.appendChild(h('h4', 'tools-group', `${label} (${tools.length})`));
-        const grid = h('div', 'write-tools-grid');
-        tools.forEach(tool => {
-            const item = h('div', 'stage-tool');
-            const link = h('a', '', tool.name);
-            link.href = safeUrl(tool.url);
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            item.appendChild(link);
-            if(tool.embeddable) item.appendChild(h('span', 'pill', 'usable in-app'));
-            item.appendChild(h('p', '', tool.description));
-            grid.appendChild(item);
-        });
-        box.appendChild(grid);
-    };
-    addGroup('AI tools', list.filter(t => t.source !== 'curated'));
-    addGroup('Databases, libraries & digital tools', list.filter(t => t.source === 'curated'));
     renderKbNote(section, box);
 }
 
 /* ---------------- Find papers + knowledge base ---------------- */
 let kb = null;
 let kbProjectId = null;
+let kbLoadRequest = 0;
 let kbMsg = '';
+let analysisDocuments = [];
+let analysisDocumentsProjectId = null;
+let analysisDocumentsError = '';
 const KB_STAGES = ['methodology', 'datacollection', 'datacleaning', 'dataanalysis'];
+const PIPELINE_KB_STAGES = ['literature', 'framework', ...KB_STAGES, 'results', 'conclusion'];
+let searchStrategyDraft = { projectId: null, primaryKeyword: '', secondaryKeywords: '' };
 
 async function loadKb(){
     const projectId = currentProjectId;
     if(!projectId) return;
+    const requestId = ++kbLoadRequest;
     try{
         const data = await api(`/literature/${encodeURIComponent(projectId)}`);
-        if(projectId !== currentProjectId) return;
+        if(projectId !== currentProjectId || requestId !== kbLoadRequest) return;
         kb = data;
         kbProjectId = projectId;
+        if(searchStrategyDraft.projectId !== projectId){
+            const strategy = data.searchStrategy || {};
+            searchStrategyDraft = {
+                projectId,
+                primaryKeyword: strategy.primaryKeyword || '',
+                secondaryKeywords: (strategy.secondaryKeywords || []).join(', '),
+            };
+        }
     } catch(e){
+        if(projectId !== currentProjectId || requestId !== kbLoadRequest) return;
         kb = null;
+        kbProjectId = null;
+        document.getElementById('referenceStatus').textContent = `Could not load the paper library: ${e.message}`;
     }
+    renderReferencePapers();
     if(!document.getElementById('papersBox').hidden) renderPapers();
     const project = currentProject();
     if(project) renderWriteTools(structureFor(project).find(s => s.key === activeWriteKey(project)));
+    await loadAnalysisDocuments(projectId);
+}
+
+async function loadAnalysisDocuments(projectId){
+    try{
+        const result = await api(`/analysis/${encodeURIComponent(projectId)}/documents`);
+        if(projectId !== currentProjectId) return;
+        analysisDocuments = result.documents;
+        analysisDocumentsProjectId = projectId;
+        analysisDocumentsError = '';
+        if(!document.getElementById('papersBox').hidden) renderPapers();
+        const methodologyDocuments = document.querySelector('#methodologyWord2Vec .analysis-documents');
+        if(methodologyDocuments) methodologyDocuments.replaceWith(analysisDocumentControls(currentProject()));
+    } catch(error){
+        if(projectId === currentProjectId){
+            analysisDocuments = [];
+            analysisDocumentsProjectId = null;
+            analysisDocumentsError = `Could not load analysis documents: ${error.message}`;
+            if(!document.getElementById('papersBox').hidden) renderPapers();
+            const methodologyDocuments = document.querySelector('#methodologyWord2Vec .analysis-documents');
+            if(methodologyDocuments) methodologyDocuments.replaceWith(analysisDocumentControls(currentProject()));
+        }
+    }
+}
+
+function analysisDocumentControls(project){
+    const section = h('section', 'analysis-documents');
+    section.appendChild(h('h4', 'tools-group', 'Analysis documents'));
+    section.appendChild(h('p', 'field-hint', 'Upload PDFs or UTF-8 text (5 MB each, up to 30 documents). Extracted text is stored with this project and shared with its members. Only upload documents you are permitted to use; scanned PDFs need OCR first. Models use these documents plus collected paper titles and abstracts.'));
+    const status = h('p', 'field-hint');
+    status.setAttribute('role', 'status');
+    const input = h('input');
+    input.type = 'file';
+    input.accept = '.pdf,.txt';
+    input.setAttribute('aria-label', 'PDF or text document for analysis');
+    input.disabled = !canWrite(project);
+    section.appendChild(input);
+    const upload = h('button', 'ghost-btn', 'Upload document');
+    upload.type = 'button';
+    upload.disabled = !canWrite(project);
+    upload.addEventListener('click', async () => {
+        if(!input.files.length){ status.textContent = 'Choose a PDF or text file first.'; return; }
+        upload.disabled = true;
+        status.textContent = 'Extracting and saving document text...';
+        const body = new FormData();
+        body.append('document', input.files[0]);
+        try{
+            await api(`/analysis/${encodeURIComponent(project.id)}/documents`, { method: 'POST', body });
+            if(currentProjectId !== project.id) return;
+            await loadAnalysisDocuments(project.id);
+            setPapersStatus('Analysis document uploaded.');
+        } catch(error){ status.textContent = `Upload failed: ${error.message}`; }
+        finally { upload.disabled = !canWrite(currentProject()); }
+    });
+    section.append(upload, status);
+    const docs = analysisDocumentsProjectId === project.id ? analysisDocuments : [];
+    if(analysisDocumentsProjectId !== project.id){
+        section.appendChild(h('p', 'field-hint', analysisDocumentsError || 'Loading analysis documents...'));
+        if(analysisDocumentsError){
+            const retry = h('button', 'ghost-btn', 'Retry loading documents');
+            retry.type = 'button';
+            retry.addEventListener('click', () => loadAnalysisDocuments(project.id));
+            section.appendChild(retry);
+        }
+    }
+    else if(!docs.length) section.appendChild(h('p', 'field-hint', 'No documents uploaded.'));
+    docs.forEach(doc => {
+        const row = h('div', 'analysis-document-row');
+        row.appendChild(h('span', '', `${doc.name} · ${doc.characters} characters`));
+        if(canWrite(project)){
+            const remove = h('button', 'ghost-btn', 'Remove');
+            remove.type = 'button';
+            remove.addEventListener('click', async () => {
+                remove.disabled = true;
+                try{
+                    await api(`/analysis/${encodeURIComponent(project.id)}/documents/${encodeURIComponent(doc.id)}`, { method: 'DELETE' });
+                    if(currentProjectId === project.id) await loadAnalysisDocuments(project.id);
+                } catch(error){ status.textContent = `Removal failed: ${error.message}`; remove.disabled = false; }
+            });
+            row.appendChild(remove);
+        }
+        section.appendChild(row);
+    });
+    return section;
+}
+
+function methodologyWord2VecPanel(project){
+    const panel = h('section', 'methodology-model');
+    panel.appendChild(h('h3', '', 'Word2Vec & keyword heat maps'));
+    panel.appendChild(h('p', 'field-hint', 'Train on your saved paper titles and abstracts and/or uploaded document text. The model is retrained for each request and is not saved.'));
+    const sourceLabel = h('label', '', 'Training corpus');
+    const source = h('select');
+    source.setAttribute('aria-label', 'Word2Vec training corpus');
+    [['all', 'Papers and documents'], ['papers', 'Collected papers only'], ['documents', 'Uploaded documents only']].forEach(([value, label]) => {
+        const option = h('option', '', label); option.value = value; source.appendChild(option);
+    });
+    sourceLabel.appendChild(source);
+    panel.appendChild(sourceLabel);
+    const documents = h('details', 'methodology-documents');
+    documents.appendChild(h('summary', '', 'Upload or manage analysis documents'));
+    documents.appendChild(analysisDocumentControls(project));
+    panel.appendChild(documents);
+    const axes = h('div', 'heatmap-axes');
+    const makeAxis = (label) => {
+        const wrapper = h('label', '', `${label} keywords`);
+        const input = h('input');
+        input.placeholder = 'e.g. climate, coastal, adaptation';
+        input.setAttribute('aria-label', `${label} keywords`);
+        wrapper.appendChild(input);
+        axes.appendChild(wrapper);
+        return input;
+    };
+    const x = makeAxis('X axis');
+    const y = makeAxis('Y axis');
+    panel.appendChild(axes);
+    panel.appendChild(h('p', 'field-hint', 'Optional: enter 1–12 comma-separated single English words on each axis. Train first to see example vocabulary; rare words may be excluded.'));
+    const actions = h('div', 'kb-actions');
+    const train = h('button', '', 'Train Word2Vec');
+    const generate = h('button', 'ghost-btn', 'Train & generate heat maps');
+    train.type = generate.type = 'button';
+    actions.append(train, generate);
+    panel.appendChild(actions);
+    const status = h('p', 'field-hint');
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    const result = h('div', 'methodology-model-results');
+    panel.append(status, result);
+    const clearResults = () => {
+        result.replaceChildren();
+        status.textContent = 'Inputs changed. Train again to update the results.';
+    };
+    source.addEventListener('change', clearResults);
+    x.addEventListener('input', clearResults);
+    y.addEventListener('input', clearResults);
+    async function run(includeAxes){
+        const selectedSource = source.value;
+        const split = (value) => value.split(',').map(term => term.trim()).filter(Boolean);
+        const selectedAxes = includeAxes ? { x: split(x.value), y: split(y.value) } : undefined;
+        if(includeAxes && (!selectedAxes.x.length || !selectedAxes.y.length)){
+            status.textContent = 'Enter at least one keyword on each axis.';
+            return;
+        }
+        train.disabled = generate.disabled = source.disabled = x.disabled = y.disabled = true;
+        result.replaceChildren();
+        status.textContent = 'Training Word2Vec on the selected corpus...';
+        try {
+            const data = await api(`/literature/${encodeURIComponent(project.id)}/analysis/word2vec`, {
+                method: 'POST', body: JSON.stringify({ source: selectedSource, ...(selectedAxes ? { axes: selectedAxes } : {}) }),
+            });
+            if(currentProjectId !== project.id || !panel.isConnected) return;
+            result.replaceChildren();
+            renderLiteratureAnalysis('word2vec', data, result);
+            result.appendChild(h('p', 'field-hint', `Vocabulary examples: ${data.vocabulary_preview.join(', ')}`));
+            if(data.heatmap) renderKeywordHeatmaps(data.heatmap, result);
+            status.textContent = includeAxes ? 'Training and heat maps complete.' : 'Training complete. Add axis keywords to generate heat maps.';
+        } catch(error) {
+            if(panel.isConnected) status.textContent = `Training failed: ${error.message}`;
+        } finally {
+            train.disabled = generate.disabled = source.disabled = x.disabled = y.disabled = false;
+        }
+    }
+    train.addEventListener('click', () => run(false));
+    generate.addEventListener('click', () => run(true));
+    return panel;
+}
+
+function renderKeywordHeatmaps(heatmap, output){
+    const draw = (title, values, similarity) => {
+        const section = h('section', 'heatmap-section');
+        section.appendChild(h('h4', 'tools-group', title));
+        const scroll = h('div', 'heatmap-scroll');
+        const table = h('table', 'keyword-heatmap');
+        table.setAttribute('aria-label', title);
+        const head = h('thead');
+        const header = h('tr');
+        header.appendChild(h('th', '', 'Y / X'));
+        heatmap.x_terms.forEach(term => { const cell = h('th', '', term); cell.scope = 'col'; header.appendChild(cell); });
+        head.appendChild(header);
+        table.appendChild(head);
+        const body = h('tbody');
+        const max = Math.max(1, ...values.flat());
+        heatmap.y_terms.forEach((term, rowIndex) => {
+            const row = h('tr');
+            const label = h('th', '', term); label.scope = 'row'; row.appendChild(label);
+            values[rowIndex].forEach((value, colIndex) => {
+                const intensity = similarity ? (value + 1) / 2 : value / max;
+                const cell = h('td', '', similarity ? value.toFixed(2) : String(value));
+                cell.style.backgroundColor = `hsl(173 55% ${Math.round(96 - Math.max(0, Math.min(1, intensity)) * 59)}%)`;
+                cell.style.color = intensity > 0.6 ? '#fff' : '#17342e';
+                cell.title = `${term} × ${heatmap.x_terms[colIndex]}: ${similarity ? value.toFixed(3) : value}`;
+                row.appendChild(cell);
+            });
+            body.appendChild(row);
+        });
+        table.appendChild(body);
+        scroll.appendChild(table);
+        section.appendChild(scroll);
+        output.appendChild(section);
+    };
+    draw('Word2Vec cosine similarity (−1 to 1)', heatmap.similarity, true);
+    output.appendChild(h('p', 'field-hint', 'Darker cells indicate higher cosine similarity. These small corpus-trained embeddings are exploratory, not proof of meaning or association.'));
+    draw('Keyword co-occurrence (sources)', heatmap.cooccurrence, false);
+    output.appendChild(h('p', 'field-hint', `Counts sources containing both words, within the same first 12,000 scanned tokens used for training (${heatmap.counted_sources} nonempty sources). Diagonal cells count sources containing that word. Darker cells indicate more sources.`));
 }
 
 function kbYears(papers){
@@ -1641,40 +2630,249 @@ function yearBars(papers){
     return wrap;
 }
 
-function comingSoon(name, what){
-    kbMsg = `${name} is not connected yet. ${what}`;
-    const note = document.getElementById('kbMsg');
-    if(note) note.textContent = kbMsg;
-    document.querySelectorAll('.kb-msg').forEach(el => { el.textContent = kbMsg; });
-}
-
-function analysisButtons(){
+function analysisButtons(options = {}){
     const row = h('div', 'kb-actions');
+    const controls = h('div', 'analysis-parameters');
+    const source = h('select');
+    source.setAttribute('aria-label', 'Expert Model and Word2Vec corpus');
+    [['all', 'Papers and documents'], ['papers', 'Collected papers only'], ['documents', 'Uploaded documents only']].forEach(([value, label]) => {
+        const option = h('option', '', label); option.value = value; source.appendChild(option);
+    });
+    const subdomain = h('select');
+    subdomain.setAttribute('aria-label', 'Expert Model subdomain');
+    subdomain.appendChild(h('option', '', 'All sources'));
+    subdomain.options[0].value = '';
+    const strategy = kbProjectId === currentProjectId && kb ? kb.searchStrategy : null;
+    ((strategy && strategy.secondaryKeywords) || []).forEach(keyword => {
+        const option = h('option', '', keyword); option.value = keyword; subdomain.appendChild(option);
+    });
+    const seeds = h('input');
+    seeds.placeholder = 'Word2Vec terms (optional, comma-separated)';
+    seeds.setAttribute('aria-label', 'Word2Vec terms');
+    const mode = h('select');
+    mode.setAttribute('aria-label', 'Word2Vec similarity mode');
+    [['similar', 'Most similar'], ['dissimilar', 'Most dissimilar']].forEach(([value, label]) => {
+        const option = h('option', '', label); option.value = value; mode.appendChild(option);
+    });
+    if(options.expert !== false || options.word2vec !== false) controls.appendChild(source);
+    if(options.expert !== false) controls.appendChild(subdomain);
+    if(options.word2vec !== false) controls.append(seeds, mode);
     [
-        ['Expert model', 'Expand knowledge base', 'It will read the papers found so far, expand the knowledge base and propose a wider search string.'],
-        ['VOSviewer', 'Map keywords & co-citation', 'It will build keyword, author and co-citation maps from this knowledge base.'],
-        ['Word2Vec', 'Find related terms', 'It will train term embeddings on the collected abstracts to find related concepts and time trends.'],
-    ].forEach(([name, label, what]) => {
-        const b = h('button', 'ghost-btn', `${name}: ${label}`);
+        ['expert', 'Expert Model: n-gram network'],
+        ['word2vec', 'Train Word2Vec embeddings'],
+        ['network', 'Keyword co-occurrence'],
+        ['temporal', 'Publication-year trends'],
+    ].filter(([kind]) => options[kind] !== false).forEach(([kind, label]) => {
+        const b = h('button', 'ghost-btn', label);
         b.type = 'button';
-        b.addEventListener('click', () => comingSoon(name, what));
+        b.addEventListener('click', async () => {
+            const output = b.parentElement.parentElement.querySelector('.kb-analysis-output');
+            b.disabled = true;
+            output.textContent = kind === 'word2vec'
+                ? 'Training a local Word2Vec model on the project corpus...'
+                : 'Analyzing the project corpus...';
+            try{
+                const projectId = currentProjectId;
+                const url = `/literature/${encodeURIComponent(currentProjectId)}/analysis`;
+                const data = kind === 'expert'
+                    ? await api(`${url}/expert-model?source=${encodeURIComponent(source.value)}${subdomain.value ? `&secondary=${encodeURIComponent(subdomain.value)}` : ''}`)
+                    : kind === 'word2vec'
+                        ? await api(`${url}/word2vec`, { method: 'POST', body: JSON.stringify({ terms: seeds.value.split(',').map(term => term.trim()).filter(Boolean), mode: mode.value, source: source.value }) })
+                        : await api(url);
+                if(projectId !== currentProjectId) return;
+                renderLiteratureAnalysis(kind, data, output);
+            } catch(error){
+                output.textContent = `Analysis failed: ${error.message}`;
+            } finally{
+                b.disabled = false;
+            }
+        });
         row.appendChild(b);
     });
-    return row;
+    const wrap = h('div', 'kb-analysis');
+    if(controls.children.length) wrap.appendChild(controls);
+    wrap.appendChild(row);
+    wrap.appendChild(h('div', 'kb-analysis-output'));
+    return wrap;
+}
+
+function renderLiteratureAnalysis(kind, data, output){
+    output.replaceChildren();
+    output.appendChild(h('p', 'field-hint', `${data.engine} · ${data.paper_count} ${kind === 'expert' || kind === 'word2vec' ? 'sources' : 'papers'}`));
+    if(kind === 'expert'){
+        output.appendChild(h('p', 'field-hint', `${data.method} · minimum n-gram frequency ${data.thresholds.min_frequency}, minimum co-occurrence ${data.thresholds.min_co_occurrence}`));
+        output.appendChild(h('p', 'field-hint', `${data.collected_papers} collected papers and ${data.uploaded_documents} uploaded documents in the project · ${data.paper_count} sources analyzed${data.secondary_keyword ? ` for "${data.secondary_keyword}"` : ''}. Pruning: ${data.pruning.method}; cutoff ${data.pruning.cutoff_strength}.`));
+        if(data.subdomain_query){
+            const query = h('textarea');
+            query.rows = 3;
+            query.value = data.subdomain_query;
+            query.setAttribute('aria-label', 'Editable subdomain query');
+            output.appendChild(query);
+            const use = h('button', 'ghost-btn', 'Use subdomain query');
+            use.type = 'button';
+            use.addEventListener('click', () => {
+                if(document.getElementById('papersBox').hidden) togglePapers();
+                const search = document.getElementById('searchString');
+                if(search){ search.value = query.value; search.focus(); }
+                setPapersStatus('Review the subdomain query, then search.');
+            });
+            output.appendChild(use);
+        }
+        output.appendChild(h('h4', 'tools-group', 'Network-ranked research terms'));
+        const list = h('ol', 'analysis-list');
+        (data.terms || []).slice(0, 15).forEach(item => {
+            list.appendChild(h('li', '', `${item.term} — network strength ${item.strength}; ${item.frequency} phrase occurrences in ${item.papers} sources; ${item.retained ? 'retained' : 'pruned'}`));
+        });
+        output.appendChild(list);
+        if(data.refined_queries && data.refined_queries.length){
+            output.appendChild(h('h4', 'tools-group', 'Build a focused search from a network term'));
+            const queries = h('div', 'analysis-query-list');
+            data.refined_queries.forEach(item => {
+                const use = h('button', 'ghost-btn', `Use: ${item.term}`);
+                use.type = 'button';
+                use.addEventListener('click', () => {
+                    let area = document.getElementById('searchString');
+                    if(!area){
+                        const papersBox = document.getElementById('papersBox');
+                        if(papersBox.hidden) togglePapers();
+                        area = document.getElementById('searchString');
+                    }
+                    if(area) area.value = item.query;
+                    const status = document.getElementById('papersStatus');
+                    if(status) status.textContent = 'Review the Expert Model query, then search.';
+                });
+                queries.appendChild(use);
+            });
+            output.appendChild(queries);
+        }
+        return;
+    }
+
+    if(kind === 'word2vec'){
+        output.appendChild(h('p', 'field-hint', `Skip-gram with negative sampling · ${data.dimensions} dimensions · context window ${data.window} · ${data.epochs} epochs · ${data.training_tokens} tokens scanned, ${data.retained_tokens} in vocabulary`));
+        output.appendChild(h('p', 'field-hint', `${data.collected_papers} collected papers and ${data.uploaded_documents} uploaded documents in the project; training is bounded to the first 12,000 tokens.`));
+        output.appendChild(h('p', 'field-hint', `Selected corpus: ${data.source} · ${data.sources_scanned} of ${data.paper_count} sources scanned${data.truncated ? ' · corpus truncated at the token limit' : ''}.`));
+        output.appendChild(h('h4', 'tools-group', `${data.mode === 'dissimilar' ? 'Most dissimilar' : 'Nearest'} terms in the trained embedding space`));
+        const groups = h('div', 'word2vec-results');
+        (data.related_terms || []).forEach(group => {
+            const section = h('div', 'word2vec-term');
+            section.appendChild(h('strong', '', group.term));
+            const neighbors = group.neighbors.map(item => `${item.term} (${item.similarity.toFixed(2)})`).join(' · ');
+            section.appendChild(h('p', 'field-hint', neighbors || 'No related terms were found.'));
+            groups.appendChild(section);
+        });
+        output.appendChild(groups);
+        output.appendChild(h('p', 'field-hint', 'These are corpus-trained distributional similarities, not evidence that terms are scientifically equivalent.'));
+        return;
+    }
+
+    if(kind === 'temporal'){
+        const table = h('table', 'analysis-table');
+        const head = h('thead');
+        const header = h('tr');
+        header.appendChild(h('th', '', 'Term'));
+        data.temporal.years.forEach(year => header.appendChild(h('th', '', String(year))));
+        head.appendChild(header);
+        table.appendChild(head);
+        const body = h('tbody');
+        data.temporal.terms.forEach(item => {
+            const row = h('tr');
+            row.appendChild(h('th', '', item.term));
+            item.counts.forEach(count => row.appendChild(h('td', '', String(count))));
+            body.appendChild(row);
+        });
+        table.appendChild(body);
+        output.appendChild(table);
+        const counts = data.temporal.years.map((year, index) => `${year}: ${data.temporal.paper_counts[index]} papers`).join(' · ');
+        output.appendChild(h('p', 'field-hint', counts || 'No publication years are available in this library.'));
+        return;
+    }
+
+    output.appendChild(h('h4', 'tools-group', 'Frequent within-paper keyword pairs'));
+    const edges = data.network.edges || [];
+    if(!edges.length){
+        output.appendChild(h('p', 'field-hint', 'Not enough shared terms to build co-occurrences.'));
+        return;
+    }
+    const list = h('ol', 'analysis-list');
+    edges.slice(0, 20).forEach(edge => {
+        list.appendChild(h('li', '', `${edge.source} + ${edge.target} — found together in ${edge.weight} papers`));
+    });
+    output.appendChild(list);
+    output.appendChild(h('p', 'field-hint', 'This is a lexical co-occurrence analysis, not a semantic embedding or VOSviewer export.'));
 }
 
 function renderKbNote(section, box){
-    if(!toolStagesForSection(section).some(s => KB_STAGES.includes(s))) return;
+    const stageKeys = toolStagesForSection(section);
+    if(!stageKeys.some(stage => PIPELINE_KB_STAGES.includes(stage))) return;
     const note = h('div', 'kb-note');
-    note.appendChild(h('h4', 'tools-group', 'Knowledge base from your literature search'));
+    const pipelineStages = stageKeys.filter(stage => PIPELINE_KB_STAGES.includes(stage));
+    const title = pipelineStages.includes('literature')
+        ? 'Literature search & acquisition'
+        : pipelineStages.some(stage => ['dataanalysis', 'datacleaning', 'results'].includes(stage))
+            ? 'Corpus analysis pipeline'
+            : pipelineStages.includes('framework')
+                ? 'Literature synthesis & framework'
+                : 'Research evidence for this stage';
+    note.appendChild(h('h4', 'tools-group', title));
     const papers = kbProjectId === currentProjectId && kb ? kb.papers : [];
+    note.appendChild(h('p', 'tools-note', `${papers.length} saved papers · Search across OpenAlex, Crossref, Semantic Scholar and arXiv; then reuse the corpus in the relevant research stage.`));
+    const actions = h('div', 'kb-actions');
+    const find = h('button', 'ghost-btn', 'Build search & acquire papers');
+    find.type = 'button';
+    find.addEventListener('click', () => {
+        showTab('write');
+        const papersBox = document.getElementById('papersBox');
+        papersBox.hidden = false;
+        renderPapers();
+        papersBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const primary = document.getElementById('searchPrimaryKeyword');
+        if(primary && !primary.value) primary.value = currentProject().title || '';
+        if(primary) primary.focus();
+    });
+    actions.appendChild(find);
+    note.appendChild(actions);
+    const analysisOptions = {
+        expert: pipelineStages.includes('framework') || pipelineStages.includes('dataanalysis'),
+        word2vec: pipelineStages.includes('dataanalysis'),
+        network: pipelineStages.includes('framework') || pipelineStages.includes('dataanalysis'),
+        temporal: pipelineStages.includes('dataanalysis') || pipelineStages.includes('results'),
+    };
+    if(papers.length && Object.values(analysisOptions).some(Boolean)) note.appendChild(analysisButtons(analysisOptions));
+
+    if(papers.length && pipelineStages.some(stage => ['results', 'conclusion'].includes(stage))){
+        const ask = h('button', 'ghost-btn', 'Discuss findings with the corpus assistant');
+        ask.type = 'button';
+        ask.addEventListener('click', () => {
+            showTab('support');
+            document.getElementById('corpusChatForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('corpusChatInput').focus();
+        });
+        note.appendChild(ask);
+    }
+
+    if(papers.length && pipelineStages.includes('dataanalysis')){
+        const compare = h('button', 'ghost-btn', 'Compare source documents');
+        compare.type = 'button';
+        compare.addEventListener('click', () => {
+            showTab('support');
+            document.querySelector('.document-comparer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        note.appendChild(compare);
+    }
+    if(papers.length && pipelineStages.includes('datacleaning')){
+        const exportButton = h('button', 'ghost-btn', 'Export saved corpus as CSV');
+        exportButton.type = 'button';
+        exportButton.addEventListener('click', () => downloadKbCsv(currentProject(), papers));
+        note.appendChild(exportButton);
+    }
+
     if(!papers.length){
-        note.appendChild(h('p', 'tools-note', 'Nothing collected yet. Use "Find papers" at the top of the Write tab to build a search string and collect papers.'));
+        note.appendChild(h('p', 'tools-note', 'Start with the literature search above. Later stages can reuse these papers for network analysis, Word2Vec suggestions, publication trends, document comparison and corpus-grounded discussion.'));
     } else {
         const last = kb.searches[0];
         note.appendChild(h('p', 'tools-note', `${papers.length} papers collected${last ? ` · latest search: ${last.query}` : ''}. Use them to justify your methods, plan data collection and choose analyses.`));
         note.appendChild(yearBars(papers));
-        note.appendChild(analysisButtons());
         note.appendChild(h('p', 'field-hint kb-msg', kbMsg));
     }
     box.appendChild(note);
@@ -1694,20 +2892,81 @@ function renderPapers(){
     const box = document.getElementById('papersBox');
     if(!project) return;
     const writer = canWrite(project);
+    if(searchStrategyDraft.projectId !== project.id){
+        const strategy = kbProjectId === project.id && kb ? kb.searchStrategy || {} : {};
+        searchStrategyDraft = {
+            projectId: project.id,
+            primaryKeyword: strategy.primaryKeyword || '',
+            secondaryKeywords: (strategy.secondaryKeywords || []).join(', '),
+        };
+    }
     const keep = document.getElementById('searchString');
     const typed = keep ? keep.value : null;
+    const previousScopus = document.getElementById('includeScopus');
+    const scopusChecked = previousScopus && previousScopus.dataset.projectId === project.id && previousScopus.checked;
     box.replaceChildren();
 
     box.appendChild(h('h3', '', 'Find papers'));
-    box.appendChild(h('p', 'field-hint', '1. Build a search string from your problem statement. 2. Edit it and search. 3. Each search adds to your knowledge base. Use AND, OR, NOT and "quoted phrases".'));
+    box.appendChild(h('p', 'field-hint', 'Build a reproducible Boolean search from a primary concept and related terms, then search scholarly metadata providers. Review the query before running it.'));
 
     const area = h('textarea');
     area.id = 'searchString';
     area.rows = 3;
     area.maxLength = 500;
     area.placeholder = 'e.g. ("project management" OR "research management") AND (framework OR workflow)';
-    area.value = typed != null ? typed : ((kb && kb.searches[0] && kb.searches[0].query) || '');
+    area.value = typed != null ? typed : ((kb && kb.searchStrategy && kb.searchStrategy.searchString) || (kb && kb.searches[0] && kb.searches[0].query) || '');
     box.appendChild(area);
+
+    const builder = h('div', 'search-strategy-builder');
+    builder.appendChild(h('h4', 'tools-group', 'Baseline pipeline: Boolean query builder'));
+    builder.appendChild(h('p', 'field-hint', 'Related terms are combined with OR; the primary concept is combined with that group using AND. Separate related phrases with commas.'));
+    const primary = h('input');
+    primary.id = 'searchPrimaryKeyword';
+    primary.type = 'text';
+    primary.maxLength = 120;
+    primary.placeholder = 'Primary concept, e.g. climate adaptation';
+    primary.value = searchStrategyDraft.primaryKeyword;
+    primary.disabled = !writer;
+    primary.addEventListener('input', () => { searchStrategyDraft.primaryKeyword = primary.value; });
+    builder.appendChild(primary);
+    const secondary = h('input');
+    secondary.id = 'searchSecondaryKeywords';
+    secondary.type = 'text';
+    secondary.maxLength = 1200;
+    secondary.placeholder = 'Related terms, e.g. resilience, climate response, adaptation planning';
+    secondary.value = searchStrategyDraft.secondaryKeywords;
+    secondary.disabled = !writer;
+    secondary.addEventListener('input', () => { searchStrategyDraft.secondaryKeywords = secondary.value; });
+    builder.appendChild(secondary);
+    const compile = h('button', 'ghost-btn', 'Build & save Boolean query');
+    compile.type = 'button';
+    compile.disabled = !writer;
+    compile.addEventListener('click', async () => {
+        compile.disabled = true;
+        try{
+            const secondaryKeywords = searchStrategyDraft.secondaryKeywords
+                .split(/[,;\n]+/)
+                .map(term => term.trim())
+                .filter(Boolean);
+            const strategy = await api(`/literature/${encodeURIComponent(project.id)}/strategy`, {
+                method: 'PUT',
+                body: JSON.stringify({ primaryKeyword: searchStrategyDraft.primaryKeyword, secondaryKeywords }),
+            });
+            kb = { ...(kb || { projectId: project.id, searches: [], papers: [] }), searchStrategy: strategy };
+            kbProjectId = project.id;
+            renderReferencePapers();
+            area.value = strategy.searchString;
+            renderPapers();
+            renderWriteTools(structureFor(project).find(s => s.key === activeWriteKey(project)));
+            setPapersStatus('Boolean query saved. Review or edit it above before searching.');
+        } catch(error){
+            setPapersStatus(`Could not save search strategy: ${error.message}`);
+        } finally{
+            compile.disabled = !canWrite(currentProject());
+        }
+    });
+    builder.appendChild(compile);
+    box.appendChild(builder);
 
     const actions = h('div', 'kb-actions');
     const suggest = h('button', 'ghost-btn', 'Build from my problem statement');
@@ -1728,6 +2987,17 @@ function renderPapers(){
     [['', 'Any year'], ['2024', 'Since 2024'], ['2020', 'Since 2020'], ['2015', 'Since 2015'], ['2010', 'Since 2010']].forEach(([v, l]) => { const o = h('option', '', l); o.value = v; year.appendChild(o); });
     actions.appendChild(year);
 
+    const scopusLabel = h('label', 'scopus-option');
+    const scopus = h('input');
+    scopus.id = 'includeScopus';
+    scopus.type = 'checkbox';
+    scopus.dataset.projectId = project.id;
+    scopus.checked = Boolean(scopusChecked);
+    scopus.disabled = !writer;
+    scopusLabel.append(scopus, document.createTextNode(' Include Scopus (Elsevier)'));
+    box.appendChild(scopusLabel);
+    box.appendChild(h('p', 'field-hint', 'Optional: sends your search query to Elsevier. Requires a server-side API key and appropriate access. Up to 50 Scopus results; author lists may be incomplete and need review.'));
+
     const search = h('button', '', 'Search papers');
     search.type = 'button';
     search.disabled = !writer;
@@ -1736,11 +3006,18 @@ function renderPapers(){
         search.disabled = true;
         setPapersStatus('Searching published papers...');
         try{
-            kb = await api(`/literature/${encodeURIComponent(project.id)}/search`, { method: 'POST', body: JSON.stringify({ searchString: area.value, fromYear: year.value }) });
+            const result = await api(`/literature/${encodeURIComponent(project.id)}/search`, { method: 'POST', body: JSON.stringify({ searchString: area.value, fromYear: year.value, includeScopus: scopus.checked }) });
+            if(currentProjectId !== project.id) return;
+            kb = result;
             kbProjectId = project.id;
+            renderReferencePapers();
             const last = kb.searches[0];
             renderPapers();
-            setPapersStatus(`Found ${last.found} papers, ${last.added} new. Knowledge base now has ${kb.papers.length}.`);
+            const failedSources = (last.sources || []).filter(source => source.status === 'error');
+            const warning = failedSources.length
+                ? ` Unavailable sources: ${failedSources.map(source => `${source.name} (${source.error})`).join(', ')}.`
+                : '';
+            setPapersStatus(`Found ${last.found} papers, ${last.added} new. Knowledge base now has ${kb.papers.length}.${warning}`);
             const current = currentProject();
             renderWriteTools(structureFor(current).find(s => s.key === activeWriteKey(current)));
         } catch(err){
@@ -1755,6 +3032,7 @@ function renderPapers(){
     status.setAttribute('aria-live', 'polite');
     box.appendChild(status);
 
+    box.appendChild(analysisDocumentControls(project));
     box.appendChild(h('h4', 'tools-group', 'Go further with your knowledge base'));
     box.appendChild(analysisButtons());
     box.appendChild(h('p', 'field-hint kb-msg', kbMsg));
@@ -1776,19 +3054,74 @@ function renderPapers(){
     const list = h('div', 'paper-list');
     [...papers].sort((a, b) => b.citations - a.citations).slice(0, 100).forEach(paper => {
         const row = h('div', 'paper-row');
-        const title = h('a', '', paper.title);
-        title.href = safeUrl(paper.url);
-        title.target = '_blank';
-        title.rel = 'noopener noreferrer';
+        const href = safeUrl(paper.url);
+        const title = h(href === '#' ? 'strong' : 'a', '', paper.title);
+        if(href !== '#'){
+            title.href = href;
+            title.target = '_blank';
+            title.rel = 'noopener noreferrer';
+        }
         row.appendChild(title);
         row.appendChild(h('small', '', [paper.authors.slice(0, 3).join(', ') + (paper.authors.length > 3 ? ' et al.' : ''), paper.year, paper.venue, `${paper.citations} citations`].filter(Boolean).join(' · ')));
+        if(paper.authorsIncomplete) row.appendChild(h('p', 'field-hint', 'Scopus may provide an incomplete author list. Verify authors before citing.'));
+        if(writer && paper.authorsIncomplete){
+            const editor = h('details', 'paper-authors-editor');
+            editor.appendChild(h('summary', '', 'Review and correct author list'));
+            const label = h('label', '', 'Complete author list, one name per line (given name then family name)');
+            const input = h('textarea');
+            input.rows = 3;
+            input.value = paper.authors.join('\n');
+            label.appendChild(input);
+            editor.appendChild(label);
+            const save = h('button', 'ghost-btn', 'Save complete author list');
+            save.type = 'button';
+            const message = h('p', 'field-hint');
+            message.setAttribute('role', 'status');
+            save.addEventListener('click', async () => {
+                save.disabled = true;
+                try {
+                    const authors = input.value.split(/\r?\n/).map(name => name.trim()).filter(Boolean);
+                    const result = await api(`/literature/${encodeURIComponent(project.id)}/papers/${encodeURIComponent(paper.id)}/authors`, {
+                        method: 'PUT', body: JSON.stringify({ authors }),
+                    });
+                    if(currentProjectId !== project.id) return;
+                    kb = result;
+                    kbProjectId = project.id;
+                    renderPapers();
+                    renderReferencePapers();
+                    scheduleCitationLabels('write');
+                    scheduleCitationLabels('concept');
+                    setPapersStatus('Author list saved.');
+                } catch(error) {
+                    if(currentProjectId === project.id) message.textContent = `Could not save authors: ${error.message}`;
+                } finally { save.disabled = false; }
+            });
+            editor.append(save, message);
+            row.appendChild(editor);
+        }
+        if(paper.pdfUrl && safeUrl(paper.pdfUrl) !== '#'){
+            const pdfLink = h('a', 'paper-pdf-link', 'Open Access PDF');
+            pdfLink.href = safeUrl(paper.pdfUrl);
+            pdfLink.target = '_blank';
+            pdfLink.rel = 'noopener noreferrer';
+            row.appendChild(pdfLink);
+        }
         if(paper.abstract) row.appendChild(h('p', '', paper.abstract.length > 240 ? `${paper.abstract.slice(0, 240)}...` : paper.abstract));
         if(writer){
             const remove = h('button', 'ghost-btn', 'Remove');
             remove.type = 'button';
             remove.addEventListener('click', async () => {
-                kb = await api(`/literature/${encodeURIComponent(project.id)}/papers/${encodeURIComponent(paper.id)}`, { method: 'DELETE' }).catch(() => kb);
-                renderPapers();
+                try{
+                    const marker = `[[cite:${encodeURIComponent(paper.id)}]]`;
+                    if(Object.values(project.manuscript || {}).some(text => typeof text === 'string' && text.includes(marker))){
+                        setPapersStatus('This paper is cited in the project. Remove its citation markers before removing the paper.');
+                        return;
+                    }
+                    const result = await api(`/literature/${encodeURIComponent(project.id)}/papers/${encodeURIComponent(paper.id)}`, { method: 'DELETE' });
+                    if(currentProjectId === project.id){ kb = result; renderPapers(); renderReferencePapers(); }
+                } catch(error){
+                    setPapersStatus(`Could not remove paper: ${error.message}`);
+                }
             });
             row.appendChild(remove);
         }
@@ -1805,8 +3138,8 @@ function setPapersStatus(text){
 
 function downloadKbCsv(project, papers){
     const cell = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-    const rows = [['Title', 'Authors', 'Year', 'Source', 'DOI', 'Citations', 'Abstract'].map(cell).join(',')]
-        .concat(papers.map(p => [p.title, p.authors.join('; '), p.year, p.venue, p.doi, p.citations, p.abstract].map(cell).join(',')));
+    const rows = [['Title', 'Authors', 'Year', 'Source', 'DOI', 'Citations', 'Open Access PDF', 'Abstract'].map(cell).join(',')]
+        .concat(papers.map(p => [p.title, p.authors.join('; '), p.year, p.venue, p.doi, p.citations, p.pdfUrl, p.abstract].map(cell).join(',')));
     const blob = new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -1824,7 +3157,11 @@ async function loadTools(){
     } catch(e){
         if(!toolsByStage) toolsError = e.message;
     }
-    if(currentProjectId) loadWriteEditor();
+    if(currentProjectId){
+        const project = currentProject();
+        const section = structureFor(project).find(s => s.key === activeWriteKey(project));
+        if(section) renderWriteTools(section);
+    }
 }
 
 /* ---------------- Kanban board ---------------- */
@@ -2081,6 +3418,260 @@ async function generateResearchSupport(){
     }
 }
 
+function updateComparisonMode(){
+    const mode = document.getElementById('comparisonMode').value;
+    document.getElementById('comparisonFiles').setAttribute('aria-label',
+        mode === 'bulk' ? 'Choose 2 to 30 documents' : 'Choose exactly 2 documents');
+}
+
+async function compareDocuments(){
+    const project = currentProject();
+    const mode = document.getElementById('comparisonMode').value;
+    const files = [...document.getElementById('comparisonFiles').files];
+    const status = document.getElementById('comparisonStatus');
+    const result = document.getElementById('comparisonResult');
+    const button = document.getElementById('comparisonSubmit');
+    const validCount = mode === 'bulk' ? files.length >= 2 && files.length <= 30 : files.length === 2;
+    result.replaceChildren();
+    result.hidden = true;
+    if(!project){
+        status.textContent = 'Open a project before comparing documents.';
+        return;
+    }
+    if(!validCount){
+        status.textContent = mode === 'bulk'
+            ? 'Choose between 2 and 30 documents.'
+            : 'Choose exactly two documents.';
+        return;
+    }
+
+    const formData = new FormData();
+    files.forEach(file => formData.append('documents', file, file.name));
+    const endpoint = mode === 'bulk' ? '/comparison/bulk' : '/comparison';
+    const headers = {};
+    if(authToken) headers.Authorization = `Bearer ${authToken}`;
+    button.disabled = true;
+    status.textContent = 'Reading and comparing documents...';
+    try{
+        const response = await fetch(`${API_BASE}${endpoint}?projectId=${encodeURIComponent(project.id)}`, {
+            method: 'POST',
+            headers,
+            body: formData,
+        });
+        const data = await response.json().catch(() => ({}));
+        if(!response.ok) throw new Error(data.error || `Comparison failed: ${response.status}`);
+        if(currentProjectId !== project.id) return;
+        if(mode === 'bulk') renderBulkComparison(data);
+        else renderPairComparison(data);
+        result.hidden = false;
+        status.textContent = 'Analysis complete. Uploaded files were removed from the server after processing.';
+    } catch(error){
+        status.textContent = `Could not compare documents: ${error.message}`;
+    } finally{
+        button.disabled = false;
+    }
+}
+
+function renderPairComparison(data){
+    const result = document.getElementById('comparisonResult');
+    result.replaceChildren();
+    const similarity = h('div', 'comparison-similarity');
+    similarity.appendChild(h('strong', '', `${Math.round(data.similarity * 100)}%`));
+    similarity.appendChild(h('span', '', 'cosine similarity'));
+    result.appendChild(similarity);
+
+    const documents = h('div', 'comparison-documents');
+    [data.first, data.second].forEach(document => {
+        const card = h('article', 'comparison-document');
+        card.appendChild(h('h4', '', document.filename));
+        card.appendChild(h('small', '', `${document.word_count} words · ${document.unique_word_count} unique terms`));
+        card.appendChild(h('p', '', document.preview));
+        documents.appendChild(card);
+    });
+    result.appendChild(documents);
+    const terms = h('div', 'comparison-terms');
+    terms.appendChild(h('strong', '', 'Most common terms'));
+    const list = h('div', 'comparison-pills');
+    (data.common_terms || []).forEach(term => list.appendChild(h('span', 'comparison-pill', term)));
+    if(!data.common_terms || !data.common_terms.length) list.appendChild(h('span', 'comparison-note', 'No shared terms found.'));
+    terms.appendChild(list);
+    result.appendChild(terms);
+}
+
+function renderBulkComparison(data){
+    const result = document.getElementById('comparisonResult');
+    result.replaceChildren();
+    result.appendChild(h('h4', 'comparison-section-title', 'Similarity matrix'));
+    const tableWrap = h('div', 'comparison-table-wrap');
+    const table = h('table', 'comparison-matrix');
+    const head = h('thead');
+    const headerRow = h('tr');
+    headerRow.appendChild(h('th', '', 'Document'));
+    data.labels.forEach(label => headerRow.appendChild(h('th', '', label)));
+    head.appendChild(headerRow);
+    table.appendChild(head);
+    const body = h('tbody');
+    data.matrix.forEach((row, rowIndex) => {
+        const tableRow = h('tr');
+        tableRow.appendChild(h('th', '', data.labels[rowIndex]));
+        row.forEach(value => {
+            const cell = h('td', '', `${Math.round(value * 100)}%`);
+            cell.style.backgroundColor = `rgba(20, 84, 150, ${Math.max(0.06, value * 0.65)})`;
+            tableRow.appendChild(cell);
+        });
+        body.appendChild(tableRow);
+    });
+    table.appendChild(body);
+    tableWrap.appendChild(table);
+    result.appendChild(tableWrap);
+
+    result.appendChild(h('h4', 'comparison-section-title', 'Most similar pairs'));
+    const pairs = h('ol', 'comparison-pairs');
+    (data.strongest_pairs || []).forEach(pair => {
+        pairs.appendChild(h('li', '', `${pair.first_filename} + ${pair.second_filename}: ${Math.round(pair.similarity * 100)}%`));
+    });
+    if(!(data.strongest_pairs || []).length) pairs.appendChild(h('li', '', 'No document pairs to show.'));
+    result.appendChild(pairs);
+
+    const topics = data.topic_extraction || {};
+    result.appendChild(h('h4', 'comparison-section-title', 'Prominent lexical themes'));
+    result.appendChild(h('p', 'comparison-note', `${topics.engine || 'Lexical analysis'} — these are frequency-ranked terms and phrases, not semantic or causal findings.`));
+    const topicList = h('div', 'comparison-topics');
+    (topics.global_topics || []).slice(0, 10).forEach(topic => {
+        const card = h('article', 'comparison-topic');
+        card.appendChild(h('strong', '', topic.label));
+        card.appendChild(h('small', '', `Relative frequency: ${Math.round(topic.score * 100)}%`));
+        topicList.appendChild(card);
+    });
+    if(!topicList.childElementCount) topicList.appendChild(h('p', 'comparison-note', 'Not enough readable text to extract themes.'));
+    result.appendChild(topicList);
+
+    result.appendChild(h('h4', 'comparison-section-title', 'Documents analyzed'));
+    const summaries = h('div', 'comparison-documents');
+    (data.documents || []).forEach(document => {
+        const card = h('article', 'comparison-document');
+        card.appendChild(h('h4', '', document.filename));
+        card.appendChild(h('small', '', `${document.word_count} words · ${document.unique_word_count} unique terms`));
+        summaries.appendChild(card);
+    });
+    result.appendChild(summaries);
+}
+
+function corpusChatStage(){
+    if(!document.getElementById('writeTab').hidden){
+        const project = currentProject();
+        const section = project && structureFor(project).find(item => item.key === activeWriteKey(project));
+        return section ? section.title : '';
+    }
+    return document.getElementById('conceptTab').hidden ? '' : 'Concept Note';
+}
+
+function updateCorpusChatStage(){
+    const stage = corpusChatStage();
+    document.getElementById('corpusChatStage').textContent = stage ? `Current stage: ${stage}` : 'General project literature chat';
+}
+
+function renderCorpusChat(projectId = currentProjectId){
+    const messages = document.getElementById('corpusChatMessages');
+    const input = document.getElementById('corpusChatInput');
+    const submit = document.getElementById('corpusChatSubmit');
+    const clear = document.getElementById('corpusChatClear');
+    const status = document.getElementById('corpusChatStatus');
+    if(!messages || !input || !submit || !clear || !status) return;
+    if(input.dataset.projectId !== projectId){
+        input.value = '';
+        input.dataset.projectId = projectId || '';
+    }
+
+    messages.replaceChildren();
+    const items = corpusChats[projectId] || [];
+    if(!items.length){
+        messages.appendChild(h('p', 'corpus-chat-empty', 'Collect papers in the Write tab, then ask a question about their abstracts.'));
+    }
+    items.forEach(item => {
+        const message = h('article', `corpus-chat-message ${item.role}`);
+        message.appendChild(h('strong', '', item.role === 'user' ? 'You' : 'Research assistant'));
+        message.appendChild(h('p', 'corpus-chat-text', item.content));
+        if(item.sources && item.sources.length){
+            const sourceList = h('ol', 'corpus-chat-sources');
+            item.sources.forEach(source => {
+                const row = h('li');
+                const link = h('a', '', `[${source.number}] ${source.title}${source.year ? ` (${source.year})` : ''}`);
+                link.href = safeUrl(source.url);
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                row.appendChild(link);
+                if(source.authors && source.authors.length) row.appendChild(h('small', '', source.authors.join(', ')));
+                sourceList.appendChild(row);
+            });
+            message.appendChild(sourceList);
+        }
+        messages.appendChild(message);
+    });
+    messages.scrollTop = messages.scrollHeight;
+    const busy = corpusChatPending.has(projectId);
+    input.disabled = busy;
+    submit.disabled = busy;
+    clear.disabled = busy;
+    status.textContent = busy ? 'Searching your literature and preparing an answer...' : (corpusChatStatuses[projectId] || '');
+}
+
+async function sendCorpusChat(event){
+    event.preventDefault();
+    const projectId = currentProjectId;
+    const input = document.getElementById('corpusChatInput');
+    const question = input.value.trim();
+    if(!projectId || !question || corpusChatPending.has(projectId)) return;
+
+    const stage = corpusChatStage();
+    const generation = corpusChatGeneration;
+    const history = (corpusChats[projectId] || []).slice(-12)
+        .map(({ role, content }) => ({ role, content }));
+    corpusChatPending.add(projectId);
+    corpusChatStatuses[projectId] = '';
+    renderCorpusChat(projectId);
+    try{
+        const result = await api('/assistant/chat', {
+            method: 'POST',
+            body: JSON.stringify({ projectId, question, history, ...(stage ? { stage } : {}) }),
+        });
+        if(generation !== corpusChatGeneration) return;
+        const items = corpusChats[projectId] || (corpusChats[projectId] = []);
+        items.push({ role: 'user', content: question });
+        items.push({
+            role: 'assistant',
+            content: result.answer,
+            sources: (result.sources || []).map((source, index) => ({ ...source, number: index + 1 })),
+        });
+        if(items.length > 40) items.splice(0, items.length - 40);
+        corpusChatStatuses[projectId] = result.sourceScope
+            ? `Sources: ${result.sourceScope}. Chat history lasts for this browser session.`
+            : '';
+        if(currentProjectId === projectId){
+            input.value = '';
+            renderCorpusChat(projectId);
+        }
+    } catch(err){
+        if(generation === corpusChatGeneration){
+            corpusChatStatuses[projectId] = `Couldn't get an answer: ${err.message}`;
+            if(currentProjectId === projectId) renderCorpusChat(projectId);
+        }
+    } finally{
+        if(generation === corpusChatGeneration){
+            corpusChatPending.delete(projectId);
+            if(currentProjectId === projectId) renderCorpusChat(projectId);
+        }
+    }
+}
+
+function clearCorpusChat(){
+    const projectId = currentProjectId;
+    if(!projectId) return;
+    corpusChats[projectId] = [];
+    corpusChatStatuses[projectId] = '';
+    renderCorpusChat(projectId);
+}
+
 /* ---------------- Sign in / sign up / password reset ---------------- */
 const AUTH_FORMS = { signin: 'authSignin', signup: 'authSignup', forgot: 'authForgot', reset: 'authReset' };
 const PASSWORD_RULES = {
@@ -2226,13 +3817,28 @@ function leaveReset(notice){
 }
 
 async function signOut(notice){
-    try{ await flushSave(); } catch(e){ /* signing out anyway */ }
+    await flushAllDrafts();
+    if(dirtyDrafts.size){
+        alert('Some changes could not be saved. Please retry before signing out.');
+        return;
+    }
     authToken = null;
     currentUser = null;
+    manualPdfRequestId++;
     localStorage.removeItem('rf_token');
     projects = [];
     allTasks = [];
     currentProjectId = null;
+    analysisDocuments = [];
+    analysisDocumentsProjectId = null;
+    analysisDocumentsError = '';
+    corpusChatGeneration++;
+    Object.keys(corpusChats).forEach(id => delete corpusChats[id]);
+    Object.keys(corpusChatStatuses).forEach(id => delete corpusChatStatuses[id]);
+    corpusChatPending.clear();
+    const chatInput = document.getElementById('corpusChatInput');
+    chatInput.value = '';
+    chatInput.dataset.projectId = '';
     ethicsRequestId++;
     document.getElementById('homeView').hidden = false;
     document.getElementById('projectView').hidden = true;
@@ -2243,6 +3849,22 @@ async function signOut(notice){
 
 /* ---------------- Init ---------------- */
 let optionsLoaded = false;
+let deadlineRiskTimer = null;
+function scheduleDeadlineRiskRefresh(){
+    clearTimeout(deadlineRiskTimer);
+    const now = new Date();
+    const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    deadlineRiskTimer = setTimeout(() => {
+        renderProjectGrid();
+        scheduleDeadlineRiskRefresh();
+    }, nextDay - now + 100);
+}
+document.addEventListener('visibilitychange', () => {
+    if(!document.hidden && currentUser){
+        renderProjectGrid();
+        scheduleDeadlineRiskRefresh();
+    }
+});
 function startApp(){
     showHome();
     refreshProjects();
@@ -2252,6 +3874,7 @@ function startApp(){
     // Keep the tool lists current without a reload; the backend refreshes its catalog on a schedule.
     if(!toolsTimer) toolsTimer = setInterval(loadTools, 5 * 60 * 1000);
     if(!syncTimer) syncTimer = setInterval(syncProject, 15000);
+    scheduleDeadlineRiskRefresh();
 }
 
 window.addEventListener('DOMContentLoaded', async () => {

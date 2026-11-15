@@ -1,0 +1,60 @@
+:root {
+  /* Colleague's Theme Variables */
+  --primary: #0F4C81; /*[cite: 2] */
+  --primary-dark: #0A3558; /*[cite: 2] */
+  --secondary: #1E88E5; /*[cite: 2] */
+  --light-blue: #EAF4FF; /*[cite: 2] */
+  --orange: #F26A2E; /*[cite: 2] */
+  --orange-dark: #D9551D; /*[cite: 2] */
+  --cream: #FAF8F3; /*[cite: 2] */
+  --dark: #1F2937; /*[cite: 2] */
+  --muted: #6B7280; /*[cite: 2] */
+  --border: #E5E7EB; /*[cite: 2] */
+  --radius: 16px; /*[cite: 2] */
+  --shadow: 0 10px 25px rgba(0,0,0,0.08); /*[cite: 2] */
+
+  /* Mapped to ResearchFlow Base */
+  --text: var(--muted);
+  --text-h: var(--dark);
+  --bg: var(--cream);
+  --code-bg: var(--light-blue);
+  --accent: var(--orange);
+  --accent-bg: rgba(242, 106, 46, 0.1);
+  --accent-border: var(--orange-dark);
+  
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 1.125rem/145% var(--sans);
+  letter-spacing: 0.01125rem;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 64rem) {
+  :root { font-size: 1rem; }
+}
+
+body { margin: 0; }
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+h1 { font-family: var(--heading); font-weight: 500; color: var(--text-h); font-size: 3.5rem; letter-spacing: -0.105rem; margin: 2rem 0; }
+@media (max-width: 64rem) { h1 { font-size: 2.25rem; margin: 1.25rem 0; } }
+h2 { font-family: var(--heading); font-weight: 500; color: var(--text-h); font-size: 1.5rem; line-height: 118%; letter-spacing: -0.015rem; margin: 0 0 0.5rem; }
+@media (max-width: 64rem) { h2 { font-size: 1.25rem; margin: 0; } }
+code, .counter { font-family: var(--mono); display: inline-flex; border-radius: 1rem; color: var(--text-h); }
+code { font-size: 0.9375rem; line-height: 135%; padding: 0.25rem 0.5rem; background: var(--code-bg); color: var(--accent); }

@@ -70,4 +70,18 @@ function update(collection, fallback, mutateFn) {
   });
 }
 
-module.exports = { read, write, update };
+function updateStrict(collection, fallback, mutateFn) {
+  const prior = writeQueues.get(collection) || Promise.resolve();
+  const operation = prior.then(() => {
+    const current = readSync(collection, fallback);
+    const next = mutateFn(current);
+    fs.writeFileSync(filePathFor(collection), JSON.stringify(next, null, 2));
+    return next;
+  });
+  writeQueues.set(collection, operation.catch((err) => {
+    console.error(`[store] write failed for ${collection}:`, err);
+  }));
+  return operation;
+}
+
+module.exports = { read, write, update, updateStrict };

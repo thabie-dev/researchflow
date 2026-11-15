@@ -22,6 +22,8 @@ app.use('/api/templates', requireAuth, require('./routes/templates'));
 app.use('/api/export', requireAuth, require('./routes/exports'));
 app.use('/api/tasks', requireAuth, require('./routes/tasks'));
 app.use('/api/literature', requireAuth, require('./routes/literature'));
+app.use('/api/analysis', requireAuth, require('./routes/analysisDocuments'));
+app.use('/api/comparison', requireAuth, require('./routes/comparison'));
 app.use('/api/ethics', requireAuth, require('./routes/ethics'));
 app.use('/api/journals', require('./routes/journals'));
 app.use('/api/news', require('./routes/news'));

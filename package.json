@@ -5,25 +5,39 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build:editor": "esbuild frontend\\rich-editor-src.js --bundle --platform=browser --outfile=frontend\\rich-editor.js"
   },
   "dependencies": {
+    "@citation/csl-locale-en-us": "^1.0.0",
+    "@citation/csl-style-apa": "^1.0.0",
+    "@citation/csl-style-harvard-cite-them-right": "^1.0.0",
+    "@citation/csl-style-ieee": "^1.0.0",
+    "@citation/csl-style-vancouver": "^1.0.0",
+    "@tiptap/core": "^3.34.0",
+    "@tiptap/extension-table": "^3.34.0",
+    "@tiptap/extension-text-align": "^3.34.0",
+    "@tiptap/extension-text-style": "^3.34.0",
+    "@tiptap/starter-kit": "^3.34.0",
     "axios": "^1.7.2",
+    "citeproc": "^2.4.63",
     "cors": "^2.8.5",
     "docx": "^9.15.3",
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "jszip": "^3.10.2",
+    "multer": "^2.5.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^10.5.0",
-    "pdf-parse": "^1.1.1",
+    "pdf-parse": "^2.4.5",
     "pdfkit": "^0.20.2",
     "pptxgenjs": "^4.0.1",
     "uuid": "^9.0.1",
     "word-extractor": "^1.0.4"
   },
   "devDependencies": {
+    "esbuild": "^0.25.0",
     "nodemon": "^3.1.4"
   }
 }
